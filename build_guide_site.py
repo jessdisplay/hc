@@ -14,7 +14,9 @@ Edit the template, then rerun this — never edit the built file.
 
 import base64
 import io
+import json
 import re
+from html import escape as esc
 from pathlib import Path
 
 from PIL import Image
@@ -80,14 +82,95 @@ def hook_url():
     return url
 
 
+def asks_html():
+    """The auditor's requests, rendered from requests.json.
+
+    Kept as data rather than markup so logging a request during the audit is one
+    line and a push, with no HTML to get wrong under pressure.
+
+    Each entry: {"when", "what", "area", "status", "answered"}. A status of
+    "Answered" or "Closed" turns the marker green.
+    """
+    f = HERE / "requests.json"
+    items = json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
+    print(f"  auditor requests: {len(items)}")
+
+    if not items:
+        return (
+            '<p class="ask-empty">Nothing logged yet. Requests appear here as '
+            "the audit team makes them, newest first.</p>"
+        )
+
+    rows = []
+    for it in items:
+        done = str(it.get("status", "")).lower() in ("answered", "closed", "done")
+        area = esc(it.get("area", ""))
+        answered = esc(it.get("answered", ""))
+        rows.append(
+            f'<div class="ask{" done" if done else ""}">'
+            f'<span class="when">{esc(it.get("when", ""))}</span>'
+            f'<span class="what">{f"<b>{area}</b>" if area else ""}{esc(it.get("what", ""))}'
+            f'{f"<br />Answered with {answered}" if answered else ""}</span>'
+            f'<span class="status">{esc(it.get("status", "Open"))}</span>'
+            "</div>"
+        )
+    return '<div class="ask-list">' + "".join(rows) + "</div>"
+
+
+def access_html():
+    """The auditor's way into Rise, rendered from rise-access.json.
+
+    Empty until Jesse pastes the link in, and it says so rather than showing a
+    dead button.
+    """
+    f = HERE / "rise-access.json"
+    a = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    link = a.get("link", "").strip()
+    print(f"  rise access: {link or 'not set, the panel says so'}")
+
+    if not link:
+        return (
+            '<div class="key">'
+            "<h3>The audit team&rsquo;s link</h3>"
+            "<p>Not issued yet. The link and sign in for the audit team appear "
+            "here the moment they exist, and until then everything is reachable "
+            "through the files above.</p>"
+            "</div>"
+        )
+
+    creds = ""
+    if a.get("username") or a.get("password"):
+        creds = (
+            '<dl class="creds">'
+            + (f'<dt>User</dt><dd>{esc(a["username"])}</dd>' if a.get("username") else "")
+            + (f'<dt>Password</dt><dd>{esc(a["password"])}</dd>' if a.get("password") else "")
+            + "</dl>"
+        )
+
+    note = f'<p>{esc(a["note"])}</p>' if a.get("note") else ""
+
+    return (
+        '<div class="key">'
+        "<h3>The audit team&rsquo;s link</h3>"
+        "<p>Opens Harmony Care&rsquo;s live system. Sign in with the details "
+        "below if it asks.</p>"
+        f"{creds}{note}"
+        f'<a class="route-link" href="{esc(link)}" target="_blank" rel="noopener">'
+        "Open Rise <span aria-hidden=\"true\">&rarr;</span></a>"
+        "</div>"
+    )
+
+
 def main():
     print("assets:")
     subs = {
         "{{EMBLEM}}": data_uri("emblem.png", 260, fmt="PNG", flatten=False, alpha_floor=96),
-        "{{MURAL}}": data_uri("title-mural.png", 1600, quality=82),
+        "{{MURAL}}": data_uri("title-mural-hires.jpg", 2400, quality=86),
         "{{LOUNGE}}": data_uri("mural-lounge.png", 2200, quality=80),
         "{{RISEMARK}}": rise_mark(),
         "{{HOOK}}": hook_url(),
+        "{{ASKS}}": asks_html(),
+        "{{ACCESS}}": access_html(),
     }
 
     html = TEMPLATE.read_text(encoding="utf-8")

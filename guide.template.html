@@ -272,7 +272,7 @@ p { margin: 0; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 68%;
+  object-position: center 66%;
   display: block;
 }
 .cover-art::after {
@@ -527,6 +527,167 @@ p { margin: 0; }
 }
 .route-link:hover { background: var(--ink); border-color: var(--ink); }
 
+/* ---------- getting into Rise ---------- */
+
+.access {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.5rem;
+}
+
+.key {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  padding: 1.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--plate);
+}
+.key h3 { font-size: 1.0625rem; font-weight: 600; }
+.key p { font-size: .9375rem; line-height: 1.55; color: var(--muted); }
+
+.creds {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .5rem 1rem;
+  align-items: baseline;
+  padding: .9rem 1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule-soft);
+  border-radius: 2px;
+}
+.creds dt {
+  font-family: var(--cond);
+  font-size: .5625rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.creds dd {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .875rem;
+  word-break: break-all;
+}
+
+/* ---------- what the auditor has asked for ---------- */
+
+.asks { margin-top: 2.75rem; }
+
+.ask-list { display: flex; flex-direction: column; gap: .75rem; margin-top: 1.25rem; }
+
+.ask {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+  gap: .5rem 1.25rem;
+  align-items: baseline;
+  padding: .95rem 1.15rem;
+  background: var(--plate);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--tan);
+  border-radius: 2px;
+}
+.ask.done { border-left-color: var(--sage); }
+.ask .when {
+  font-family: var(--cond);
+  font-size: .6875rem;
+  letter-spacing: .06em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.ask .what { font-size: .9375rem; line-height: 1.5; }
+.ask .what b { display: block; font-family: var(--cond); font-size: .625rem; letter-spacing: .18em; text-transform: uppercase; color: var(--rose-text); font-weight: 400; margin-bottom: .2rem; }
+.ask .status {
+  font-family: var(--cond);
+  font-size: .5625rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: .3rem .65rem;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ask.done .status { color: var(--forest); border-color: var(--sage); }
+
+.ask-empty {
+  margin-top: 1.25rem;
+  padding: 1.6rem;
+  border: 1px dashed var(--rule);
+  border-radius: 2px;
+  font-size: .9375rem;
+  color: var(--muted);
+  background: var(--plate);
+}
+
+@media (max-width: 44rem) {
+  .ask { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- footer ---------- */
+
+.foot {
+  margin-top: 5rem;
+  border-top: 1px solid var(--rule);
+  background: var(--plate);
+}
+.foot-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 2.25rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 2.25rem 2.5rem;
+  align-items: start;
+}
+
+.foot-mark { display: flex; flex-direction: column; gap: 1rem; }
+.foot-mark .hc { display: flex; align-items: center; gap: .9rem; }
+.foot-mark .hc img { height: 3.2rem; width: auto; display: block; }
+.foot-mark p { font-size: .875rem; line-height: 1.55; color: var(--muted); max-width: 24rem; }
+
+.foot-col { display: flex; flex-direction: column; gap: .55rem; }
+.foot-col h4 {
+  font-family: var(--cond);
+  font-size: .625rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 .2rem;
+  font-weight: 400;
+}
+.foot-col a {
+  font-size: .875rem;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  width: fit-content;
+}
+.foot-col a:hover { border-bottom-color: var(--rose); }
+
+.foot-rule {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.75rem;
+}
+.foot-base {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.25rem 1.75rem 3rem;
+  border-top: 1px solid var(--rule-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem 2rem;
+  align-items: center;
+  font-size: .75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.foot-base .rs { display: flex; align-items: center; gap: .6rem; }
+.foot-base .rs svg { height: .85rem; width: auto; color: var(--muted); }
+
 /* ---------- how to use ---------- */
 
 .wrap {
@@ -750,6 +911,12 @@ p { margin: 0; }
           <span class="d">Drop anything in here, any filename. It gets renamed, filed and added to the index.</span>
         </a>
 
+        <a class="folder" href="https://drive.google.com/drive/folders/1ixMJvZMkSWGIoufqoklhy8ydamuEpnUu" target="_blank" rel="noopener">
+          <span class="k">The system itself</span>
+          <span class="n">Policies, Procedures and Forms</span>
+          <span class="d">The document set, reachable straight from here as well as through Rise. Still being worked through, so it fills up across the two days.</span>
+        </a>
+
         <a class="folder" href="https://drive.google.com/drive/folders/1RvJ6l7mATku44y8ogtgGKuiXnKLdeBXp" target="_blank" rel="noopener">
           <span class="k">Reference</span>
           <span class="n">CPG documents</span>
@@ -824,6 +991,50 @@ p { margin: 0; }
         </form>
 
       </div>
+
+      <!-- ============ what the auditor has asked for ============ -->
+      <div class="asks" id="asks">
+        <div class="sec-head">
+          <span class="eyebrow">Requests</span>
+          <h2>What the audit team has asked for</h2>
+        </div>
+        <p class="lede">
+          Every request from CPG is logged here as it comes in, with what it was
+          answered with. Anything still open is what we are working on right now.
+        </p>
+        {{ASKS}}
+        <p class="rise-note">
+          The full log, including who asked and when it closed, is in the
+          <a href="https://docs.google.com/spreadsheets/d/1RtfLXAXG6cIlX0oWcvN8p73IM3zFYgoe28LYmbhHx8M/edit" target="_blank" rel="noopener">Auditor requests sheet</a>.
+        </p>
+      </div>
+
+      <!-- ============ getting into Rise ============ -->
+      <div class="asks" id="access">
+        <div class="sec-head">
+          <span class="eyebrow">Access</span>
+          <h2>Getting into Rise</h2>
+        </div>
+        <p class="lede">
+          Harmony Care&rsquo;s live system. The audit team can look through it
+          directly rather than working from exports.
+        </p>
+
+        <div class="access">
+          {{ACCESS}}
+
+          <div class="key">
+            <h3>If Rise is not reachable</h3>
+            <p>
+              Everything the audit needs also sits in Drive, so nothing depends
+              on the platform being up. The document set, the evidence folders
+              and the index are all linked above.
+            </p>
+            <a class="route-link" href="#files">Back to the files &uarr;</a>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -911,6 +1122,54 @@ p { margin: 0; }
       </div>
     </div>
   </section>
+
+  <!-- ============ footer ============ -->
+  <footer class="foot">
+    <div class="foot-inner">
+      <div class="foot-mark">
+        <div class="hc">
+          <img src="{{EMBLEM}}" alt="Harmony Care Support Services" />
+          <div class="wordmark">
+            <span class="a">HARMONY</span><span class="b">CARE</span>
+            <div class="sub">SUPPORT SERVICES</div>
+          </div>
+        </div>
+        <p>
+          Independence, dignity, choice and inclusion. Harmony Care Support
+          Services Pty&nbsp;Ltd, 38 Nash St, Gympie QLD 4570.
+          ABN 99 691 543 834 &middot; ACN 691 543 834.
+        </p>
+      </div>
+
+      <div class="foot-col">
+        <h4>The room</h4>
+        <a href="#files">Evidence and files</a>
+        <a href="#asks">Auditor requests</a>
+        <a href="#access">Getting into Rise</a>
+        <a href="#how">How to use Rise</a>
+      </div>
+
+      <div class="foot-col">
+        <h4>In Drive</h4>
+        <a href="https://docs.google.com/spreadsheets/d/1ZgoiX8scx2vLdZbSyBSjJtGb-4JjNl3pksI5qgVfCKs/edit" target="_blank" rel="noopener">Evidence Index</a>
+        <a href="https://drive.google.com/drive/folders/1wXqLJvn3EPOe-jQRm_LvxNzcpPgLs9Sl" target="_blank" rel="noopener">Evidence folders</a>
+        <a href="https://drive.google.com/drive/folders/1ixMJvZMkSWGIoufqoklhy8ydamuEpnUu" target="_blank" rel="noopener">Policies and forms</a>
+        <a href="https://drive.google.com/drive/folders/1vt3djHYlauK0l0wiPjBHX5yMzq57Lb8T" target="_blank" rel="noopener">Intake</a>
+      </div>
+
+      <div class="foot-col">
+        <h4>The audit</h4>
+        <a href="https://drive.google.com/drive/folders/1RvJ6l7mATku44y8ogtgGKuiXnKLdeBXp" target="_blank" rel="noopener">CPG documents</a>
+        <a href="https://riseos.care/harmony" target="_blank" rel="noopener">Open Rise</a>
+      </div>
+    </div>
+
+    <div class="foot-base">
+      <span>NDIS provisional certification audit &middot; 18&ndash;19 August 2026</span>
+      <span>Certification Partner Global &middot; File HS/6/A61/1868</span>
+      <span class="rs">{{RISEMARK}} <span>Runs on Rise</span></span>
+    </div>
+  </footer>
 </main>
 
 <script>
