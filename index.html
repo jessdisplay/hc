@@ -117,15 +117,16 @@ p { margin: 0; }
   min-height: 14rem;
 }
 /* Absolute, so the painting's intrinsic height cannot inflate the grid row.
-   It is a portrait painting, so a wide viewport shows a band of it: 58%
-   keeps Vik at the records and the woman in the wheelchair in frame. */
+   It is a portrait painting, so a wide viewport shows a band of it. 68% is
+   the band that reads as a whole scene: the turntable, the woman in the
+   wheelchair holding a record, and the monstera, with Vik standing beside her. */
 .cover-art img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 58%;
+  object-position: center 68%;
   display: block;
 }
 .cover-art::after {
