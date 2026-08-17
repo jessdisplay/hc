@@ -84,11 +84,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, .eyebrow, .marks, .cover-meta, .scroll-cue {
+h1, h2, h3, .eyebrow, .marks, .cover-meta, .scroll-cue, .rise-link, .slot-tag {
   font-family: var(--cond);
 }
 
-h1, h2 { text-wrap: balance; margin: 0; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
 p { margin: 0; }
 
 :focus-visible {
@@ -347,6 +347,96 @@ p { margin: 0; }
   .wordmark .a, .wordmark .b { font-size: 1.3rem; }
   .cover-art img { object-position: center 30%; }
 }
+
+/* ---------- how to use ---------- */
+
+.wrap {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.75rem;
+}
+
+.how { padding: 4.5rem 0 5.5rem; }
+
+.sec-head {
+  border-top: 2px solid var(--head);
+  padding-top: .7rem;
+  margin-bottom: 1.5rem;
+}
+.how h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.how .lede {
+  max-width: 42rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.rise-link {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+  margin-top: 1.75rem;
+  padding: .85rem 1.25rem;
+  font-size: .8125rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--plate);
+  background: var(--forest);
+  border: 1px solid var(--forest);
+  border-radius: 2px;
+  transition: background .15s, border-color .15s;
+}
+.rise-link:hover { background: var(--ink); border-color: var(--ink); }
+.rise-link svg { height: .95rem; width: auto; color: currentColor; }
+.rise-link .arrow { font-family: var(--serif); font-size: 1rem; }
+
+.rise-note {
+  margin-top: .8rem;
+  font-size: .875rem;
+  color: var(--muted);
+}
+
+.steps {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 2.25rem 2rem;
+}
+
+.step { display: flex; flex-direction: column; gap: .85rem; }
+
+/* the video sits here once it exists; until then the slot says so plainly */
+.slot {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.slot video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.slot-tag {
+  font-size: .625rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: .35rem .8rem;
+  background: var(--plate);
+}
+
+.step h3 { font-size: 1.0625rem; font-weight: 600; letter-spacing: .01em; }
+.step p { font-size: .9375rem; line-height: 1.55; color: var(--muted); }
+.step p b { color: var(--ink); font-weight: 600; }
 </style>
 
 <div class="gate" id="gate">
@@ -438,6 +528,91 @@ p { margin: 0; }
     </div>
 
   </div>
+
+  <!-- ============ how to use ============ -->
+  <section class="how" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">How to use this</span>
+        <h2>Harmony Care&rsquo;s quality system lives in Rise</h2>
+      </div>
+
+      <p class="lede">
+        Every policy, procedure, form and register sits in one place, linked to
+        the standard it answers to. Open it and follow along, or watch the short
+        clips below for each part of it.
+      </p>
+
+      <a class="rise-link" href="https://riseos.care/harmony" target="_blank" rel="noopener">
+        {{RISEMARK}}
+        <span>Open Harmony Care in Rise</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
+      </a>
+
+      <p class="rise-note">Opens riseos.care/harmony in a new tab.</p>
+
+      <div class="steps">
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Finding your way around</h3>
+          <p>
+            Where things sit when you first sign in, and how the library, the
+            registers and the standards map relate to each other.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>The document library</h3>
+          <p>
+            Everything carries a code. <b>POL</b> for policies, <b>PRO</b> for
+            procedures, <b>FRM</b> for forms, <b>REG</b> for registers. The code
+            tells you what kind of document you are looking at before you open it.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Following a standard to its evidence</h3>
+          <p>
+            Start at a practice standard and step through to the policy, the
+            procedure that enacts it, the form that records it and the register
+            it lands in. This is the path an auditor takes.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Registers</h3>
+          <p>
+            Incidents, complaints, risk and continuous improvement. Auditors
+            usually open registers first, so this is where a system either holds
+            up or does not.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Completing a form</h3>
+          <p>
+            What happens when someone fills one in, and how the entry reaches
+            the matching register without anyone retyping it.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Closing the loop</h3>
+          <p>
+            How a finding becomes an action, and how the continuous improvement
+            register shows it through to done.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>

@@ -84,11 +84,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, .eyebrow, .marks, .cover-meta, .scroll-cue {
+h1, h2, h3, .eyebrow, .marks, .cover-meta, .scroll-cue, .rise-link, .slot-tag {
   font-family: var(--cond);
 }
 
-h1, h2 { text-wrap: balance; margin: 0; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
 p { margin: 0; }
 
 :focus-visible {
@@ -347,6 +347,96 @@ p { margin: 0; }
   .wordmark .a, .wordmark .b { font-size: 1.3rem; }
   .cover-art img { object-position: center 30%; }
 }
+
+/* ---------- how to use ---------- */
+
+.wrap {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.75rem;
+}
+
+.how { padding: 4.5rem 0 5.5rem; }
+
+.sec-head {
+  border-top: 2px solid var(--head);
+  padding-top: .7rem;
+  margin-bottom: 1.5rem;
+}
+.how h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.how .lede {
+  max-width: 42rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.rise-link {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+  margin-top: 1.75rem;
+  padding: .85rem 1.25rem;
+  font-size: .8125rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--plate);
+  background: var(--forest);
+  border: 1px solid var(--forest);
+  border-radius: 2px;
+  transition: background .15s, border-color .15s;
+}
+.rise-link:hover { background: var(--ink); border-color: var(--ink); }
+.rise-link svg { height: .95rem; width: auto; color: currentColor; }
+.rise-link .arrow { font-family: var(--serif); font-size: 1rem; }
+
+.rise-note {
+  margin-top: .8rem;
+  font-size: .875rem;
+  color: var(--muted);
+}
+
+.steps {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 2.25rem 2rem;
+}
+
+.step { display: flex; flex-direction: column; gap: .85rem; }
+
+/* the video sits here once it exists; until then the slot says so plainly */
+.slot {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.slot video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.slot-tag {
+  font-size: .625rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: .35rem .8rem;
+  background: var(--plate);
+}
+
+.step h3 { font-size: 1.0625rem; font-weight: 600; letter-spacing: .01em; }
+.step p { font-size: .9375rem; line-height: 1.55; color: var(--muted); }
+.step p b { color: var(--ink); font-weight: 600; }
 </style>
 
 <div class="gate" id="gate">
@@ -443,6 +533,96 @@ p { margin: 0; }
     </div>
 
   </div>
+
+  <!-- ============ how to use ============ -->
+  <section class="how" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">How to use this</span>
+        <h2>Harmony Care&rsquo;s quality system lives in Rise</h2>
+      </div>
+
+      <p class="lede">
+        Every policy, procedure, form and register sits in one place, linked to
+        the standard it answers to. Open it and follow along, or watch the short
+        clips below for each part of it.
+      </p>
+
+      <a class="rise-link" href="https://riseos.care/harmony" target="_blank" rel="noopener">
+        <svg role="img" aria-label="Rise" viewBox="0 0 488 203" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M25.6385 123.509V198.858H0V123.509H25.6385ZM0 104.348V38.3217H25.6385V104.348H0ZM25.6385 123.509V104.348H65.6994C80.4772 104.348 90.9817 101.587 97.213 96.0627C103.623 90.3668 106.828 82.0808 106.828 71.2058C106.828 60.5034 103.623 52.3903 97.213 46.8664C90.9817 41.17 80.4772 38.3217 65.6994 38.3217H25.6385V17.6074H73.1773C93.296 17.6074 108.43 22.527 118.579 32.3664C128.906 42.2057 134.069 54.8933 134.069 70.429C134.069 82.8576 130.775 93.6461 124.187 102.796C117.6 111.772 107.718 117.9 94.5426 121.179L144.752 198.858H116.442L67.8356 123.509H25.6385Z" fill="currentColor"/>
+<path d="M220.356 32.1073C210.208 32.1073 203.264 25.634 203.264 16.0536C203.264 6.21431 210.208 0 220.356 0C230.505 0 237.449 6.21431 237.449 16.0536C237.449 25.634 230.505 32.1073 220.356 32.1073ZM163.204 162.09L186.172 99.4289C189.377 90.8843 193.116 80.2682 193.116 76.6431C193.116 73.2771 191.78 72.2414 189.644 72.2414C181.632 72.2414 169.881 85.9649 159.732 102.277H153.322C165.607 79.2324 185.638 58.5181 205.134 58.5181C214.748 58.5181 219.289 65.2503 219.289 72.7592C219.289 79.4914 215.817 88.554 211.544 99.9466L188.308 162.867C186.172 168.563 182.699 177.626 182.699 181.251C182.699 185.135 183.768 187.206 187.507 187.206C197.389 187.206 209.406 170.894 218.22 151.992H224.362C214.748 175.037 197.389 201.188 175.489 201.188C161.334 201.188 156.527 193.938 156.527 184.616C156.527 178.661 159.465 172.447 163.204 162.09Z" fill="currentColor"/>
+<path d="M255.737 158.723C255.737 165.283 258.942 171.066 265.351 176.071C271.761 181.078 279.951 183.581 289.922 183.581C298.468 183.581 305.589 181.854 311.287 178.401C317.162 174.95 320.101 170.375 320.101 164.679C320.101 161.917 319.299 159.413 317.697 157.169C316.273 154.753 314.581 152.768 312.623 151.215C310.842 149.661 307.994 148.107 304.076 146.553C300.159 144.827 296.866 143.533 294.194 142.669C291.524 141.806 287.607 140.598 282.444 139.045C274.966 136.801 269.001 134.902 264.55 133.348C260.277 131.622 255.47 129.291 250.128 126.357C244.787 123.25 240.781 119.625 238.11 115.482C235.618 111.167 234.371 106.247 234.371 100.723C234.371 89.8475 239.178 80.3538 248.793 72.2407C258.408 64.1275 271.138 60.071 286.984 60.071C301.939 60.071 314.225 63.5234 323.84 70.4282C333.632 77.333 339.596 86.827 341.733 98.9106H315.828C315.65 94.5952 313.068 90.366 308.083 86.2231C303.097 82.08 296.331 80.0085 287.785 80.0085C279.951 80.0085 273.452 81.6484 268.289 84.9281C263.304 88.2082 260.811 92.6963 260.811 98.393C260.811 101.845 262.503 104.952 265.886 107.714C269.446 110.303 273.185 112.288 277.102 113.67C281.198 115.05 286.984 116.776 294.462 118.848C300.872 120.574 305.857 122.042 309.417 123.25C312.979 124.286 317.43 126.098 322.771 128.687C328.29 131.104 332.474 133.607 335.324 136.196C338.35 138.613 340.932 141.893 343.069 146.036C345.383 150.178 346.541 154.753 346.541 159.759C346.541 172.878 341.466 183.408 331.318 191.348C321.169 199.116 307.192 203 289.388 203C272.651 203 259.12 199.289 248.793 191.866C238.644 184.443 232.324 173.396 229.832 158.723H255.737Z" fill="currentColor"/>
+<path d="M356.336 119.107C358.472 100.637 365.416 86.2231 377.167 75.8657C389.093 65.3359 404.583 60.071 423.635 60.071C441.62 60.071 456.665 65.9401 468.77 77.6782C481.059 89.2435 487.2 106.678 487.2 129.982V137.75H382.776V119.107H461.025C460.319 106.505 456.396 96.8392 449.273 90.1071C442.158 83.3746 433.606 80.0085 423.635 80.0085C411.883 80.0085 402.542 83.461 395.595 90.366C388.648 97.098 384.381 106.678 382.776 119.107H356.336ZM355.802 137.75H382.776C383.49 152.077 387.405 163.125 394.528 170.893C401.652 178.661 411.799 182.544 424.971 182.544C441.889 182.544 453.548 175.812 459.958 162.348H486.931C476.96 189.104 456.312 202.482 424.971 202.482C404.676 202.482 388.388 196.786 376.099 185.393C363.992 173.827 357.226 157.947 355.802 137.75Z" fill="currentColor"/>
+</svg>
+        <span>Open Harmony Care in Rise</span>
+        <span class="arrow" aria-hidden="true">&rarr;</span>
+      </a>
+
+      <p class="rise-note">Opens riseos.care/harmony in a new tab.</p>
+
+      <div class="steps">
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Finding your way around</h3>
+          <p>
+            Where things sit when you first sign in, and how the library, the
+            registers and the standards map relate to each other.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>The document library</h3>
+          <p>
+            Everything carries a code. <b>POL</b> for policies, <b>PRO</b> for
+            procedures, <b>FRM</b> for forms, <b>REG</b> for registers. The code
+            tells you what kind of document you are looking at before you open it.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Following a standard to its evidence</h3>
+          <p>
+            Start at a practice standard and step through to the policy, the
+            procedure that enacts it, the form that records it and the register
+            it lands in. This is the path an auditor takes.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Registers</h3>
+          <p>
+            Incidents, complaints, risk and continuous improvement. Auditors
+            usually open registers first, so this is where a system either holds
+            up or does not.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Completing a form</h3>
+          <p>
+            What happens when someone fills one in, and how the entry reaches
+            the matching register without anyone retyping it.
+          </p>
+        </article>
+
+        <article class="step">
+          <div class="slot"><span class="slot-tag">Clip to come</span></div>
+          <h3>Closing the loop</h3>
+          <p>
+            How a finding becomes an action, and how the continuous improvement
+            register shows it through to done.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>
