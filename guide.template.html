@@ -621,7 +621,7 @@ p { margin: 0; }
 <div class="gate" id="gate">
   <div class="gate-art">
     <img src="{{LOUNGE}}" alt="" />
-    <video id="lounge-loop" src="media/lounge-loop.mp4" muted loop playsinline preload="auto" aria-hidden="true"></video>
+    <video id="lounge-loop" src="media/lounge-loop.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
   </div>
   <div class="gate-scrim"></div>
 
@@ -922,10 +922,20 @@ p { margin: 0; }
   if (!v) return;
   if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  v.addEventListener("playing", function () { v.classList.add("on"); }, { once: true });
+  v.addEventListener("playing", function () { v.classList.add("on"); });
 
-  var go = v.play();
-  if (go && go.catch) go.catch(function () { /* still stays */ });
+  function nudge() {
+    if (!v.paused) return;
+    var go = v.play();
+    if (go && go.catch) go.catch(function () { /* the still stays */ });
+  }
+
+  nudge();
+  // Some browsers hold autoplay back until the person touches the page, and
+  // typing the password counts.
+  ["pointerdown", "keydown", "visibilitychange"].forEach(function (ev) {
+    document.addEventListener(ev, nudge, { passive: true });
+  });
 })();
 
 // The password is stored as a SHA-256 digest so it is not sitting in the page
