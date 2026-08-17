@@ -68,6 +68,18 @@ def rise_mark():
     return svg.strip()
 
 
+def hook_url():
+    """The deployed Apps Script /exec URL, or empty until it exists.
+
+    Kept in a file rather than the template so switching the drop panel on is a
+    one-line change with no HTML editing.
+    """
+    f = HERE / "hook-url.txt"
+    url = f.read_text(encoding="utf-8").strip() if f.exists() else ""
+    print(f"  intake hook: {url or 'not set, drop panel stays off'}")
+    return url
+
+
 def main():
     print("assets:")
     subs = {
@@ -75,6 +87,7 @@ def main():
         "{{MURAL}}": data_uri("title-mural.png", 1600, quality=82),
         "{{LOUNGE}}": data_uri("mural-lounge.png", 2200, quality=80),
         "{{RISEMARK}}": rise_mark(),
+        "{{HOOK}}": hook_url(),
     }
 
     html = TEMPLATE.read_text(encoding="utf-8")

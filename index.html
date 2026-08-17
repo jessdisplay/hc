@@ -348,6 +348,164 @@ p { margin: 0; }
   .cover-art img { object-position: center 30%; }
 }
 
+/* the way in, sitting on the cover plate */
+.cover-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .6rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+}
+.cover-nav a {
+  font-family: var(--cond);
+  font-size: .75rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: .5rem .9rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink);
+  transition: border-color .15s, background .15s;
+}
+.cover-nav a:hover { border-color: var(--forest); background: var(--cream); }
+.cover-nav a.primary {
+  color: var(--plate);
+  background: var(--forest);
+  border-color: var(--forest);
+}
+.cover-nav a.primary:hover { background: var(--ink); border-color: var(--ink); }
+
+/* ---------- files and evidence ---------- */
+
+.files { padding: 4.5rem 0 0; }
+
+.files .lede {
+  max-width: 42rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.folders {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.folder {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  padding: 1.1rem 1.15rem;
+  background: var(--plate);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+.folder:hover { border-color: var(--forest); box-shadow: var(--plate-shadow); }
+.folder .k {
+  font-family: var(--cond);
+  font-size: .625rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--rose-text);
+}
+.folder .n { font-family: var(--cond); font-size: 1.0625rem; font-weight: 600; }
+.folder .d { font-size: .875rem; line-height: 1.5; color: var(--muted); }
+
+/* the two ways in */
+.routes {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.5rem;
+}
+
+.route {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  padding: 1.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--plate);
+}
+.route h3 { font-size: 1.0625rem; font-weight: 600; }
+.route p { font-size: .9375rem; line-height: 1.55; color: var(--muted); }
+
+.route-tag {
+  align-self: start;
+  font-family: var(--cond);
+  font-size: .5625rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  padding: .3rem .65rem;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  background: var(--paper);
+}
+.route-tag.live { color: var(--forest); border-color: var(--sage); }
+
+.drop-field { display: flex; flex-direction: column; gap: .35rem; }
+.drop-field span {
+  font-family: var(--cond);
+  font-size: .5625rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.drop-field input, .drop-field select, .drop-field textarea {
+  font: inherit;
+  font-size: .9375rem;
+  padding: .5rem .6rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+.drop-field textarea { resize: vertical; min-height: 4.5rem; }
+
+.route button {
+  font-family: var(--cond);
+  font-size: .75rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: .7rem 1rem;
+  color: var(--plate);
+  background: var(--forest);
+  border: 1px solid var(--forest);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.route button:disabled { background: var(--rule); border-color: var(--rule); color: var(--muted); cursor: not-allowed; }
+.route button:not(:disabled):hover { background: var(--ink); border-color: var(--ink); }
+
+.route .out { font-size: .875rem; line-height: 1.5; }
+.route .out[hidden] { display: none; }
+.route .out.bad { color: var(--rose-text); }
+
+.route-link {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-family: var(--cond);
+  font-size: .75rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: .7rem 1rem;
+  color: var(--plate);
+  background: var(--forest);
+  border: 1px solid var(--forest);
+  border-radius: 2px;
+}
+.route-link:hover { background: var(--ink); border-color: var(--ink); }
+
 /* ---------- how to use ---------- */
 
 .wrap {
@@ -529,10 +687,128 @@ p { margin: 0; }
           </div>
         </dl>
 
+        <nav class="cover-nav">
+          <a class="primary" href="#files">Evidence and files</a>
+          <a href="#how">How to use Rise</a>
+          <a href="https://drive.google.com/drive/folders/1ZgoiX8scx2vLdZbSyBSjJtGb-4JjNl3pksI5qgVfCKs" target="_blank" rel="noopener">Evidence index</a>
+          <a href="https://riseos.care/harmony" target="_blank" rel="noopener">Open Rise</a>
+        </nav>
+
       </div>
     </div>
 
   </div>
+
+  <!-- ============ files and evidence ============ -->
+  <section class="files" id="files">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Evidence and files</span>
+        <h2>Everything the auditor asks for, and where it sits</h2>
+      </div>
+
+      <p class="lede">
+        The audit team reads one thing to find their way around: the Evidence
+        Index. Every item on it carries a plain English note of what it is,
+        which part of the scope it answers to, who provided it, and a link
+        straight to the file.
+      </p>
+
+      <div class="folders">
+        <a class="folder" href="https://docs.google.com/spreadsheets/d/1ZgoiX8scx2vLdZbSyBSjJtGb-4JjNl3pksI5qgVfCKs/edit" target="_blank" rel="noopener">
+          <span class="k">Start here</span>
+          <span class="n">Evidence Index</span>
+          <span class="d">The running list. What each item is, the scope area it serves, who provided it, and a direct link to open it.</span>
+        </a>
+
+        <a class="folder" href="https://drive.google.com/drive/folders/1wXqLJvn3EPOe-jQRm_LvxNzcpPgLs9Sl" target="_blank" rel="noopener">
+          <span class="k">Filed</span>
+          <span class="n">Evidence</span>
+          <span class="d">Eleven folders matching the audit scope: Core 1 to 4, Modules 1, 2A, 4 and 5A, plus Workforce, Insurances and Registers.</span>
+        </a>
+
+        <a class="folder" href="https://drive.google.com/drive/folders/1vt3djHYlauK0l0wiPjBHX5yMzq57Lb8T" target="_blank" rel="noopener">
+          <span class="k">Anything new</span>
+          <span class="n">Intake</span>
+          <span class="d">Drop anything in here, any filename. It gets renamed, filed and added to the index.</span>
+        </a>
+
+        <a class="folder" href="https://drive.google.com/drive/folders/1RvJ6l7mATku44y8ogtgGKuiXnKLdeBXp" target="_blank" rel="noopener">
+          <span class="k">Reference</span>
+          <span class="n">CPG documents</span>
+          <span class="d">The audit plan, the revised High Intensity Support Skills Descriptors, and the business plan.</span>
+        </a>
+      </div>
+
+      <div class="routes">
+
+        <div class="route">
+          <span class="route-tag live">Working now</span>
+          <h3>Drop it into the folder</h3>
+          <p>
+            Open Intake in Drive and drag files in. Nothing to fill in, nothing
+            to name. Filing, the note for the auditor and the index row are
+            handled after it lands.
+          </p>
+          <a class="route-link" href="https://drive.google.com/drive/folders/1vt3djHYlauK0l0wiPjBHX5yMzq57Lb8T" target="_blank" rel="noopener">
+            Open Intake in Drive
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+
+        <form class="route" id="drop-form">
+          <span class="route-tag" id="drop-state">Not connected yet</span>
+          <h3>Or send it from here</h3>
+          <p id="drop-help">
+            Upload straight into the audit folder, with the note and the filing
+            decided as you send it.
+          </p>
+
+          <label class="drop-field">
+            <span>File</span>
+            <input type="file" id="drop-file" />
+          </label>
+
+          <label class="drop-field">
+            <span>Where it belongs</span>
+            <select id="drop-area">
+              <option value="">Not sure, leave it in Intake</option>
+              <option>Core 1 - Rights and Responsibilities</option>
+              <option>Core 2 - Governance and Operational Management</option>
+              <option>Core 3 - Provision of Supports</option>
+              <option>Core 4 - Support Provision Environment</option>
+              <option>Module 1 - High Intensity Daily Personal Activities</option>
+              <option>Module 2A - Implementing Behaviour Support Plans</option>
+              <option>Module 4 - Specialised Support Coordination</option>
+              <option>Module 5A - Supported Independent Living</option>
+              <option>Workforce</option>
+              <option>Insurances and Registrations</option>
+              <option>Registers</option>
+            </select>
+          </label>
+
+          <label class="drop-field">
+            <span>Note for the auditor</span>
+            <textarea id="drop-note" placeholder="What this is, and what it shows."></textarea>
+          </label>
+
+          <label class="drop-field">
+            <span>Provided by</span>
+            <input type="text" id="drop-by" placeholder="Vik, Brit, Jesse" />
+          </label>
+
+          <label class="drop-field">
+            <span>PIN</span>
+            <input type="password" id="drop-pin" autocomplete="off" />
+          </label>
+
+          <button type="submit" id="drop-send" disabled>Send to the audit folder</button>
+          <p class="out" id="drop-out" role="status" hidden></p>
+        </form>
+
+      </div>
+    </div>
+  </section>
 
   <!-- ============ how to use ============ -->
   <section class="how" id="how">
@@ -683,6 +959,82 @@ p { margin: 0; }
     card.classList.remove("wrong");
     void card.offsetWidth;
     card.classList.add("wrong");
+  });
+})();
+
+// The drop panel. It only wakes up once the intake hook has been deployed and
+// its URL written into hook-url.txt; until then it says so rather than
+// pretending to work, and the Drive route beside it carries the load.
+(function () {
+  var HOOK = "";
+
+  var form  = document.getElementById("drop-form");
+  var send  = document.getElementById("drop-send");
+  var state = document.getElementById("drop-state");
+  var help  = document.getElementById("drop-help");
+  var out   = document.getElementById("drop-out");
+
+  if (!HOOK) {
+    help.textContent = "This half is not switched on yet. Until it is, use the " +
+      "Drive route beside it, which does the same job.";
+    return;
+  }
+
+  state.textContent = "Working now";
+  state.classList.add("live");
+  send.disabled = false;
+
+  function say(message, bad) {
+    out.hidden = false;
+    out.textContent = message;
+    out.classList.toggle("bad", !!bad);
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var file = document.getElementById("drop-file").files[0];
+    if (!file) return say("Pick a file first.", true);
+
+    send.disabled = true;
+    say("Sending " + file.name + "…");
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      var payload = {
+        pin: document.getElementById("drop-pin").value,
+        filename: file.name,
+        mimeType: file.type,
+        data: String(reader.result).split(",")[1],
+        area: document.getElementById("drop-area").value,
+        note: document.getElementById("drop-note").value,
+        by: document.getElementById("drop-by").value
+      };
+
+      // text/plain keeps this a simple request, so the browser skips the
+      // preflight that Apps Script cannot answer
+      fetch(HOOK, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          send.disabled = false;
+          if (!r.ok) return say(r.error || "That did not go through.", true);
+          say(file.name + " is in " + r.area + " and on the index.");
+          form.reset();
+        })
+        .catch(function () {
+          send.disabled = false;
+          say("That did not go through. Use the Drive route instead.", true);
+        });
+    };
+    reader.onerror = function () {
+      send.disabled = false;
+      say("Could not read that file.", true);
+    };
+    reader.readAsDataURL(file);
   });
 })();
 </script>
