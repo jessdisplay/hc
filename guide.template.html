@@ -97,47 +97,91 @@ p { margin: 0; }
   border-radius: 2px;
 }
 
-/* ---------- the cover ---------- */
+/* ---------- the cover ----------
+   Same structure as the Business Plan title page: the painting runs full
+   bleed, a soft fade carries it into a solid plate, and all the type sits
+   on that plate. Nothing is set over the artwork.
+   ------------------------------------------------------------------ */
 
 .cover {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.cover-art {
+  position: relative;
+  overflow: hidden;
+  background: var(--artpaper);
+  min-height: 14rem;
+}
+/* the painting is portrait, so a wide viewport shows a band of it.
+   34% keeps the record wall and the wheelchair user in frame. */
+.cover-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 34%;
+  display: block;
+}
+.cover-art::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 8rem;
+  background: linear-gradient(to bottom, transparent, var(--plate) 88%);
+  pointer-events: none;
+}
+
+.cover-plate { background: var(--plate); }
+
+.cover-inner {
   max-width: 78rem;
   margin: 0 auto;
-  padding: 2.5rem 1.75rem 4rem;
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
-  align-items: start;
-  gap: 3.5rem 4rem;
+  padding: 1.75rem 1.75rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* both marks, side by side, divided by a hairline */
-.marks {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding-bottom: 2.5rem;
-  border-bottom: 1px solid var(--rule);
-}
-.marks .hc img { height: 7.4rem; width: auto; display: block; }
+.marks { display: flex; align-items: center; gap: 1.5rem; }
+.marks .hc { display: flex; align-items: center; gap: 1rem; }
+.marks .hc img { height: 4.6rem; width: auto; display: block; }
 .marks .bar { width: 1px; align-self: stretch; background: var(--rule); }
-.marks .rs { display: flex; flex-direction: column; gap: .45rem; }
-.marks .rs svg { height: 1.05rem; width: auto; display: block; color: var(--ink); }
-.marks .rs span {
-  font-size: .625rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted);
+
+.wordmark { line-height: 1; font-family: var(--cond); }
+.wordmark .a { font-size: 1.55rem; font-weight: 700; letter-spacing: -.01em; }
+.wordmark .b { font-size: 1.55rem; font-weight: 200; letter-spacing: .01em; }
+.wordmark .sub {
+  font-size: .5625rem;
+  letter-spacing: .34em;
+  color: var(--muted);
+  margin-top: .3rem;
+  border-top: 1px solid var(--rule);
+  padding-top: .3rem;
 }
 
-.cover-type { display: flex; flex-direction: column; gap: 1.5rem; padding-top: .5rem; }
+.marks .rs { display: flex; flex-direction: column; gap: .4rem; }
+.marks .rs svg { height: 1.05rem; width: auto; display: block; color: var(--ink); }
+.marks .rs span {
+  font-size: .5625rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted);
+}
 
 .eyebrow {
   font-size: .6875rem;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--rose-text);
+  display: block;
+  margin-bottom: .55rem;
 }
 
 .cover h1 {
-  font-size: clamp(2.6rem, 6.4vw, 4.4rem);
+  font-size: clamp(2.4rem, 5.6vw, 3.9rem);
   font-weight: 700;
   line-height: .95;
   letter-spacing: -.005em;
@@ -149,17 +193,10 @@ p { margin: 0; }
   display: block;
 }
 
-.lede {
-  max-width: 34rem;
-  font-size: 1.1875rem;
-  line-height: 1.5;
-}
-
 .cover-meta {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
   gap: 1.25rem 2rem;
-  margin-top: .75rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--rule);
   font-size: .8125rem;
@@ -174,98 +211,70 @@ p { margin: 0; }
 }
 .cover-meta dd { margin: 0; color: var(--ink); }
 
-/* the illustration, always on paper in both themes */
-.plate {
-  background: var(--artpaper);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: var(--plate-shadow);
-}
-.plate { display: flex; justify-content: center; }
-/* the whole plate stays visible — the artwork is a finished painting, never cropped */
-.plate img { display: block; width: auto; max-width: 100%; max-height: 60vh; height: auto; }
-
-.scroll-cue {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  font-size: .6875rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.scroll-cue::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--rule-soft);
-}
-
-@media (max-width: 60rem) {
-  .cover {
-    grid-template-columns: minmax(0, 1fr);
-    padding-bottom: 3rem;
-  }
-  .cover-type { order: 2; }
-  .plate { order: 3; max-width: 26rem; }
-  .marks .hc img { height: 4.4rem; }
+@media (max-width: 44rem) {
+  .marks { flex-wrap: wrap; gap: 1rem; }
+  .marks .bar { display: none; }
+  .marks .hc img { height: 3.6rem; }
+  .wordmark .a, .wordmark .b { font-size: 1.3rem; }
+  .cover-art img { object-position: center 30%; }
 }
 </style>
 
 <main>
   <div class="cover">
 
-    <!-- ============ both marks ============ -->
-    <header class="marks">
-      <div class="hc"><img src="{{LOGO}}" alt="Harmony Care Support Services" /></div>
-      <div class="bar" aria-hidden="true"></div>
-      <div class="rs">
-        {{RISEMARK}}
-        <span>Compliance platform</span>
-      </div>
-    </header>
-
-    <div class="cover-type">
-      <span class="eyebrow">NDIS provisional certification audit &middot; 18&ndash;19 August 2026</span>
-
-      <h1>
-        The audit room
-        <em>Harmony Care, run on Rise</em>
-      </h1>
-
-      <p class="lede">
-        Everything the audit team needs, in one place: how Harmony Care&rsquo;s
-        quality system is built, where each piece of evidence lives, and how to
-        move through it during the two days.
-      </p>
-
-      <dl class="cover-meta">
-        <div>
-          <dt>Audited entity</dt>
-          <dd>Harmony Care Support Services Pty&nbsp;Ltd<br />ABN 99 691 543 834</dd>
-        </div>
-        <div>
-          <dt>Audit</dt>
-          <dd>Provisional, new registration<br />Remote, 18&ndash;19 Aug 2026</dd>
-        </div>
-        <div>
-          <dt>Certification body</dt>
-          <dd>Certification Partner Global<br />File HS/6/A61/1868</dd>
-        </div>
-        <div>
-          <dt>Scope</dt>
-          <dd>Core, Modules 1, 2a, 4 and 5a<br />13 registration groups</dd>
-        </div>
-      </dl>
+    <div class="cover-art">
+      <img src="{{MURAL}}" alt="Watercolour illustration of a light-filled living room: a woman in sunglasses at a wall of records, a woman using a wheelchair holding a record sleeve, a young man listening to headphones on the floor and a dog asleep on the sofa." />
     </div>
 
-    <figure class="plate">
-      <img src="{{MURAL}}" alt="Watercolour illustration of a light-filled living room: a woman in sunglasses at a wall of records, a woman using a wheelchair holding a record sleeve, a young man listening to headphones on the floor and a dog asleep on the sofa." />
-    </figure>
+    <div class="cover-plate">
+      <div class="cover-inner">
 
-    <p class="scroll-cue">How to use this guide</p>
+        <!-- ============ both marks ============ -->
+        <header class="marks">
+          <div class="hc">
+            <img src="{{EMBLEM}}" alt="Harmony Care Support Services" />
+            <div class="wordmark">
+              <span class="a">HARMONY</span><span class="b">CARE</span>
+              <div class="sub">SUPPORT SERVICES</div>
+            </div>
+          </div>
+          <div class="bar" aria-hidden="true"></div>
+          <div class="rs">
+            {{RISEMARK}}
+            <span>Compliance platform</span>
+          </div>
+        </header>
+
+        <div>
+          <span class="eyebrow">NDIS provisional certification audit &middot; 18&ndash;19 August 2026</span>
+          <h1>
+            The audit room
+            <em>Harmony Care, run on Rise</em>
+          </h1>
+        </div>
+
+        <dl class="cover-meta">
+          <div>
+            <dt>Audited entity</dt>
+            <dd>Harmony Care Support Services Pty&nbsp;Ltd<br />ABN 99 691 543 834</dd>
+          </div>
+          <div>
+            <dt>Audit</dt>
+            <dd>Provisional, new registration<br />Remote, 18&ndash;19 Aug 2026</dd>
+          </div>
+          <div>
+            <dt>Certification body</dt>
+            <dd>Certification Partner Global<br />File HS/6/A61/1868</dd>
+          </div>
+          <div>
+            <dt>Scope</dt>
+            <dd>Core, Modules 1, 2a, 4 and 5a<br />13 registration groups</dd>
+          </div>
+        </dl>
+
+      </div>
+    </div>
 
   </div>
 </main>

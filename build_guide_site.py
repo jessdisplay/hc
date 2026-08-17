@@ -71,8 +71,8 @@ def rise_mark():
 def main():
     print("assets:")
     subs = {
-        "{{LOGO}}": data_uri("logo-horizontal.png", 760),
-        "{{MURAL}}": data_uri("title-mural.png", 900, quality=82),
+        "{{EMBLEM}}": data_uri("emblem.png", 260, fmt="PNG", flatten=False, alpha_floor=96),
+        "{{MURAL}}": data_uri("title-mural.png", 1600, quality=82),
         "{{RISEMARK}}": rise_mark(),
     }
 
