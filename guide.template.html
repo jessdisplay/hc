@@ -1,0 +1,271 @@
+<title>Harmony Care Audit Room</title>
+
+<style>
+/* ============================================================
+   Harmony Care x Rise :: the audit guide
+   Palette 01 and the two brand faces inherited from
+   brand-guide.html / walkthrough.template.html.
+   Do not introduce colours outside the set.
+   ============================================================ */
+
+:root {
+  /* Palette 01, confirmed 16 Aug 2026 */
+  --paper:      #FBF7EF;
+  --plate:      #FFFDF9;
+  --ink:        #2E2A26;
+  --muted:      #6B6157;
+  --rule:       #DFD5C4;
+  --rule-soft:  #EDE5D8;
+  --rose:       #C6746F;
+  --rose-text:  #A0524A;   /* darkened for small text, AA on paper */
+  --forest:     #38553E;
+  --sage:       #9EAE8F;
+  --cream:      #F3E3CA;
+  --tan:        #D4AA7C;
+  --heart:      #E96982;
+
+  --head:       var(--forest);
+  --plate-shadow: 0 1px 2px rgba(46,42,38,.05), 0 8px 24px -12px rgba(46,42,38,.14);
+
+  /* artwork always sits on real paper, in both themes */
+  --artpaper:   #FBF7EF;
+
+  --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+  --cond:  "Avenir Next Condensed", "Avenir Next", "Segoe UI Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:     #171A16;
+    --plate:     #1E221C;
+    --ink:       #EDE6D9;
+    --muted:     #A09685;
+    --rule:      #343B31;
+    --rule-soft: #252A23;
+    --rose:      #DE9A93;
+    --rose-text: #E3A49C;
+    --forest:    #A7C08F;
+    --sage:      #8FA37F;
+    --cream:     #2A2E24;
+    --tan:       #D9B98C;
+    --heart:     #E98498;
+    --head:      var(--forest);
+    --plate-shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:     #171A16;
+  --plate:     #1E221C;
+  --ink:       #EDE6D9;
+  --muted:     #A09685;
+  --rule:      #343B31;
+  --rule-soft: #252A23;
+  --rose:      #DE9A93;
+  --rose-text: #E3A49C;
+  --forest:    #A7C08F;
+  --sage:      #8FA37F;
+  --cream:     #2A2E24;
+  --tan:       #D9B98C;
+  --heart:     #E98498;
+  --head:      var(--forest);
+  --plate-shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, .eyebrow, .marks, .cover-meta, .scroll-cue {
+  font-family: var(--cond);
+}
+
+h1, h2 { text-wrap: balance; margin: 0; }
+p { margin: 0; }
+
+:focus-visible {
+  outline: 2px solid var(--rose-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- the cover ---------- */
+
+.cover {
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.75rem 4rem;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+  align-items: start;
+  gap: 3.5rem 4rem;
+}
+
+/* both marks, side by side, divided by a hairline */
+.marks {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+.marks .hc img { height: 7.4rem; width: auto; display: block; }
+.marks .bar { width: 1px; align-self: stretch; background: var(--rule); }
+.marks .rs { display: flex; flex-direction: column; gap: .45rem; }
+.marks .rs svg { height: 1.05rem; width: auto; display: block; color: var(--ink); }
+.marks .rs span {
+  font-size: .625rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted);
+}
+
+.cover-type { display: flex; flex-direction: column; gap: 1.5rem; padding-top: .5rem; }
+
+.eyebrow {
+  font-size: .6875rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--rose-text);
+}
+
+.cover h1 {
+  font-size: clamp(2.6rem, 6.4vw, 4.4rem);
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: -.005em;
+}
+.cover h1 em {
+  font-style: normal;
+  font-weight: 200;
+  color: var(--muted);
+  display: block;
+}
+
+.lede {
+  max-width: 34rem;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+}
+
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 1.25rem 2rem;
+  margin-top: .75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: .8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.cover-meta div { display: flex; flex-direction: column; gap: .2rem; }
+.cover-meta dt {
+  font-size: .625rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.cover-meta dd { margin: 0; color: var(--ink); }
+
+/* the illustration, always on paper in both themes */
+.plate {
+  background: var(--artpaper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: var(--plate-shadow);
+}
+.plate { display: flex; justify-content: center; }
+/* the whole plate stays visible — the artwork is a finished painting, never cropped */
+.plate img { display: block; width: auto; max-width: 100%; max-height: 60vh; height: auto; }
+
+.scroll-cue {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .6875rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.scroll-cue::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule-soft);
+}
+
+@media (max-width: 60rem) {
+  .cover {
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: 3rem;
+  }
+  .cover-type { order: 2; }
+  .plate { order: 3; max-width: 26rem; }
+  .marks .hc img { height: 4.4rem; }
+}
+</style>
+
+<main>
+  <div class="cover">
+
+    <!-- ============ both marks ============ -->
+    <header class="marks">
+      <div class="hc"><img src="{{LOGO}}" alt="Harmony Care Support Services" /></div>
+      <div class="bar" aria-hidden="true"></div>
+      <div class="rs">
+        {{RISEMARK}}
+        <span>Compliance platform</span>
+      </div>
+    </header>
+
+    <div class="cover-type">
+      <span class="eyebrow">NDIS provisional certification audit &middot; 18&ndash;19 August 2026</span>
+
+      <h1>
+        The audit room
+        <em>Harmony Care, run on Rise</em>
+      </h1>
+
+      <p class="lede">
+        Everything the audit team needs, in one place: how Harmony Care&rsquo;s
+        quality system is built, where each piece of evidence lives, and how to
+        move through it during the two days.
+      </p>
+
+      <dl class="cover-meta">
+        <div>
+          <dt>Audited entity</dt>
+          <dd>Harmony Care Support Services Pty&nbsp;Ltd<br />ABN 99 691 543 834</dd>
+        </div>
+        <div>
+          <dt>Audit</dt>
+          <dd>Provisional, new registration<br />Remote, 18&ndash;19 Aug 2026</dd>
+        </div>
+        <div>
+          <dt>Certification body</dt>
+          <dd>Certification Partner Global<br />File HS/6/A61/1868</dd>
+        </div>
+        <div>
+          <dt>Scope</dt>
+          <dd>Core, Modules 1, 2a, 4 and 5a<br />13 registration groups</dd>
+        </div>
+      </dl>
+    </div>
+
+    <figure class="plate">
+      <img src="{{MURAL}}" alt="Watercolour illustration of a light-filled living room: a woman in sunglasses at a wall of records, a woman using a wheelchair holding a record sleeve, a young man listening to headphones on the floor and a dog asleep on the sofa." />
+    </figure>
+
+    <p class="scroll-cue">How to use this guide</p>
+
+  </div>
+</main>
