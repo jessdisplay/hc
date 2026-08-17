@@ -22,6 +22,21 @@ var INDEX_SHEET  = '1ZgoiX8scx2vLdZbSyBSjJtGb-4JjNl3pksI5qgVfCKs';
 
 var MAX_BYTES = 40 * 1024 * 1024;
 
+/**
+ * Who hears about a new file. Set a script property NOTIFY to a comma separated
+ * list of addresses, e.g. "victoria@harmonycaresupportservices.com.au,dev@riseos.care".
+ * Leave it unset and nothing is sent.
+ */
+function notify_(subject, body) {
+  var to = PropertiesService.getScriptProperties().getProperty('NOTIFY');
+  if (!to) return;
+  try {
+    MailApp.sendEmail({ to: to, subject: subject, body: body, name: 'The audit room' });
+  } catch (err) {
+    // a failed notification must never lose the file that triggered it
+  }
+}
+
 /** Scope areas the panel offers, mapped to their folder ids. */
 var AREAS = {
   'Core 1 - Rights and Responsibilities':            '17liW37_WtC4JY0Fxnx8iby5w01rYot5O',
@@ -84,9 +99,66 @@ function doPost(e) {
       file.getUrl()
     ]);
 
+    notify_(
+      'New audit file: ' + file.getName(),
+      file.getName() + '\n\n' +
+      'Filed in: ' + (area || 'Intake, not filed yet') + '\n' +
+      'Provided by: ' + (String(body.by || '').trim() || 'not said') + '\n' +
+      'Note: ' + (note || 'none') + '\n\n' +
+      'Open it: ' + file.getUrl() + '\n' +
+      'The index: https://docs.google.com/spreadsheets/d/' + INDEX_SHEET + '/edit'
+    );
+
     return json_({ ok: true, name: file.getName(), url: file.getUrl(), area: area || 'Intake' });
 
   } catch (err) {
     return json_({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * Catches the other half of the two-way intake: files dragged straight into the
+ * Intake folder in Drive, which never touch doPost.
+ *
+ * Add a time-driven trigger for this (Triggers > Add trigger > watchIntake >
+ * Time-driven > Minutes timer > every 5 minutes). It indexes anything new and
+ * sends the same notification, so both routes behave identically.
+ */
+function watchIntake() {
+  var props = PropertiesService.getScriptProperties();
+  var seen = JSON.parse(props.getProperty('SEEN_INTAKE') || '[]');
+  var sheet = SpreadsheetApp.openById(INDEX_SHEET).getSheets()[0];
+
+  var files = DriveApp.getFolderById(INTAKE).getFiles();
+  var added = [];
+
+  while (files.hasNext()) {
+    var file = files.next();
+    var id = file.getId();
+    if (seen.indexOf(id) !== -1) continue;
+
+    seen.push(id);
+    added.push(file);
+
+    sheet.appendRow([
+      Utilities.formatDate(new Date(), 'Australia/Brisbane', 'yyyy-MM-dd'),
+      file.getName(),
+      file.getDescription() || '',
+      'Dropped in Drive, not filed yet',
+      '00 Intake',
+      '',
+      file.getUrl()
+    ]);
+  }
+
+  // keep the memory from growing without bound across a long audit
+  props.setProperty('SEEN_INTAKE', JSON.stringify(seen.slice(-500)));
+
+  if (added.length) {
+    notify_(
+      added.length + ' new file' + (added.length > 1 ? 's' : '') + ' in Intake',
+      added.map(function (f) { return f.getName() + '\n' + f.getUrl(); }).join('\n\n') +
+      '\n\nThe index: https://docs.google.com/spreadsheets/d/' + INDEX_SHEET + '/edit'
+    );
   }
 }
