@@ -116,13 +116,16 @@ p { margin: 0; }
   background: var(--artpaper);
   min-height: 14rem;
 }
-/* the painting is portrait, so a wide viewport shows a band of it.
-   34% keeps the record wall and the wheelchair user in frame. */
+/* Absolute, so the painting's intrinsic height cannot inflate the grid row.
+   It is a portrait painting, so a wide viewport shows a band of it: 58%
+   keeps Vik at the records and the woman in the wheelchair in frame. */
 .cover-art img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 34%;
+  object-position: center 58%;
   display: block;
 }
 .cover-art::after {
@@ -141,21 +144,21 @@ p { margin: 0; }
 .cover-inner {
   max-width: 78rem;
   margin: 0 auto;
-  padding: 1.75rem 1.75rem 2.5rem;
+  padding: 1.4rem 1.75rem 1.9rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.15rem;
 }
 
 /* both marks, side by side, divided by a hairline */
-.marks { display: flex; align-items: center; gap: 1.5rem; }
-.marks .hc { display: flex; align-items: center; gap: 1rem; }
-.marks .hc img { height: 4.6rem; width: auto; display: block; }
+.marks { display: flex; align-items: center; gap: 1.4rem; }
+.marks .hc { display: flex; align-items: center; gap: .9rem; }
+.marks .hc img { height: 3.5rem; width: auto; display: block; }
 .marks .bar { width: 1px; align-self: stretch; background: var(--rule); }
 
 .wordmark { line-height: 1; font-family: var(--cond); }
-.wordmark .a { font-size: 1.55rem; font-weight: 700; letter-spacing: -.01em; }
-.wordmark .b { font-size: 1.55rem; font-weight: 200; letter-spacing: .01em; }
+.wordmark .a { font-size: 1.35rem; font-weight: 700; letter-spacing: -.01em; }
+.wordmark .b { font-size: 1.35rem; font-weight: 200; letter-spacing: .01em; }
 .wordmark .sub {
   font-size: .5625rem;
   letter-spacing: .34em;
@@ -181,7 +184,7 @@ p { margin: 0; }
 }
 
 .cover h1 {
-  font-size: clamp(2.4rem, 5.6vw, 3.9rem);
+  font-size: clamp(2.1rem, 4.4vw, 3.2rem);
   font-weight: 700;
   line-height: .95;
   letter-spacing: -.005em;
@@ -196,8 +199,8 @@ p { margin: 0; }
 .cover-meta {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-  gap: 1.25rem 2rem;
-  padding-top: 1.25rem;
+  gap: .9rem 2rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--rule);
   font-size: .8125rem;
   font-variant-numeric: tabular-nums;
