@@ -73,6 +73,7 @@ def main():
     subs = {
         "{{EMBLEM}}": data_uri("emblem.png", 260, fmt="PNG", flatten=False, alpha_floor=96),
         "{{MURAL}}": data_uri("title-mural.png", 1600, quality=82),
+        "{{LOUNGE}}": data_uri("mural-lounge.png", 2200, quality=80),
         "{{RISEMARK}}": rise_mark(),
     }
 

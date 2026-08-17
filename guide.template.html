@@ -97,6 +97,131 @@ p { margin: 0; }
   border-radius: 2px;
 }
 
+/* ---------- the door ----------
+   A curtain, not a lock. It keeps the room off a casual passer-by's screen.
+   The real boundary is Google's permissions on the Drive folder.
+   ------------------------------------------------------------------ */
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  overflow: hidden;
+  background: var(--artpaper);
+}
+.gate[hidden] { display: none; }
+
+.gate-art { position: absolute; inset: 0; overflow: hidden; }
+.gate-art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+  transform-origin: 50% 55%;
+  animation: lounge-drift 72s ease-in-out infinite alternate;
+}
+/* The painting is a still, so the motion is the room breathing rather than
+   the people walking about: a slow push across the cast and back. */
+@keyframes lounge-drift {
+  from { transform: scale(1.10) translate3d(-2%, .6%, 0); }
+  to   { transform: scale(1.17) translate3d(2%, -1.2%, 0); }
+}
+
+/* a woven grain that keeps the enlarged watercolour from going flat */
+.gate-art::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background-image: radial-gradient(rgba(46,42,38,.16) .5px, transparent .6px);
+  background-size: 3px 3px;
+  opacity: .5;
+  animation: grain-shift 5s steps(6) infinite;
+  pointer-events: none;
+}
+@keyframes grain-shift {
+  0%   { transform: translate3d(0, 0, 0); }
+  33%  { transform: translate3d(-2px, 1px, 0); }
+  66%  { transform: translate3d(1px, -2px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.gate-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 55%, rgba(251,247,239,.18) 0%, rgba(251,247,239,.72) 62%, rgba(251,247,239,.94) 100%);
+}
+
+.gate-card {
+  position: relative;
+  width: min(26rem, 100%);
+  background: var(--plate);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(46,42,38,.06), 0 24px 60px -24px rgba(46,42,38,.38);
+  padding: 2rem 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.gate-card .marks { gap: 1.1rem; }
+.gate-card .marks .hc img { height: 2.9rem; }
+.gate-card .wordmark .a, .gate-card .wordmark .b { font-size: 1.1rem; }
+
+.gate-lede { font-size: .9375rem; line-height: 1.5; color: var(--muted); }
+
+.gate-field { display: flex; flex-direction: column; gap: .4rem; }
+.gate-field span {
+  font-family: var(--cond);
+  font-size: .625rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gate-field input {
+  font: inherit;
+  font-size: 1.0625rem;
+  padding: .6rem .7rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+.gate-field input:focus-visible { border-color: var(--rose-text); }
+
+.gate-card button {
+  font-family: var(--cond);
+  font-size: .8125rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: .7rem 1rem;
+  color: var(--plate);
+  background: var(--forest);
+  border: 1px solid var(--forest);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.gate-card button:hover { background: var(--ink); border-color: var(--ink); }
+
+.gate-err { font-size: .875rem; color: var(--rose-text); }
+.gate-err[hidden] { display: none; }
+
+.gate-card.wrong { animation: nudge .3s ease; }
+@keyframes nudge {
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-art img, .gate-art::after, .gate-card.wrong { animation: none; }
+}
+
 /* ---------- the cover ----------
    Same structure as the Business Plan title page: the painting runs full
    bleed, a soft fade carries it into a solid plate, and all the type sits
@@ -224,7 +349,39 @@ p { margin: 0; }
 }
 </style>
 
-<main>
+<div class="gate" id="gate">
+  <div class="gate-art">
+    <img src="{{LOUNGE}}" alt="" />
+  </div>
+  <div class="gate-scrim"></div>
+
+  <form class="gate-card" id="gate-form" autocomplete="on">
+    <div class="marks">
+      <div class="hc">
+        <img src="{{EMBLEM}}" alt="Harmony Care Support Services" />
+        <div class="wordmark">
+          <span class="a">HARMONY</span><span class="b">CARE</span>
+          <div class="sub">SUPPORT SERVICES</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="gate-lede">
+      The audit room is for the Harmony Care team and the CPG audit team.
+      Enter the password you were given.
+    </p>
+
+    <label class="gate-field">
+      <span>Password</span>
+      <input type="password" id="gate-input" name="password" autocomplete="current-password" autofocus />
+    </label>
+
+    <button type="submit">Enter the room</button>
+    <p class="gate-err" id="gate-err" role="alert" hidden>That is not the password. Try again.</p>
+  </form>
+</div>
+
+<main id="room" hidden>
   <div class="cover">
 
     <div class="cover-art">
@@ -282,3 +439,65 @@ p { margin: 0; }
 
   </div>
 </main>
+
+<script>
+// The password is stored as a SHA-256 digest so it is not sitting in the page
+// source or in the public repository. This is a curtain, not a lock: everything
+// that actually matters lives in Drive, behind Google's permissions.
+(function () {
+  var DIGEST = "5fe41eab189bdbc0454894c39e2526e9673188f180b26d8fd377375e79457dca";
+  var KEY = "audit-room-open";
+
+  var gate = document.getElementById("gate");
+  var room = document.getElementById("room");
+  var form = document.getElementById("gate-form");
+  var input = document.getElementById("gate-input");
+  var err = document.getElementById("gate-err");
+
+  function open() {
+    gate.hidden = true;
+    room.hidden = false;
+  }
+
+  try {
+    if (sessionStorage.getItem(KEY) === "1") open();
+  } catch (e) {
+    // private browsing can refuse sessionStorage; the door still works, it
+    // just asks again on the next load
+  }
+
+  async function digest(text) {
+    var bytes = new TextEncoder().encode(text);
+    var hash = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(hash))
+      .map(function (b) { return b.toString(16).padStart(2, "0"); })
+      .join("");
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    err.hidden = true;
+
+    var ok = false;
+    try {
+      ok = (await digest(input.value)) === DIGEST;
+    } catch (e2) {
+      // crypto.subtle needs a secure context; on http the door stays shut
+      ok = false;
+    }
+
+    if (ok) {
+      try { sessionStorage.setItem(KEY, "1"); } catch (e3) {}
+      open();
+      return;
+    }
+
+    err.hidden = false;
+    input.select();
+    var card = form;
+    card.classList.remove("wrong");
+    void card.offsetWidth;
+    card.classList.add("wrong");
+  });
+})();
+</script>
