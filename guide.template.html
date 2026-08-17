@@ -272,7 +272,7 @@ p { margin: 0; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 66%;
+  object-position: center 62%;
   display: block;
 }
 .cover-art::after {
@@ -479,6 +479,49 @@ p { margin: 0; }
   text-transform: uppercase;
   color: var(--muted);
 }
+/* the drop zone: the obvious thing to do on this card */
+.dropzone {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: .5rem;
+  min-height: 9rem;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  background: var(--cream);
+  border: 2px dashed var(--sage);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .15s;
+}
+.dropzone:hover { border-color: var(--forest); }
+.dropzone.over {
+  border-color: var(--forest);
+  background: var(--plate);
+  transform: scale(1.01);
+}
+.dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.dropzone .big {
+  font-family: var(--cond);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.dropzone .small { font-size: .8125rem; color: var(--muted); }
+.dropzone .picked {
+  font-family: var(--cond);
+  font-size: .8125rem;
+  letter-spacing: .04em;
+  color: var(--forest);
+  word-break: break-all;
+}
+.dropzone svg { width: 1.7rem; height: 1.7rem; color: var(--sage); }
+
 .drop-field input, .drop-field select, .drop-field textarea {
   font: inherit;
   font-size: .9375rem;
@@ -816,7 +859,7 @@ p { margin: 0; }
   <div class="cover">
 
     <div class="cover-art">
-      <img src="{{MURAL}}" alt="Watercolour illustration of a light-filled living room: a woman in sunglasses at a wall of records, a woman using a wheelchair holding a record sleeve, a young man listening to headphones on the floor and a dog asleep on the sofa." />
+      <img src="{{MURAL}}" alt="Watercolour illustration of a light-filled making room: a woman painting at an easel, a woman using a wheelchair throwing a pot, an older woman at a sewing machine, a young man playing guitar, a man repotting a plant and a dog asleep in the corner." />
     </div>
 
     <div class="cover-plate">
@@ -948,10 +991,17 @@ p { margin: 0; }
             decided as you send it.
           </p>
 
-          <label class="drop-field">
-            <span>File</span>
+          <div class="dropzone" id="dropzone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 16V4" />
+              <path d="M7 9l5-5 5 5" />
+              <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+            </svg>
+            <span class="big">Drag a file here</span>
+            <span class="small">or click to choose one</span>
+            <span class="picked" id="drop-picked"></span>
             <input type="file" id="drop-file" />
-          </label>
+          </div>
 
           <label class="drop-field">
             <span>Where it belongs</span>
@@ -1263,15 +1313,62 @@ p { margin: 0; }
 (function () {
   var HOOK = "{{HOOK}}";
 
-  var form  = document.getElementById("drop-form");
-  var send  = document.getElementById("drop-send");
-  var state = document.getElementById("drop-state");
-  var help  = document.getElementById("drop-help");
-  var out   = document.getElementById("drop-out");
+  var form   = document.getElementById("drop-form");
+  var send   = document.getElementById("drop-send");
+  var state  = document.getElementById("drop-state");
+  var help   = document.getElementById("drop-help");
+  var out    = document.getElementById("drop-out");
+  var zone   = document.getElementById("dropzone");
+  var input  = document.getElementById("drop-file");
+  var picked = document.getElementById("drop-picked");
+
+  var INTAKE = "https://drive.google.com/drive/folders/1vt3djHYlauK0l0wiPjBHX5yMzq57Lb8T";
+
+  // Drag and drop, whether or not the hook is live. Dropping a file always
+  // shows what was caught, so the zone never feels inert.
+  function show() {
+    var f = input.files[0];
+    picked.textContent = f ? f.name + "  (" + Math.round(f.size / 1024) + " KB)" : "";
+  }
+
+  input.addEventListener("change", show);
+
+  ["dragenter", "dragover"].forEach(function (ev) {
+    zone.addEventListener(ev, function (e) {
+      e.preventDefault();
+      zone.classList.add("over");
+    });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    zone.addEventListener(ev, function (e) {
+      e.preventDefault();
+      zone.classList.remove("over");
+    });
+  });
+  zone.addEventListener("drop", function (e) {
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    input.files = e.dataTransfer.files;
+    show();
+  });
+
+  // Stop the page hijacking a file dropped anywhere else
+  ["dragover", "drop"].forEach(function (ev) {
+    document.addEventListener(ev, function (e) {
+      if (!zone.contains(e.target)) e.preventDefault();
+    });
+  });
 
   if (!HOOK) {
-    help.textContent = "This half is not switched on yet. Until it is, use the " +
-      "Drive route beside it, which does the same job.";
+    // Never leave a dead grey button sitting there. Until the hook exists the
+    // card's one action is the route that does work.
+    help.textContent = "Sending straight from the page is not switched on yet, " +
+      "so this button opens the folder in Drive and you drop it there.";
+    send.textContent = "Open Intake in Drive";
+    send.disabled = false;
+    send.type = "button";
+    send.addEventListener("click", function () {
+      window.open(INTAKE, "_blank", "noopener");
+    });
     return;
   }
 
@@ -1288,7 +1385,7 @@ p { margin: 0; }
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    var file = document.getElementById("drop-file").files[0];
+    var file = input.files[0];
     if (!file) return say("Pick a file first.", true);
 
     send.disabled = true;
