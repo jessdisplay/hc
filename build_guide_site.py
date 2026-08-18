@@ -167,6 +167,8 @@ def main():
         "{{EMBLEM}}": data_uri("emblem.png", 260, fmt="PNG", flatten=False, alpha_floor=96),
         "{{MURAL}}": data_uri("header-making-hires.jpg", 2400, quality=86),
         "{{LOUNGE}}": data_uri("mural-lounge.png", 2200, quality=80),
+        "{{WASH}}": data_uri("mural-lounge.png", 1400, quality=70),
+        "{{BAND}}": data_uri("mural-kitchen.png", 2000, quality=80),
         "{{RISEMARK}}": rise_mark(),
         "{{HOOK}}": hook_url(),
         "{{ASKS}}": asks_html(),
