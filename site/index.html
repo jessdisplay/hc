@@ -157,6 +157,31 @@ a{color:inherit}
 .ack b{color:var(--ink);font-weight:600}
 .fine{margin-top:1.5rem;font-size:.75rem;color:var(--muted)}
 
+
+/* ---------------- story ---------------- */
+.story{padding:clamp(4rem,10vw,9rem) 0}
+.story-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(2rem,6vw,5rem);
+  align-items:start;padding-top:1.5rem;border-top:1px solid var(--rule)}
+.story-text{display:flex;flex-direction:column;gap:1.15rem;max-width:44ch}
+.story-text p{color:var(--muted)}
+.story-text .big{font-size:clamp(1.5rem,3.2vw,2.5rem);line-height:1.15;color:var(--ink);
+  font-family:var(--cond);font-weight:200;letter-spacing:-.02em;max-width:20ch}
+.sig{font-family:var(--cond);font-size:.8125rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink)!important;margin-top:.6rem;padding-top:1rem;border-top:1px solid var(--rule)}
+.sig span{display:block;color:var(--muted);letter-spacing:.24em;font-size:.625rem;margin-top:.3rem}
+.story-pic{aspect-ratio:4/5;overflow:hidden;background:var(--cream)}
+@media(max-width:54rem){.story-grid{grid-template-columns:1fr}}
+
+/* ---------------- marquee ---------------- */
+.marq{overflow:hidden;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:1.1rem 0;background:var(--cream)}
+.marq-in{display:flex;align-items:center;gap:2.5rem;width:max-content;
+  animation:slide 42s linear infinite;font-family:var(--cond);
+  font-size:clamp(1.1rem,2.6vw,2.1rem);font-weight:200;letter-spacing:-.01em;color:var(--ink)}
+.marq-in i{width:6px;height:6px;border-radius:50%;background:var(--rose);flex:none}
+@keyframes slide{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marq-in{animation:none}}
+
 /* ---------------- reveal ---------------- */
 .rv{opacity:0;transform:translateY(18px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
 .rv.in{opacity:1;transform:none}
@@ -177,6 +202,7 @@ a{color:inherit}
   </a>
   <a class="l" href="#work">What we do</a>
   <a class="l" href="#how">How it works</a>
+  <a class="l" href="#story">Our story</a>
   <a class="l" href="#who">Who we are</a>
   <a class="btn fill" href="#contact">Talk to us</a>
 </nav>
@@ -185,17 +211,18 @@ a{color:inherit}
   <img src="img/p-hero.jpg" alt="Two women laughing together in a sunlit lounge room, one using a wheelchair, sorting through a crate of records.">
   <div class="hero-in">
     <span class="lbl">Gympie &middot; Sunshine Coast</span>
-    <h1>Not a service<span>you receive.</span></h1>
+    <h1>Four kids gave us<span>our name.</span></h1>
     <div class="hero-foot">
-      <p>We work with people with disability and their families. You decide what
-         good looks like. We turn up, make it happen, and get out of the way.</p>
+      <p>Harmony Care started because Victoria could not find support that fit
+         her own family, so she built it. You decide what good looks like. We
+         turn up, make it happen, and get out of the way.</p>
       <a class="btn line" href="#work">See what we do</a>
     </div>
   </div>
 </header>
 
 <section class="stmt edge rv">
-  <h2>Support you <b>direct</b>, not support you are handed.</h2>
+  <h2>We know the challenges you face, because <b>many of us have faced them too.</b></h2>
 </section>
 
 <section id="work">
@@ -243,6 +270,37 @@ a{color:inherit}
   </article>
 </section>
 
+
+<section class="story" id="story">
+  <div class="edge">
+    <div class="rv"><span class="lbl">Our story</span></div>
+    <div class="story-grid">
+      <div class="story-text rv">
+        <p class="big">When my child was diagnosed with autism I did not see a
+          problem. I saw a kid who got to be exactly himself.</p>
+        <p>What I could not find was support that kept up. Services were
+          scattered, hard to reach, and rarely built around the person in front
+          of them. I went back to work in mental health and watched the same
+          thing from the inside.</p>
+        <p>Then one day my kids said: Mum, you care so much, you could really
+          make a difference.</p>
+        <p>So the name is theirs. Harmony is built from the first letters of my
+          four children&rsquo;s names, and they are still the reason for all of
+          it. The promise is to you.</p>
+        <p class="sig">Victoria Scilipote<span>Founder</span></p>
+      </div>
+      <div class="story-pic rv"><img src="img/p-elder.jpg" alt="A quiet moment at home."></div>
+    </div>
+  </div>
+</section>
+
+<div class="marq rv" aria-hidden="true"><div class="marq-in">
+  <span>Genuine</span><i></i><span>Transparent</span><i></i><span>Kind</span><i></i>
+  <span>Independence</span><i></i><span>Dignity</span><i></i><span>Choice</span><i></i><span>Inclusion</span><i></i>
+  <span>Genuine</span><i></i><span>Transparent</span><i></i><span>Kind</span><i></i>
+  <span>Independence</span><i></i><span>Dignity</span><i></i><span>Choice</span><i></i><span>Inclusion</span><i></i>
+</div></div>
+
 <div class="bleed">
   <img src="img/p-break.jpg" alt="People making things together in a bright studio: pottery, sewing, guitar, plants.">
   <div class="cap"><h3>A life with <b>things in it.</b></h3></div>
@@ -274,8 +332,10 @@ a{color:inherit}
     <p>Harmony Care was started by Victoria Scilipote, who has spent her working
        life in disability and family support and got tired of watching people be
        handed a service instead of asked a question.</p>
-    <p>We stay small so you know who is walking through the door, and so the
-       person you talk to is the person who can change something.</p>
+    <p>Counselling, social work, education, healthcare. Different disciplines,
+       one reason for being here. We stay small so you know who is walking
+       through the door, and so the person you talk to is the person who can
+       change something.</p>
     <p class="pull">Independence, dignity, choice and inclusion. Four words we
        measure ourselves against, not four words on a wall.</p>
   </div>
