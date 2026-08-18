@@ -2,323 +2,342 @@
 <html lang="en-AU">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Harmony Care Support Services</title>
-<meta name="description" content="Disability and family support around Gympie and the Sunshine Coast. Everyday help at home, getting out into the community, and finding your way through the NDIS.">
+<meta name="description" content="Disability and family support around Gympie and the Sunshine Coast.">
 <style>
-/* ============================================================
-   Harmony Care  ·  Palette 01, the painted identity
-   ============================================================ */
 :root{
-  --paper:#FBF7EF; --plate:#FFFDF9; --ink:#2E2A26; --muted:#6B6157;
-  --rule:#DFD5C4; --rule-soft:#EDE5D8;
-  --rose:#C6746F; --rose-text:#A0524A; --blush:#F6D0C8;
-  --forest:#38553E; --sage:#9EAE8F; --cream:#F3E3CA; --tan:#D4AA7C;
-  --heart:#E96982;
+  --paper:#FBF7EF;--plate:#FFFDF9;--ink:#2E2A26;--muted:#6B6157;
+  --rule:#DFD5C4;--hair:#E7DFD1;
+  --rose:#C6746F;--rose-text:#A0524A;--forest:#38553E;--sage:#9EAE8F;--cream:#F3E3CA;
   --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
-  --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Helvetica,Arial,sans-serif;
-  --shadow:0 1px 2px rgba(46,42,38,.05),0 14px 40px -18px rgba(46,42,38,.22);
+  --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --gut:clamp(1.25rem,4vw,4rem);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#171A16; --plate:#1E221C; --ink:#EDE6D9; --muted:#A09685;
-  --rule:#343B31; --rule-soft:#252A23;
-  --rose:#DE9A93; --rose-text:#E3A49C; --blush:#3A2E2C;
-  --forest:#A7C08F; --sage:#8FA37F; --cream:#2A2E24; --tan:#D9B98C;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 40px -18px rgba(0,0,0,.55);
-}}
+  --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#A79D8F;
+  --rule:#333A30;--hair:#272C24;--rose:#DE9A93;--rose-text:#E3A49C;
+  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;}}
 :root[data-theme="dark"]{
-  --paper:#171A16; --plate:#1E221C; --ink:#EDE6D9; --muted:#A09685;
-  --rule:#343B31; --rule-soft:#252A23;
-  --rose:#DE9A93; --rose-text:#E3A49C; --blush:#3A2E2C;
-  --forest:#A7C08F; --sage:#8FA37F; --cream:#2A2E24; --tan:#D9B98C;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 40px -18px rgba(0,0,0,.55);
-}
+  --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#A79D8F;
+  --rule:#333A30;--hair:#272C24;--rose:#DE9A93;--rose-text:#E3A49C;
+  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);
- font-family:var(--serif);font-size:1.0625rem;line-height:1.62;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.eyebrow,.nav,.btn,.wordmark,.step-n,.foot h4{font-family:var(--cond)}
-h1,h2,h3{margin:0;text-wrap:balance;line-height:1.02}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;width:100%;height:100%;object-fit:cover}
+h1,h2,h3,.lbl,.nav,.btn,.wm,.num{font-family:var(--cond)}
+h1,h2,h3{margin:0;line-height:.92;letter-spacing:-.02em;text-wrap:balance}
 p{margin:0}
-img{display:block;max-width:100%}
-a{color:var(--rose-text)}
-:focus-visible{outline:2px solid var(--rose-text);outline-offset:3px;border-radius:2px}
-.wrap{max-width:72rem;margin:0 auto;padding:0 1.75rem}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--rose-text);outline-offset:4px}
 
-/* ---- nav ---- */
-.nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);
- backdrop-filter:blur(10px);border-bottom:1px solid var(--rule-soft)}
-.nav-in{max-width:72rem;margin:0 auto;padding:.7rem 1.75rem;display:flex;align-items:center;gap:1.5rem}
-.brand{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:var(--ink);margin-right:auto}
-.brand img{height:2.5rem;width:auto}
-.wordmark{line-height:1}
-.wordmark .a{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
-.wordmark .b{font-size:1.15rem;font-weight:200;letter-spacing:.01em}
-.wordmark .s{font-size:.5rem;letter-spacing:.32em;color:var(--muted);
- border-top:1px solid var(--rule);padding-top:.22rem;margin-top:.24rem}
-.nav a.lnk{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);opacity:.75}
-.nav a.lnk:hover{opacity:1}
-@media(max-width:52rem){.nav a.lnk{display:none}}
-.btn{display:inline-flex;align-items:center;gap:.55rem;font-size:.75rem;letter-spacing:.13em;
- text-transform:uppercase;text-decoration:none;padding:.7rem 1.15rem;border-radius:2px;
- background:var(--forest);color:var(--plate);border:1px solid var(--forest);transition:background .15s,border-color .15s}
-.btn:hover{background:var(--ink);border-color:var(--ink)}
-.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
-.btn.ghost:hover{background:var(--cream);border-color:var(--forest)}
+/* the architectural grid: everything hangs off one hairline margin */
+.edge{padding-inline:var(--gut)}
+.lbl{font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.rule{height:1px;background:var(--rule);width:100%}
 
-/* ---- hero ---- */
-.hero{position:relative;overflow:hidden;background:var(--paper)}
-.hero-art{position:relative;height:clamp(20rem,58vh,34rem);overflow:hidden;background:#FBF7EF}
-.hero-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 62%}
-.hero-art::after{content:"";position:absolute;left:0;right:0;bottom:0;height:9rem;
- background:linear-gradient(to bottom,transparent,var(--paper) 92%)}
-.hero-say{position:relative;max-width:72rem;margin:0 auto;padding:0 1.75rem 4.5rem;margin-top:-3.5rem}
-.eyebrow{font-size:.6875rem;letter-spacing:.22em;text-transform:uppercase;color:var(--rose-text);display:block;margin-bottom:.9rem}
-.hero-say h1{font-size:clamp(2.5rem,6.4vw,4.6rem);font-weight:700;letter-spacing:-.015em}
-.hero-say h1 em{font-style:normal;font-weight:200;color:var(--muted);display:block}
-.hero-say p{margin-top:1.4rem;max-width:33rem;font-size:1.1875rem;line-height:1.55}
-.hero-cta{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:2rem}
+/* ---------------- nav ---------------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:1.5rem;
+  padding:1rem var(--gut);mix-blend-mode:normal;transition:background .3s,border-color .3s;
+  border-bottom:1px solid transparent}
+.nav.solid{background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(12px);border-bottom-color:var(--hair)}
+.nav .wm{margin-right:auto;display:flex;align-items:center;gap:.65rem;text-decoration:none;color:var(--ink)}
+.nav .wm img{width:2.2rem;height:auto;object-fit:contain}
+.wm-t{line-height:1}
+.wm-t .a{font-size:1rem;font-weight:700;letter-spacing:-.01em}
+.wm-t .b{font-size:1rem;font-weight:200}
+.wm-t .s{font-size:.45rem;letter-spacing:.34em;color:var(--muted);margin-top:.2rem}
+.nav a.l{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;opacity:.7}
+.nav a.l:hover{opacity:1}
+@media(max-width:56rem){.nav a.l{display:none}}
+.btn{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--cond);font-size:.6875rem;
+  letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:.75rem 1.2rem;
+  border:1px solid currentColor;border-radius:0;transition:background .2s,color .2s}
+.btn.fill{background:var(--forest);border-color:var(--forest);color:var(--paper)}
+.btn.fill:hover{background:var(--ink);border-color:var(--ink)}
+.btn.line:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
-/* ---- sections ---- */
-section{padding:5rem 0}
-.sec-head{border-top:2px solid var(--forest);padding-top:.75rem;margin-bottom:1.5rem}
-h2{font-size:clamp(1.8rem,3.6vw,2.6rem);font-weight:700}
-.lede{max-width:38rem;font-size:1.125rem;line-height:1.55;color:var(--muted)}
+/* ---------------- hero ---------------- */
+.hero{position:relative;height:100svh;min-height:34rem;overflow:hidden;background:#1b1a17}
+.hero>img{position:absolute;inset:0;transform:scale(1.06);animation:drift 30s ease-in-out infinite alternate}
+@keyframes drift{to{transform:scale(1.14) translate3d(-1.5%,-1%,0)}}
+.hero::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(20,19,16,.86) 0%,rgba(20,19,16,.35) 38%,rgba(20,19,16,.12) 70%)}
+.hero-in{position:absolute;inset:auto 0 0 0;z-index:2;padding:0 var(--gut) clamp(2rem,5vw,4rem);color:#F7F1E6}
+.hero-in .lbl{color:#E8C9BF}
+.hero h1{font-size:clamp(3rem,11.5vw,12rem);font-weight:700;margin:.6rem 0 0;letter-spacing:-.035em}
+.hero h1 span{display:block;font-weight:200;color:#DCCFC0}
+.hero-foot{display:flex;flex-wrap:wrap;gap:1.5rem 3rem;align-items:flex-end;margin-top:clamp(1.5rem,3vw,2.5rem);
+  padding-top:1.25rem;border-top:1px solid rgba(247,241,230,.28)}
+.hero-foot p{max-width:30rem;font-size:1.0625rem;line-height:1.5;color:#EFE6D8}
+.hero-foot .btn{color:#F7F1E6;margin-left:auto}
+.hero-foot .btn:hover{background:#F7F1E6;color:#141310;border-color:#F7F1E6}
 
-/* ---- what we do ---- */
-.cards{margin-top:2.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1.5rem}
-.card{background:var(--plate);border:1px solid var(--rule);border-radius:3px;overflow:hidden;
- display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
-.card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.card .pic{aspect-ratio:4/3;overflow:hidden;background:#FBF7EF}
-.card .pic img{width:100%;height:100%;object-fit:cover}
-.card .body{padding:1.25rem 1.35rem 1.5rem;display:flex;flex-direction:column;gap:.5rem}
-.card h3{font-size:1.1875rem;font-weight:600}
-.card p{font-size:.9375rem;line-height:1.55;color:var(--muted)}
+/* ---------------- statement ---------------- */
+.stmt{padding:clamp(5rem,13vw,11rem) 0}
+.stmt h2{font-size:clamp(2rem,6.4vw,5.5rem);font-weight:200;letter-spacing:-.03em;max-width:22ch}
+.stmt h2 b{font-weight:700;color:var(--rose-text)}
 
-/* ---- how it works ---- */
-.steps{margin-top:2.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:2rem}
-.step{display:flex;flex-direction:column;gap:.6rem;padding-top:1rem;border-top:1px solid var(--rule)}
-.step-n{font-size:.6875rem;letter-spacing:.2em;color:var(--rose-text)}
-.step h3{font-size:1.0625rem;font-weight:600}
-.step p{font-size:.9375rem;line-height:1.55;color:var(--muted)}
+/* ---------------- panels ---------------- */
+.panel{display:grid;grid-template-columns:repeat(2,1fr);align-items:stretch;border-top:1px solid var(--rule)}
+.panel .pic{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--cream)}
+.panel .pic img{transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.panel:hover .pic img{transform:scale(1.04)}
+.panel .txt{display:flex;flex-direction:column;justify-content:center;gap:1rem;
+  padding:clamp(2rem,5vw,4.5rem) clamp(1.5rem,4vw,4rem)}
+.panel:nth-child(even) .pic{order:2}
+.panel .num{font-size:.6875rem;letter-spacing:.28em;color:var(--rose-text)}
+.panel h3{font-size:clamp(1.6rem,3.4vw,2.9rem);font-weight:700}
+.panel p{font-size:1.0625rem;line-height:1.6;color:var(--muted);max-width:34ch}
+@media(max-width:54rem){
+  .panel{grid-template-columns:1fr}
+  .panel:nth-child(even) .pic{order:0}
+}
 
-/* ---- band ---- */
-.band{background:#FBF7EF;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow:hidden}
-.band img{width:100%;height:clamp(13rem,32vw,26rem);object-fit:cover;object-position:center 58%}
+/* ---------------- full bleed break ---------------- */
+.bleed{position:relative;height:clamp(20rem,62vh,40rem);overflow:hidden}
+.bleed img{transform:scale(1.05)}
+.bleed .cap{position:absolute;left:var(--gut);bottom:clamp(1.25rem,3vw,2.5rem);color:#F7F1E6;
+  text-shadow:0 1px 20px rgba(0,0,0,.5);max-width:34rem}
+.bleed .cap h3{font-size:clamp(1.5rem,4vw,3rem);font-weight:200}
+.bleed .cap h3 b{font-weight:700}
 
-/* ---- who ---- */
-.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:3rem;align-items:center}
-.who-art{background:#FBF7EF;border:1px solid var(--rule);border-radius:3px;overflow:hidden}
-.who p+p{margin-top:1rem}
-.quote{margin-top:1.5rem;padding-left:1.1rem;border-left:3px solid var(--rose);
- font-size:1.1875rem;line-height:1.5}
+/* ---------------- steps ---------------- */
+.steps{padding:clamp(4rem,9vw,8rem) 0}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));border-top:1px solid var(--rule)}
+.stp{padding:1.75rem 1.75rem 2.5rem 0;border-right:1px solid var(--hair);display:flex;flex-direction:column;gap:.6rem}
+.stp:last-child{border-right:0}
+.stp .num{font-size:.6875rem;letter-spacing:.28em;color:var(--rose-text)}
+.stp h3{font-size:1.25rem;font-weight:600;letter-spacing:0}
+.stp p{font-size:.9375rem;line-height:1.55;color:var(--muted)}
+@media(max-width:54rem){.stp{border-right:0;border-bottom:1px solid var(--hair);padding-right:0}}
 
-/* ---- where ---- */
-.where{position:relative;overflow:hidden;border-radius:3px;border:1px solid var(--rule)}
-.where img{width:100%;height:clamp(15rem,34vw,24rem);object-fit:cover;object-position:center 55%}
-.where-card{position:absolute;left:clamp(1rem,4vw,3rem);bottom:clamp(1rem,4vw,3rem);
- background:var(--plate);border:1px solid var(--rule);border-radius:3px;padding:1.4rem 1.6rem;
- max-width:23rem;box-shadow:var(--shadow)}
-.where-card h3{font-size:1.1875rem;font-weight:600;margin-bottom:.4rem}
-.where-card p{font-size:.9375rem;line-height:1.55;color:var(--muted)}
+/* ---------------- who ---------------- */
+.who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:0;border-top:1px solid var(--rule)}
+.who .pic{aspect-ratio:4/5;overflow:hidden;background:var(--cream)}
+.who .txt{padding:clamp(2rem,5vw,5rem);display:flex;flex-direction:column;gap:1.1rem;justify-content:center}
+.who h2{font-size:clamp(1.9rem,4.6vw,3.6rem);font-weight:700}
+.who p{color:var(--muted);max-width:38ch}
+.pull{font-size:clamp(1.2rem,2.2vw,1.6rem);line-height:1.35;color:var(--ink);
+  padding-left:1.2rem;border-left:3px solid var(--rose);font-weight:400}
+@media(max-width:54rem){.who{grid-template-columns:1fr}}
 
-/* ---- contact ---- */
-.contact{background:var(--cream);border-radius:3px;padding:clamp(2rem,5vw,3.5rem);
- display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:2.5rem;align-items:start}
-.contact h2{margin-bottom:.8rem}
-.dl{display:flex;flex-direction:column;gap:1rem}
-.dl div{display:flex;flex-direction:column;gap:.15rem}
-.dl dt{font-family:var(--cond);font-size:.625rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.dl dd{margin:0;font-size:1.0625rem}
-.dl a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rose)}
+/* ---------------- portraits strip ---------------- */
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));border-top:1px solid var(--rule)}
+.strip .f{position:relative;aspect-ratio:4/5;overflow:hidden;border-right:1px solid var(--hair)}
+.strip .f:last-child{border-right:0}
+.strip .f img{transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .6s}
+.strip .f:hover img{transform:scale(1.05)}
 
-/* ---- footer ---- */
-.foot{border-top:1px solid var(--rule);background:var(--plate);margin-top:5rem}
-.foot-in{max-width:72rem;margin:0 auto;padding:3rem 1.75rem 2rem;
- display:grid;grid-template-columns:minmax(0,1.4fr) repeat(auto-fit,minmax(9rem,1fr));gap:2.5rem}
-.foot .brand img{height:3rem}
-.foot h4{font-size:.625rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem;font-weight:400}
+/* ---------------- contact ---------------- */
+.contact{padding:clamp(5rem,12vw,10rem) 0 clamp(3rem,7vw,6rem);border-top:1px solid var(--rule)}
+.contact h2{font-size:clamp(2.4rem,9vw,8rem);font-weight:700;letter-spacing:-.035em}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:2rem 3rem;
+  margin-top:clamp(2rem,5vw,4rem);padding-top:1.5rem;border-top:1px solid var(--rule)}
+.cgrid div{display:flex;flex-direction:column;gap:.3rem}
+.cgrid dt{font-family:var(--cond);font-size:.625rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.cgrid dd{margin:0;font-size:1.0625rem}
+.cgrid a{text-decoration:none;border-bottom:1px solid var(--rose)}
+
+/* ---------------- footer ---------------- */
+.foot{border-top:1px solid var(--rule);padding:clamp(2.5rem,5vw,4rem) 0 3rem;background:var(--plate)}
+.foot-top{display:flex;flex-wrap:wrap;gap:2rem;align-items:flex-start}
+.foot-top .wm img{width:3rem;height:auto;object-fit:contain}
+.foot-links{display:flex;gap:2.5rem;margin-left:auto;flex-wrap:wrap}
 .foot-col{display:flex;flex-direction:column;gap:.5rem}
-.foot-col a{font-size:.875rem;color:var(--ink);text-decoration:none;width:fit-content;border-bottom:1px solid transparent}
+.foot-col h4{font-family:var(--cond);font-size:.5625rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 .3rem;font-weight:400}
+.foot-col a{font-size:.875rem;text-decoration:none;border-bottom:1px solid transparent;width:fit-content}
 .foot-col a:hover{border-bottom-color:var(--rose)}
-.ack{max-width:72rem;margin:0 auto;padding:1.5rem 1.75rem 3rem;border-top:1px solid var(--rule-soft);
- font-size:.8125rem;line-height:1.6;color:var(--muted)}
+.ack{margin-top:clamp(2rem,5vw,3.5rem);padding-top:1.5rem;border-top:1px solid var(--hair);
+  font-size:.8125rem;line-height:1.6;color:var(--muted);max-width:52rem}
 .ack b{color:var(--ink);font-weight:600}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.fine{margin-top:1.5rem;font-size:.75rem;color:var(--muted)}
+
+/* ---------------- reveal ---------------- */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  .hero>img{animation:none}
+  *{transition:none!important}
+}
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-in">
-    <a class="brand" href="#top">
-      <img src="img/emblem.png" alt="">
-      <span class="wordmark"><span class="a">HARMONY</span><span class="b">CARE</span>
+<nav class="nav" id="nav">
+  <a class="wm" href="#top">
+    <img src="img/emblem.png" alt="">
+    <span class="wm-t"><span class="a">HARMONY</span><span class="b">CARE</span>
       <div class="s">SUPPORT SERVICES</div></span>
-    </a>
-    <a class="lnk" href="#what">What we do</a>
-    <a class="lnk" href="#how">How it works</a>
-    <a class="lnk" href="#who">Who we are</a>
-    <a class="btn" href="#contact">Talk to us</a>
-  </div>
+  </a>
+  <a class="l" href="#work">What we do</a>
+  <a class="l" href="#how">How it works</a>
+  <a class="l" href="#who">Who we are</a>
+  <a class="btn fill" href="#contact">Talk to us</a>
 </nav>
 
 <header class="hero" id="top">
-  <div class="hero-art">
-    <img src="img/hero.jpg" alt="Watercolour illustration of a light-filled living room: a woman at a wall of records, a woman using a wheelchair holding a record sleeve, an older woman laughing, a young man on the rug and a dog asleep on the sofa.">
-  </div>
-  <div class="hero-say">
-    <span class="eyebrow">Gympie &middot; Sunshine Coast</span>
-    <h1>Not a service you receive.<em>A team you direct.</em></h1>
-    <p>We work with people with disability and their families around Gympie. You
-       decide what good looks like. We turn up and make it happen, then get out
-       of the way.</p>
-    <div class="hero-cta">
-      <a class="btn" href="#contact">Talk to us</a>
-      <a class="btn ghost" href="#what">See what we do</a>
+  <img src="img/p-hero.jpg" alt="Two women laughing together in a sunlit lounge room, one using a wheelchair, sorting through a crate of records.">
+  <div class="hero-in">
+    <span class="lbl">Gympie &middot; Sunshine Coast</span>
+    <h1>Not a service<span>you receive.</span></h1>
+    <div class="hero-foot">
+      <p>We work with people with disability and their families. You decide what
+         good looks like. We turn up, make it happen, and get out of the way.</p>
+      <a class="btn line" href="#work">See what we do</a>
     </div>
   </div>
 </header>
 
-<section id="what">
-  <div class="wrap">
-    <div class="sec-head"><span class="eyebrow">What we do</span>
-      <h2>Practical, unglamorous, done properly</h2></div>
-    <p class="lede">Nobody wants the same week. So we start with what you are
-      actually trying to do, not with a menu.</p>
+<section class="stmt edge rv">
+  <h2>Support you <b>direct</b>, not support you are handed.</h2>
+</section>
 
-    <div class="cards">
-      <article class="card">
-        <div class="pic"><img src="img/home.jpg" alt="Watercolour illustration of people sharing lunch at a kitchen table."></div>
-        <div class="body"><h3>At home</h3>
-          <p>Personal care, the cooking, the washing, the shopping. The
-             unremarkable things that make a day work, done the way you like
-             them done rather than the way the manual says.</p></div>
-      </article>
-      <article class="card">
-        <div class="pic"><img src="img/out.jpg" alt="Watercolour illustration of people gardening together outdoors."></div>
-        <div class="body"><h3>Out and about</h3>
-          <p>Appointments, work, and the things you would rather be doing. We
-             drive, we come along, or we hand the keys over and clear off.</p></div>
-      </article>
-      <article class="card">
-        <div class="pic"><img src="img/living.jpg" alt="Watercolour illustration of a sunroom with people reading and talking."></div>
-        <div class="body"><h3>Living independently</h3>
-          <p>Your own place, or a shared one. Enough support to make it work.
-             Never so much that it stops being yours.</p></div>
-      </article>
-      <article class="card">
-        <div class="pic"><img src="img/coord.jpg" alt="Watercolour illustration of two people talking in a room with framed art."></div>
-        <div class="body"><h3>Finding your way through the NDIS</h3>
-          <p>Coordination and recovery coaching. We read the plan, make the
-             calls, and translate the whole thing out of acronym.</p></div>
-      </article>
+<section id="work">
+  <div class="edge rv" style="padding-bottom:2rem"><span class="lbl">What we do</span></div>
+
+  <article class="panel rv">
+    <div class="pic"><img src="img/p-home.jpg" alt="Two people preparing food together in a warm kitchen."></div>
+    <div class="txt">
+      <span class="num">01</span>
+      <h3>At home</h3>
+      <p>Personal care, the cooking, the washing, the shopping. The unremarkable
+         things that make a day work, done the way you like them done rather than
+         the way the manual says.</p>
     </div>
+  </article>
+
+  <article class="panel rv">
+    <div class="pic"><img src="img/p-out.jpg" alt="A young woman using a wheelchair and a support worker laughing together on a coastal boardwalk."></div>
+    <div class="txt">
+      <span class="num">02</span>
+      <h3>Out and about</h3>
+      <p>Appointments, work, and the things you would rather be doing. We drive,
+         we come along, or we hand the keys over and clear off.</p>
+    </div>
+  </article>
+
+  <article class="panel rv">
+    <div class="pic"><img src="img/p-living.jpg" alt="A light-filled sunroom with people reading and talking."></div>
+    <div class="txt">
+      <span class="num">03</span>
+      <h3>Living independently</h3>
+      <p>Your own place, or a shared one. Enough support to make it work. Never so
+         much that it stops being yours.</p>
+    </div>
+  </article>
+
+  <article class="panel rv">
+    <div class="pic"><img src="img/p-coord.jpg" alt="A support coordinator and a participant working through plan paperwork at a kitchen table."></div>
+    <div class="txt">
+      <span class="num">04</span>
+      <h3>Finding your way through the NDIS</h3>
+      <p>Coordination and recovery coaching. We read the plan, make the calls, and
+         translate the whole thing out of acronym.</p>
+    </div>
+  </article>
+</section>
+
+<div class="bleed">
+  <img src="img/p-break.jpg" alt="People making things together in a bright studio: pottery, sewing, guitar, plants.">
+  <div class="cap"><h3>A life with <b>things in it.</b></h3></div>
+</div>
+
+<section class="steps edge" id="how">
+  <div class="rv" style="padding-bottom:1.5rem"><span class="lbl">How it works</span></div>
+  <div class="steps-grid rv">
+    <div class="stp"><span class="num">01</span><h3>Have a chat</h3>
+      <p>Call or email. No intake pack, no hold music. We listen, and we say so
+         plainly if we are not the right fit.</p></div>
+    <div class="stp"><span class="num">02</span><h3>Plan it together</h3>
+      <p>We work out what good support looks like for you and write it down, so
+         everyone is working off the same page.</p></div>
+    <div class="stp"><span class="num">03</span><h3>Meet your people</h3>
+      <p>You are matched with workers who suit you, not whoever happened to be
+         free. You get a say. You can change your mind.</p></div>
+    <div class="stp"><span class="num">04</span><h3>Keep checking</h3>
+      <p>We ask how it is going and we act on the answer. If it is not working we
+         change it, not you.</p></div>
   </div>
 </section>
 
-<section id="how" style="padding-top:1rem">
-  <div class="wrap">
-    <div class="sec-head"><span class="eyebrow">How it works</span>
-      <h2>Four steps. No forms until step two.</h2></div>
-    <div class="steps">
-      <div class="step"><span class="step-n">01</span><h3>Have a chat</h3>
-        <p>Call or email. No intake pack, no hold music. We listen, and we say
-           so plainly if we are not the right fit.</p></div>
-      <div class="step"><span class="step-n">02</span><h3>Plan it together</h3>
-        <p>We work out what good support looks like for you and write it down,
-           so everyone is working off the same page.</p></div>
-      <div class="step"><span class="step-n">03</span><h3>Meet your people</h3>
-        <p>You are matched with workers who suit you, not whoever happened to
-           be free. You get a say. You can change your mind.</p></div>
-      <div class="step"><span class="step-n">04</span><h3>Keep checking</h3>
-        <p>We ask how it is going and we act on the answer. If it is not
-           working we change it, not you.</p></div>
-    </div>
+<section class="who rv" id="who">
+  <div class="pic"><img src="img/p-portrait.jpg" alt="A woman in her fifties standing in the doorway of a warm home."></div>
+  <div class="txt">
+    <span class="lbl">Who we are</span>
+    <h2>Small, and staying that way</h2>
+    <p>Harmony Care was started by Victoria Scilipote, who has spent her working
+       life in disability and family support and got tired of watching people be
+       handed a service instead of asked a question.</p>
+    <p>We stay small so you know who is walking through the door, and so the
+       person you talk to is the person who can change something.</p>
+    <p class="pull">Independence, dignity, choice and inclusion. Four words we
+       measure ourselves against, not four words on a wall.</p>
   </div>
 </section>
 
-<div class="band"><img src="img/making.jpg" alt="Watercolour illustration of a making room: painting at an easel, pottery, sewing, guitar and repotting plants."></div>
+<div class="strip rv">
+  <div class="f"><img src="img/p-elder.jpg" alt="Portrait of an older woman at home."></div>
+  <div class="f"><img src="img/p-teen.jpg" alt="Portrait of a teenager at home."></div>
+  <div class="f"><img src="img/p-who.jpg" alt="A support worker arriving at a participant's front door."></div>
+  <div class="f"><img src="img/cast.jpg" alt="Painted illustration of the Harmony Care cast."></div>
+</div>
 
-<section id="who">
-  <div class="wrap">
-    <div class="who">
-      <div>
-        <div class="sec-head"><span class="eyebrow">Who we are</span>
-          <h2>Small, and staying that way</h2></div>
-        <p>Harmony Care was started by Victoria Scilipote, who has spent her
-           working life in disability and family support and got tired of watching
-           people be handed a service instead of asked a question.</p>
-        <p>We stay small so you know who is walking through the door, and so the
-           person you talk to is the person who can change something.</p>
-        <blockquote class="quote">Independence, dignity, choice and inclusion. Four
-          words we measure ourselves against, not four words on a wall.</blockquote>
-      </div>
-      <div class="who-art"><img src="img/cast.jpg" alt="Painted illustration of the Harmony Care cast: a wheelchair user, an elder with a cane, an adult, a child and a support worker."></div>
-    </div>
-  </div>
-</section>
-
-<section id="where" style="padding-top:1rem">
-  <div class="wrap">
-    <div class="where">
-      <img src="img/coast.jpg" alt="Watercolour illustration of the coastline.">
-      <div class="where-card">
-        <h3>Gympie, and the coast either side</h3>
-        <p>The office is in Gympie. We work across the wider Sunshine Coast
-           region. If you are not sure we reach you, ask. Usually we do.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="contact" style="padding-top:1rem">
-  <div class="wrap">
-    <div class="contact">
-      <div>
-        <h2>Talk to us</h2>
-        <p class="lede">No script. Tell us what is going on and we will tell you
-          whether we can help.</p>
-        <div style="margin-top:1.75rem"><a class="btn" href="tel:0434721051">Call 0434 721 051</a></div>
-      </div>
-      <dl class="dl">
-        <div><dt>Phone</dt><dd><a href="tel:0434721051">0434 721 051</a></dd></div>
-        <div><dt>Email</dt><dd><a href="mailto:victoria@harmonycaresupportservices.com.au">victoria@harmonycaresupportservices.com.au</a></dd></div>
-        <div><dt>Office</dt><dd>38 Nash Street<br>Gympie QLD 4570</dd></div>
-      </dl>
-    </div>
-  </div>
+<section class="contact edge" id="contact">
+  <div class="rv"><span class="lbl">Talk to us</span>
+    <h2 style="margin-top:.7rem">Start with<br>a conversation.</h2></div>
+  <dl class="cgrid rv">
+    <div><dt>Phone</dt><dd><a href="tel:0434721051">0434 721 051</a></dd></div>
+    <div><dt>Email</dt><dd><a href="mailto:victoria@harmonycaresupportservices.com.au">victoria@harmonycare<wbr>supportservices.com.au</a></dd></div>
+    <div><dt>Office</dt><dd>38 Nash Street<br>Gympie QLD 4570</dd></div>
+    <div><dt>Where we work</dt><dd>Gympie and the wider<br>Sunshine Coast region</dd></div>
+  </dl>
 </section>
 
 <footer class="foot">
-  <div class="foot-in">
-    <div>
-      <a class="brand" href="#top">
+  <div class="edge">
+    <div class="foot-top">
+      <a class="wm" href="#top" style="display:flex;align-items:center;gap:.7rem;text-decoration:none">
         <img src="img/emblem.png" alt="">
-        <span class="wordmark"><span class="a">HARMONY</span><span class="b">CARE</span>
-        <div class="s">SUPPORT SERVICES</div></span>
+        <span class="wm-t"><span class="a">HARMONY</span><span class="b">CARE</span>
+          <div class="s">SUPPORT SERVICES</div></span>
       </a>
-      <p style="margin-top:1rem;font-size:.875rem;line-height:1.55;color:var(--muted);max-width:24rem">
-        Harmony Care Support Services Pty Ltd<br>
-        ABN 99 691 543 834 &middot; ACN 691 543 834<br>
-        38 Nash Street, Gympie QLD 4570
-      </p>
+      <div class="foot-links">
+        <div class="foot-col"><h4>Explore</h4>
+          <a href="#work">What we do</a><a href="#how">How it works</a><a href="#who">Who we are</a></div>
+        <div class="foot-col"><h4>Get in touch</h4>
+          <a href="tel:0434721051">0434 721 051</a><a href="mailto:victoria@harmonycaresupportservices.com.au">Email us</a></div>
+      </div>
     </div>
-    <div class="foot-col"><h4>Explore</h4>
-      <a href="#what">What we do</a><a href="#how">How it works</a>
-      <a href="#who">Who we are</a><a href="#where">Where we work</a></div>
-    <div class="foot-col"><h4>Get in touch</h4>
-      <a href="tel:0434721051">0434 721 051</a>
-      <a href="mailto:victoria@harmonycaresupportservices.com.au">Email us</a></div>
-  </div>
-  <div class="ack">
-    <b>Always was, always will be.</b> Harmony Care Support Services acknowledges
-    Aboriginal and Torres Strait Islander people as the traditional custodians of this
-    land. We pay our respects to the Kabi Kabi / Gubbi Gubbi people, on whose country
-    we live, work and provide support, and to elders past, present and emerging.
+    <p class="ack"><b>Always was, always will be.</b> Harmony Care Support Services
+      acknowledges Aboriginal and Torres Strait Islander people as the traditional
+      custodians of this land. We pay our respects to the Kabi Kabi / Gubbi Gubbi
+      people, on whose country we live, work and provide support, and to elders
+      past, present and emerging.</p>
+    <p class="fine">Harmony Care Support Services Pty Ltd &middot; ABN 99 691 543 834
+      &middot; ACN 691 543 834 &middot; 38 Nash Street, Gympie QLD 4570</p>
   </div>
 </footer>
 
+<script>
+(function(){
+  var nav=document.getElementById('nav');
+  var onScroll=function(){nav.classList.toggle('solid',scrollY>window.innerHeight*.75)};
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  if(!('IntersectionObserver' in window)){
+    document.querySelectorAll('.rv').forEach(function(n){n.classList.add('in')});return;
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{rootMargin:'0px 0px -12% 0px',threshold:.08});
+  document.querySelectorAll('.rv').forEach(function(n){io.observe(n)});
+})();
+</script>
 </body>
 </html>
