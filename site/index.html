@@ -41,8 +41,21 @@ a{color:inherit}
 
 /* ---------------- nav ---------------- */
 .nav{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:1.5rem;
-  padding:1.5rem var(--gut);mix-blend-mode:normal;transition:background .3s,border-color .3s,padding .3s;
-  border-bottom:1px solid transparent}
+  padding:1.5rem var(--gut);transition:background .3s,border-color .3s,padding .3s,color .3s;
+  border-bottom:1px solid transparent;color:#F7F1E6}
+/* over the hero the type is light and a soft scrim keeps it legible */
+.nav::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(20,19,16,.55),rgba(20,19,16,0));
+  transition:opacity .3s}
+.nav.solid::before{opacity:0}
+.nav .wm{color:inherit}
+.nav .wm-t .s{color:rgba(247,241,230,.72);border-top-color:rgba(247,241,230,.4)}
+.nav.solid{color:var(--ink)}
+.nav.solid .wm-t .s{color:var(--muted);border-top-color:var(--rule)}
+.nav .btn.fill{background:transparent;border-color:currentColor;color:inherit}
+.nav .btn.fill:hover{background:#F7F1E6;color:#141310;border-color:#F7F1E6}
+.nav.solid .btn.fill{background:var(--forest);border-color:var(--forest);color:var(--paper)}
+.nav.solid .btn.fill:hover{background:var(--ink);border-color:var(--ink)}
 .nav.solid{padding-block:1.05rem;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(12px);border-bottom-color:var(--hair)}
 .nav .wm{margin-right:auto;display:flex;align-items:center;gap:.85rem;text-decoration:none;color:var(--ink)}
 .nav .wm img{width:5.4rem;height:auto;object-fit:contain;transition:width .3s}
@@ -175,6 +188,9 @@ a{color:inherit}
 .cgrid a{text-decoration:none;border-bottom:1px solid var(--accent)}
 
 /* ---------------- footer ---------------- */
+.foot-art{position:relative;overflow:clip;border-top:1px solid var(--rule)}
+.foot-art img{width:100%;height:clamp(14rem,38vw,30rem);object-fit:cover;object-position:center 58%}
+
 .foot{border-top:1px solid var(--rule);padding-block:clamp(3.5rem,6vw,5.5rem) 3.5rem;background:var(--plate)}
 .foot-top{display:flex;flex-wrap:wrap;gap:2.5rem 3rem;align-items:flex-start}
 .foot-top>a.wm{flex:1 1 26rem;min-width:0}
@@ -476,6 +492,10 @@ a{color:inherit}
     <div><dt>Where we work</dt><dd>Gympie, the Sunshine<br>Coast and Brisbane</dd></div>
   </dl>
 </section>
+
+<div class="foot-art">
+  <img src="img/p-hero.jpg" alt="Two women laughing together in a sunlit lounge room, one using a wheelchair, sorting through a crate of records.">
+</div>
 
 <footer class="foot">
   <div class="edge">
