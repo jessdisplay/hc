@@ -62,11 +62,11 @@ a{color:inherit}
 .btn.line:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
 /* ---------------- hero ---------------- */
-.hero{position:relative;height:100svh;min-height:34rem;overflow:hidden;background:#1b1a17}
-.hero>img{position:absolute;inset:0;transform:scale(1.06);animation:drift 30s ease-in-out infinite alternate}
+.hero{position:relative;height:100svh;min-height:34rem;overflow:hidden;background:#FBF7EF}
+.hero>img{position:absolute;inset:0;object-position:center 42%;transform:scale(1.06);animation:drift 30s ease-in-out infinite alternate}
 @keyframes drift{to{transform:scale(1.14) translate3d(-1.5%,-1%,0)}}
 .hero::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(20,19,16,.86) 0%,rgba(20,19,16,.35) 38%,rgba(20,19,16,.12) 70%)}
+  background:linear-gradient(to top,rgba(28,24,20,.80) 0%,rgba(28,24,20,.42) 34%,rgba(28,24,20,.06) 66%)}
 .hero-in{position:absolute;inset:auto 0 0 0;z-index:2;padding:0 var(--gut) clamp(2rem,5vw,4rem);color:#F7F1E6}
 .hero-in .lbl{color:#E8C9BF}
 .hero h1{font-size:clamp(2.4rem,8vw,8rem);font-weight:700;margin:.6rem 0 0;letter-spacing:-.035em}
@@ -207,6 +207,20 @@ a{color:inherit}
 .story-pic{aspect-ratio:4/5;overflow:hidden;background:var(--cream)}
 @media(max-width:54rem){.story-grid{grid-template-columns:1fr}}
 
+
+/* ---------------- the name ---------------- */
+.name{padding-block:clamp(3rem,8vw,7rem)}
+.nm{display:flex;flex-wrap:wrap;gap:.02em;font-family:var(--cond);font-weight:700;
+  font-size:clamp(3.4rem,15vw,14rem);line-height:.82;letter-spacing:-.04em;margin-top:1.2rem}
+.nm .k{color:var(--accent)}
+.nm .o{color:var(--ink);opacity:.24;font-weight:200}
+.nm-keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1rem 2rem;
+  margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--rule)}
+.nm-keys div{display:flex;align-items:baseline;gap:.7rem}
+.ki{font-family:var(--cond);font-weight:700;font-size:1.5rem;color:var(--accent);width:1.1em}
+.kn{font-size:1.0625rem;color:var(--muted)}
+.nm-note{margin-top:1.75rem;max-width:44ch;color:var(--muted)}
+
 /* ---------------- marquee ---------------- */
 .marq{overflow:clip;max-width:100%;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
   padding:1.1rem 0;background:var(--cream)}
@@ -244,7 +258,7 @@ a{color:inherit}
 </nav>
 
 <header class="hero" id="top">
-  <img src="img/p-hero.jpg" alt="Two women laughing together in a sunlit lounge room, one using a wheelchair, sorting through a crate of records.">
+  <img src="img/hero-family.jpg" alt="Painted illustration of Victoria at home with her four children: one reading on the rug, one in the doorway with a skateboard, one at the kitchen bench, one small child mid-skip, and the dog asleep.">
   <div class="hero-in">
     <span class="lbl">Gympie &middot; Sunshine Coast &middot; Brisbane</span>
     <h1>Four kids gave us<span>our name.</span></h1>
@@ -328,6 +342,22 @@ a{color:inherit}
       <div class="story-pic rv"><img src="img/p-elder.jpg" alt="A quiet moment at home."></div>
     </div>
   </div>
+</section>
+
+
+<section class="name edge" id="name">
+  <div class="rv"><span class="lbl">Where the name came from</span></div>
+  <div class="nm rv">
+    <span class="k" data-kid="1">H</span><span class="k" data-kid="2">A</span><span class="k" data-kid="3">R</span><span class="k" data-kid="4">M</span><span class="o">O</span><span class="o">N</span><span class="o">Y</span>
+  </div>
+  <div class="nm-keys rv">
+    <div><span class="ki">H</span><span class="kn">[first child]</span></div>
+    <div><span class="ki">A</span><span class="kn">[second child]</span></div>
+    <div><span class="ki">R</span><span class="kn">[third child]</span></div>
+    <div><span class="ki">M</span><span class="kn">[fourth child]</span></div>
+  </div>
+  <p class="nm-note rv">Four children, four letters, one name. They are the reason
+    the business exists and the reason it is called what it is.</p>
 </section>
 
 <div class="marq rv" aria-hidden="true"><div class="marq-in">
