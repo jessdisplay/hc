@@ -29,7 +29,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{display:block;width:100%;height:100%;object-fit:cover}
 h1,h2,h3,.lbl,.nav,.btn,.wm,.num{font-family:var(--cond)}
-h1,h2,h3{margin:0;line-height:.92;letter-spacing:-.02em;text-wrap:balance}
+h1,h2,h3{margin:0;line-height:.92;letter-spacing:-.02em;text-wrap:balance;overflow-wrap:break-word;hyphens:auto}
 p{margin:0}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--rose-text);outline-offset:4px}
@@ -68,7 +68,7 @@ a{color:inherit}
   background:linear-gradient(to top,rgba(20,19,16,.86) 0%,rgba(20,19,16,.35) 38%,rgba(20,19,16,.12) 70%)}
 .hero-in{position:absolute;inset:auto 0 0 0;z-index:2;padding:0 var(--gut) clamp(2rem,5vw,4rem);color:#F7F1E6}
 .hero-in .lbl{color:#E8C9BF}
-.hero h1{font-size:clamp(3rem,11.5vw,12rem);font-weight:700;margin:.6rem 0 0;letter-spacing:-.035em}
+.hero h1{font-size:clamp(2.6rem,9vw,9rem);font-weight:700;margin:.6rem 0 0;letter-spacing:-.035em}
 .hero h1 span{display:block;font-weight:200;color:#DCCFC0}
 .hero-foot{display:flex;flex-wrap:wrap;gap:1.5rem 3rem;align-items:flex-end;margin-top:clamp(1.5rem,3vw,2.5rem);
   padding-top:1.25rem;border-top:1px solid rgba(247,241,230,.28)}
@@ -78,7 +78,7 @@ a{color:inherit}
 
 /* ---------------- statement ---------------- */
 .stmt{padding:clamp(5rem,13vw,11rem) 0}
-.stmt h2{font-size:clamp(2rem,6.4vw,5.5rem);font-weight:200;letter-spacing:-.03em;max-width:22ch}
+.stmt h2{font-size:clamp(1.8rem,5.2vw,4.5rem);font-weight:200;letter-spacing:-.03em;max-width:22ch}
 .stmt h2 b{font-weight:700;color:var(--rose-text)}
 
 /* ---------------- panels ---------------- */
@@ -132,9 +132,39 @@ a{color:inherit}
 .strip .f img{transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .6s}
 .strip .f:hover img{transform:scale(1.05)}
 
+
+/* ---------------- index list ---------------- */
+.index{padding:clamp(4rem,10vw,9rem) 0 clamp(2rem,5vw,4rem)}
+.idx-h{font-size:clamp(2rem,5.6vw,4.5rem);font-weight:700;margin-top:.6rem}
+.idx{margin-top:clamp(2rem,4vw,3rem);border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:3.5rem minmax(0,15rem) minmax(0,1fr);gap:1rem 2rem;
+  align-items:baseline;padding:1.15rem 0;border-bottom:1px solid var(--hair);
+  transition:background .25s,padding-left .25s}
+.row:hover{background:var(--cream);padding-left:.75rem}
+.row .c{font-family:var(--cond);font-size:.6875rem;letter-spacing:.2em;color:var(--rose-text)}
+.row h3{font-size:1.125rem;font-weight:600;letter-spacing:0;line-height:1.25}
+.row p{font-size:.9375rem;line-height:1.5;color:var(--muted)}
+@media(max-width:54rem){
+  .row{grid-template-columns:2.5rem minmax(0,1fr);gap:.35rem 1rem}
+  .row p{grid-column:2}
+}
+
+/* ---------------- faq ---------------- */
+.faq{padding:clamp(2rem,5vw,4rem) 0 clamp(4rem,9vw,8rem)}
+.faqs{margin-top:clamp(1.5rem,3vw,2.5rem);border-top:1px solid var(--rule)}
+.faqs details{border-bottom:1px solid var(--hair)}
+.faqs summary{list-style:none;cursor:pointer;padding:1.35rem 2.5rem 1.35rem 0;position:relative;
+  font-family:var(--cond);font-size:clamp(1.05rem,2vw,1.4rem);font-weight:600;letter-spacing:0}
+.faqs summary::-webkit-details-marker{display:none}
+.faqs summary::after{content:"";position:absolute;right:.4rem;top:50%;width:.7rem;height:.7rem;
+  border-right:1.5px solid var(--rose);border-bottom:1.5px solid var(--rose);
+  transform:translateY(-60%) rotate(45deg);transition:transform .25s}
+.faqs details[open] summary::after{transform:translateY(-30%) rotate(-135deg)}
+.faqs p{padding:0 3rem 1.5rem 0;max-width:60ch;color:var(--muted);font-size:1rem;line-height:1.6}
+
 /* ---------------- contact ---------------- */
 .contact{padding:clamp(5rem,12vw,10rem) 0 clamp(3rem,7vw,6rem);border-top:1px solid var(--rule)}
-.contact h2{font-size:clamp(2.4rem,9vw,8rem);font-weight:700;letter-spacing:-.035em}
+.contact h2{font-size:clamp(2rem,6.4vw,5.5rem);font-weight:700;letter-spacing:-.035em}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:2rem 3rem;
   margin-top:clamp(2rem,5vw,4rem);padding-top:1.5rem;border-top:1px solid var(--rule)}
 .cgrid div{display:flex;flex-direction:column;gap:.3rem}
@@ -202,6 +232,7 @@ a{color:inherit}
   </a>
   <a class="l" href="#work">What we do</a>
   <a class="l" href="#how">How it works</a>
+  <a class="l" href="#services">Services</a>
   <a class="l" href="#story">Our story</a>
   <a class="l" href="#who">Who we are</a>
   <a class="btn fill" href="#contact">Talk to us</a>
@@ -348,9 +379,58 @@ a{color:inherit}
   <div class="f"><img src="img/cast.jpg" alt="Painted illustration of the Harmony Care cast."></div>
 </div>
 
+
+<section class="index edge" id="services">
+  <div class="rv"><span class="lbl">Everything we offer</span>
+    <h2 class="idx-h">The full list</h2></div>
+  <div class="idx rv">
+    <div class="row"><span class="c">01</span><h3>Daily living</h3><p>Personal care and daily personal activities, at home and in the community.</p></div>
+    <div class="row"><span class="c">02</span><h3>Household tasks</h3><p>The cooking, the washing, the shopping, the tidying. Kept on top of, not taken over.</p></div>
+    <div class="row"><span class="c">03</span><h3>Community participation</h3><p>Getting out, joining in, and building the connections that make a week worth having.</p></div>
+    <div class="row"><span class="c">04</span><h3>Group and centre activities</h3><p>Shared programs where you want them, one to one where you do not.</p></div>
+    <div class="row"><span class="c">05</span><h3>Daily care and life skills</h3><p>Building the practical skills you want, at the pace you want them.</p></div>
+    <div class="row"><span class="c">06</span><h3>Meal preparation</h3><p>Planning, shopping and cooking, tailored to what you actually like eating.</p></div>
+    <div class="row"><span class="c">07</span><h3>Travel and transport</h3><p>Lifts to appointments, work and everything else. Insured, licensed, on time.</p></div>
+    <div class="row"><span class="c">08</span><h3>Supported independent living</h3><p>Support in your own home or a shared one, arranged around your tenancy and your terms.</p></div>
+    <div class="row"><span class="c">09</span><h3>Shared living and daily tasks</h3><p>Making a shared household work for everybody living in it.</p></div>
+    <div class="row"><span class="c">10</span><h3>Support coordination</h3><p>We read the plan, make the calls, and translate it out of acronym.</p></div>
+    <div class="row"><span class="c">11</span><h3>Specialist support coordination</h3><p>For when the situation is complex and needs someone who has seen complex before.</p></div>
+    <div class="row"><span class="c">12</span><h3>Psychosocial recovery coaching</h3><p>Working alongside mental health, at your pace, on your goals.</p></div>
+    <div class="row"><span class="c">13</span><h3>Employment and education</h3><p>Support to find work or study, and to keep it once you have it.</p></div>
+    <div class="row"><span class="c">14</span><h3>High intensity personal activities</h3><p>Complex bowel care, enteral feeding and catheter management, by trained staff.</p></div>
+    <div class="row"><span class="c">15</span><h3>Behaviour support implementation</h3><p>Putting a behaviour support plan into practice properly, and reviewing whether it is working.</p></div>
+  </div>
+</section>
+
+<section class="faq edge" id="faq">
+  <div class="rv"><span class="lbl">Questions people actually ask</span>
+    <h2 class="idx-h">Before you call</h2></div>
+  <div class="faqs rv">
+    <details><summary>Do I need an NDIS plan already?</summary>
+      <p>No. If you are still working out whether you are eligible, or waiting on
+        a decision, call anyway. We will tell you what we know and point you at
+        the right people for the rest.</p></details>
+    <details><summary>How do I know who is coming to my house?</summary>
+      <p>You meet them first, and you get a say. If a worker is not the right
+        fit, you tell us and we change it. No awkwardness, no explanation
+        required.</p></details>
+    <details><summary>What if I want to stop, or change something?</summary>
+      <p>Then you stop, or you change it. Your plan is yours. We will make the
+        handover clean and give you everything you need to take elsewhere.</p></details>
+    <details><summary>Can you help my whole family, not just me?</summary>
+      <p>Often, yes. A lot of what we do sits around the household rather than a
+        single person. Ask, and we will be honest about what we can and cannot
+        do.</p></details>
+    <details><summary>How quickly can you start?</summary>
+      <p>It depends on what you need and where you are. Small things can start
+        quickly. Complex supports take longer to set up properly, and we would
+        rather be honest about that than promise a date we will miss.</p></details>
+  </div>
+</section>
+
 <section class="contact edge" id="contact">
   <div class="rv"><span class="lbl">Talk to us</span>
-    <h2 style="margin-top:.7rem">Start with<br>a conversation.</h2></div>
+    <h2 style="margin-top:.7rem">Start with a conversation.</h2></div>
   <dl class="cgrid rv">
     <div><dt>Phone</dt><dd><a href="tel:0434721051">0434 721 051</a></dd></div>
     <div><dt>Email</dt><dd><a href="mailto:victoria@harmonycaresupportservices.com.au">victoria@harmonycare<wbr>supportservices.com.au</a></dd></div>
@@ -369,7 +449,7 @@ a{color:inherit}
       </a>
       <div class="foot-links">
         <div class="foot-col"><h4>Explore</h4>
-          <a href="#work">What we do</a><a href="#how">How it works</a><a href="#who">Who we are</a></div>
+          <a href="#work">What we do</a><a href="#how">How it works</a><a href="#services">Services</a><a href="#faq">Questions</a><a href="#who">Who we are</a></div>
         <div class="foot-col"><h4>Get in touch</h4>
           <a href="tel:0434721051">0434 721 051</a><a href="mailto:victoria@harmonycaresupportservices.com.au">Email us</a></div>
       </div>
