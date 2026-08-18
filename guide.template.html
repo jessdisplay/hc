@@ -738,32 +738,11 @@ p { margin: 0; }
    Both are decoration, so they stay well under the text contrast.
    ------------------------------------------------------------------ */
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background-image: url("{{WASH}}");
-  background-size: cover;
-  background-position: center 60%;
-  opacity: .10;
-  pointer-events: none;
-}
-/* keep the paper colour reading through in both themes */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(to bottom, var(--paper) 0%, transparent 22%, transparent 78%, var(--paper) 100%);
-  pointer-events: none;
-}
-
 .cover-plate, .foot { position: relative; z-index: 1; }
 
 /* the band between the files and the how-to */
 .band {
-  margin: 4.5rem 0 0;
+  margin: 5rem 0 0;
   background: var(--artpaper);
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
@@ -772,7 +751,7 @@ body::after {
 .band img {
   display: block;
   width: 100%;
-  height: clamp(11rem, 26vw, 20rem);
+  height: clamp(13rem, 30vw, 26rem);
   object-fit: cover;
   object-position: center 58%;
 }
@@ -799,7 +778,6 @@ body::after {
   background: radial-gradient(circle, var(--sage) 0%, transparent 68%);
 }
 
-@media (prefers-reduced-motion: reduce) { body::before { opacity: .07; } }
 
 /* ---------- how to use ---------- */
 
@@ -1248,6 +1226,11 @@ body::after {
       </div>
     </div>
   </section>
+
+
+  <div class="band">
+    <img src="{{BAND2}}" alt="Watercolour illustration of a shared living room: a woman at a wall of records, a woman using a wheelchair holding a record sleeve, an older woman laughing, a young man on the rug and a dog asleep on the sofa." />
+  </div>
 
   <!-- ============ footer ============ -->
   <footer class="foot">
