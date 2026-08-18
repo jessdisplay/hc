@@ -41,15 +41,16 @@ a{color:inherit}
 
 /* ---------------- nav ---------------- */
 .nav{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:1.5rem;
-  padding:1rem var(--gut);mix-blend-mode:normal;transition:background .3s,border-color .3s;
+  padding:1.5rem var(--gut);mix-blend-mode:normal;transition:background .3s,border-color .3s,padding .3s;
   border-bottom:1px solid transparent}
-.nav.solid{background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(12px);border-bottom-color:var(--hair)}
-.nav .wm{margin-right:auto;display:flex;align-items:center;gap:.65rem;text-decoration:none;color:var(--ink)}
-.nav .wm img{width:2.2rem;height:auto;object-fit:contain}
+.nav.solid{padding-block:1.05rem;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(12px);border-bottom-color:var(--hair)}
+.nav .wm{margin-right:auto;display:flex;align-items:center;gap:.85rem;text-decoration:none;color:var(--ink)}
+.nav .wm img{width:3.6rem;height:auto;object-fit:contain;transition:width .3s}
+.nav.solid .wm img{width:2.9rem}
 .wm-t{line-height:1}
-.wm-t .a{font-size:1rem;font-weight:700;letter-spacing:-.01em}
-.wm-t .b{font-size:1rem;font-weight:200}
-.wm-t .s{font-size:.45rem;letter-spacing:.34em;color:var(--muted);margin-top:.2rem}
+.wm-t .a{font-size:1.35rem;font-weight:700;letter-spacing:-.01em}
+.wm-t .b{font-size:1.35rem;font-weight:200}
+.wm-t .s{font-size:.5rem;letter-spacing:.34em;color:var(--muted);margin-top:.28rem;border-top:1px solid var(--rule);padding-top:.28rem}
 .nav a.l{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;opacity:.7}
 .nav a.l:hover{opacity:1}
 @media(max-width:56rem){.nav a.l{display:none}}
@@ -241,7 +242,7 @@ a{color:inherit}
 <header class="hero" id="top">
   <img src="img/p-hero.jpg" alt="Two women laughing together in a sunlit lounge room, one using a wheelchair, sorting through a crate of records.">
   <div class="hero-in">
-    <span class="lbl">Gympie &middot; Sunshine Coast</span>
+    <span class="lbl">Gympie &middot; Sunshine Coast &middot; Brisbane</span>
     <h1>Four kids gave us<span>our name.</span></h1>
     <div class="hero-foot">
       <p>Harmony Care started because Victoria could not find support that fit
@@ -435,7 +436,7 @@ a{color:inherit}
     <div><dt>Phone</dt><dd><a href="tel:0434721051">0434 721 051</a></dd></div>
     <div><dt>Email</dt><dd><a href="mailto:victoria@harmonycaresupportservices.com.au">victoria@harmonycare<wbr>supportservices.com.au</a></dd></div>
     <div><dt>Office</dt><dd>38 Nash Street<br>Gympie QLD 4570</dd></div>
-    <div><dt>Where we work</dt><dd>Gympie and the wider<br>Sunshine Coast region</dd></div>
+    <div><dt>Where we work</dt><dd>Gympie, the Sunshine<br>Coast and Brisbane</dd></div>
   </dl>
 </section>
 
