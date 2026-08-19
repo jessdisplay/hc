@@ -38,19 +38,88 @@ a{color:inherit}
 .edge{padding-inline:var(--gut);max-width:100%}
 .lbl{font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:block}
 
-/* Easter eggs: a painted skit sits in the margin beside each section heading,
-   big enough to actually read, and drifts as you scroll past it.
-   --p is written by the scroll loop, 0 entering, 1 leaving. */
+/* ---------------- the scenes ----------------
+   Each heading carries a small painted skit built from separate layers.
+   The comedy object between the figures does the work, scroll drives it,
+   and nobody in the picture acknowledges the joke.
+   --p: 0 entering the viewport, 1 leaving. --t: 0 at the edges, 1 mid.
+   Understated: small angles, a few pixels, one beat per scene.
+-------------------------------------------------- */
 section{position:relative}
-.skit{position:absolute;right:var(--gut);top:clamp(2rem,5vw,4.5rem);z-index:0;
-  width:clamp(11rem,22vw,20rem);pointer-events:none;
-  opacity:0;transform:translateY(24px);
-  transition:opacity 1s cubic-bezier(.2,.8,.2,1) .15s,transform 1s cubic-bezier(.2,.8,.2,1) .15s}
-.skit img{width:100%;height:auto;display:block}
-.rv.in~.skit,.skit.in{opacity:1;
-  transform:translateY(calc(10px - var(--p,0) * 20px)) rotate(calc(-1.5deg + var(--p,0) * 3deg))}
-@media(max-width:70rem){.skit{position:static;width:min(22rem,100%);margin:1.5rem 0 0}}
-@media (prefers-reduced-motion:reduce){.skit{transition:none;opacity:1;transform:none}}
+.scene{position:relative;height:clamp(9rem,16vw,14rem);margin:0 0 1.1rem;
+  pointer-events:none;opacity:1}
+.js .scene{opacity:0;transition:opacity .8s ease .1s}
+.js .scene.in{opacity:1}
+.scene .ly{position:absolute;bottom:0;height:100%;width:auto}
+.scene .wire{position:absolute;color:var(--muted);overflow:visible}
+
+/* the sheet fold: mid-beat, the sheet lands on her head; she keeps folding */
+.scene-sheet{--g:clamp(0,(var(--t,0) - .62)*4,1)}
+.scene-sheet .worker{left:7%;height:94%}
+.scene-sheet .mate{right:9%;height:90%}
+.scene-sheet .billow{left:50%;bottom:28%;height:46%;opacity:calc(1 - var(--g));
+  transform:translateX(-50%) translateY(calc(var(--t,0)*-8px))}
+.scene-sheet .ghost{left:3%;bottom:50%;height:48%;opacity:var(--g);
+  transform:translateY(calc((1 - var(--g))*-12px))}
+
+/* the phone cord: the cord pulls taut and drags the base along the line */
+.scene-cord{--drag:clamp(0,(var(--t,0) - .72)*4,1)}
+.scene-cord .base{left:5%;height:34%;transform-origin:50% 100%;
+  transform:translateX(calc(var(--drag)*44px)) rotate(calc(var(--drag)*4deg))}
+.scene-cord .skater{right:6%;height:96%}
+.scene-cord .wire{left:10%;right:13%;bottom:6%;height:74%}
+
+/* the list: paper snaps flat, he tips onto his toes, still reading */
+.scene-list{--taut:clamp(0,(var(--t,0) - .45)*3,1);--tip:clamp(0,(var(--t,0) - .58)*3,1)}
+.scene-list .man{left:3%;height:96%;transform-origin:50% 100%;
+  transform:rotate(calc(var(--tip)*6deg))}
+.scene-list .slack,.scene-list .taut{left:50%;height:auto;width:56%;
+  transform:translateX(-50%)}
+.scene-list .slack{bottom:15%;opacity:calc(1 - var(--taut))}
+.scene-list .taut{bottom:25%;opacity:var(--taut)}
+.scene-list .puller{right:4%;height:58%;transform-origin:100% 100%;
+  transform:rotate(calc(var(--t,0)*-7deg)) translateX(calc(var(--t,0)*-6px))}
+
+/* the four-way pull: tug, tug, tug, tug; Vik rocks toward whoever is winning */
+.scene-pull{height:clamp(13rem,24vw,21rem)}
+.scene-pull .vik{left:50%;height:100%;transform-origin:50% 100%;
+  transform:translateX(-50%) rotate(calc((var(--k2,0) + var(--k4,0) - var(--k1,0) - var(--k3,0))*2.5deg))}
+.scene-pull .k1{left:10%;height:58%;transform-origin:100% 100%;transform:rotate(calc(var(--k1,0)*-7deg))}
+.scene-pull .k2{left:33%;height:36%;transform-origin:100% 100%;transform:rotate(calc(var(--k2,0)*-5deg)) translateY(calc(var(--k2,0)*2px))}
+.scene-pull .k3{right:30%;height:56%;transform-origin:0 100%;transform:rotate(calc(var(--k3,0)*7deg))}
+.scene-pull .k4{right:9%;height:62%;transform-origin:0 100%;transform:rotate(calc(var(--k4,0)*6deg))}
+
+/* the sofa: they settle in with the tea, and the tea steams */
+.scene-sofa{height:clamp(11rem,20vw,17rem)}
+.scene-sofa .stage{position:absolute;left:50%;bottom:0;height:100%;aspect-ratio:3/2;
+  transform:translateX(-50%);max-width:100%}
+.scene-sofa .trio{left:50%;height:100%;transform:translateX(-50%)}
+.js .scene-sofa.in .trio{animation:plonk .75s cubic-bezier(.25,.9,.3,1) both;transform-origin:50% 100%}
+@keyframes plonk{
+  0%{transform:translateX(-50%) translateY(-14px)}
+  55%{transform:translateX(-50%) translateY(2px) scaleY(.985)}
+  100%{transform:translateX(-50%) translateY(0)}
+}
+.scene-sofa .steam{left:0;right:0;top:0;height:100%;
+  opacity:calc(var(--t,0)*.65);
+  transform:translateY(calc(var(--p,0)*-8px))}
+.scene-sofa .steam path{fill:none;stroke:var(--muted);stroke-width:1.4;stroke-linecap:round}
+
+/* the string: slack, taut, one tug; her can never leaves her ear */
+.scene-string .tl{left:2%;height:96%;transform-origin:50% 100%;
+  transform:translateX(calc(var(--tug,0)*12px)) rotate(calc(var(--tug,0)*2.5deg))}
+.scene-string .tr{right:2%;height:96%}
+.scene-string .wire{left:12%;right:12%;top:10%;height:46%}
+
+@media(max-width:54rem){
+  .scene{height:clamp(6.5rem,22vw,9rem)}
+  .scene-pull{height:clamp(8.5rem,28vw,12rem)}
+  .scene-sofa{height:clamp(8rem,26vw,11rem)}
+}
+@media (prefers-reduced-motion:reduce){
+  .scene{opacity:1!important;transition:none}
+  .js .scene-sofa.in .trio{animation:none}
+}
 .rule{height:1px;background:var(--rule);width:100%}
 
 /* ---------------- nav ---------------- */
@@ -190,22 +259,7 @@ section{position:relative}
 }
 
 
-/* The tin can call runs along the heading line. The string is real SVG, so it
-   goes slack, snaps taut and rings as you scroll through the section, and the
-   two of them lean into the call as it tightens. */
-.tin{position:relative;height:clamp(9rem,17vw,14rem);margin:0 0 1.25rem;
-  pointer-events:none;opacity:0;transition:opacity .8s ease .1s}
-.tin:not(.in){height:0;margin:0;overflow:hidden}
-.tin.in{opacity:1}
-.tin img{position:absolute;bottom:0;height:100%;width:auto;
-  transition:transform .25s linear}
-.tin-l{left:0;transform-origin:50% 100%;
-  transform:rotate(calc(var(--p,0) * 5deg - 1deg)) translateX(calc(var(--p,0) * 10px))}
-.tin-r{right:0;transform-origin:50% 100%;
-  transform:rotate(calc(-1 * var(--p,0) * 5deg + 1deg)) translateX(calc(var(--p,0) * -10px))}
-.tin-string{position:absolute;left:11%;right:11%;top:14%;height:40%;overflow:visible}
-@media(max-width:54rem){.tin{height:8rem}.tin-string{left:16%;right:16%}}
-@media (prefers-reduced-motion:reduce){.tin img{transition:none;transform:none}}
+
 
 /* ---------------- faq ---------------- */
 .faq{padding-block:clamp(2rem,5vw,4rem) clamp(4rem,9vw,8rem)}
@@ -384,7 +438,12 @@ section{position:relative}
 </section>
 
 <section id="work">
-  <figure class="skit" aria-hidden="true"><img src="img/skit-1.png" alt="Two people laughing as they wrestle an enormous fitted sheet, laundry basket tipped over."></figure>
+  <div class="edge"><div class="scene scene-sheet" data-scene="sheet" aria-hidden="true">
+    <img class="ly worker" src="img/sc-sheet-worker.png" alt="">
+    <img class="ly ghost" src="img/sc-sheet-ghost.png" alt="">
+    <img class="ly billow" src="img/sc-sheet-billow.png" alt="">
+    <img class="ly mate" src="img/sc-sheet-mate.png" alt="">
+  </div></div>
   <div class="edge rv" style="padding-bottom:2rem"><span class="lbl">What we do</span></div>
 
   <article class="panel rv">
@@ -431,7 +490,13 @@ section{position:relative}
 
 
 <section class="story" id="story">
-  <figure class="skit" aria-hidden="true"><img src="img/skit-4.png" alt="A woman buried under four children climbing on her, laughing helplessly."></figure>
+  <div class="edge"><div class="scene scene-pull" data-scene="pull" aria-hidden="true">
+    <img class="ly k1" src="img/sc-pull-k1.png" alt="">
+    <img class="ly k2" src="img/sc-pull-k2.png" alt="">
+    <img class="ly vik" src="img/sc-pull-vik.png" alt="">
+    <img class="ly k3" src="img/sc-pull-k3.png" alt="">
+    <img class="ly k4" src="img/sc-pull-k4.png" alt="">
+  </div></div>
   <div class="edge">
     <div class="rv"><span class="lbl">Our story</span></div>
     <div class="story-grid">
@@ -465,7 +530,6 @@ section{position:relative}
     <div><span class="kn">[third child]</span></div>
     <div><span class="kn">[fourth child]</span></div>
   </div>
-  </div>
   <p class="nm-note rv">Four children, one name built from their initials. They are
     the reason the business exists and the reason it is called what it is.</p>
 </section>
@@ -483,7 +547,11 @@ section{position:relative}
 </div>
 
 <section class="steps edge" id="how">
-  <figure class="skit" aria-hidden="true"><img src="img/skit-2.png" alt="A teenager riding on the back of a wheelchair like a scooter, both grinning."></figure>
+  <div class="scene scene-cord" data-scene="cord" aria-hidden="true">
+    <img class="ly base" src="img/sc-cord-base.png" alt="">
+    <svg class="wire" viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="wirepath" d="M60,150 Q500,190 940,55" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 5"/></svg>
+    <img class="ly skater" src="img/sc-cord-skater.png" alt="">
+  </div>
   <div class="rv" style="padding-bottom:1.5rem"><span class="lbl">How it works</span></div>
   <div class="steps-grid rv">
     <div class="stp"><span class="num">01</span><h3>Have a chat</h3>
@@ -501,8 +569,18 @@ section{position:relative}
   </div>
 </section>
 
+<div class="edge"><div class="scene scene-sofa" data-scene="sofa" aria-hidden="true">
+  <div class="stage">
+    <img class="ly trio" src="img/skit-5.png" alt="">
+    <svg class="steam" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax meet">
+      <path d="M372,368 q9,-15 0,-30 q-9,-15 0,-30"/>
+      <path d="M502,350 q-9,-15 0,-30 q9,-15 0,-30"/>
+      <path d="M652,362 q9,-15 0,-30 q-9,-15 0,-30"/>
+    </svg>
+  </div>
+</div></div>
+
 <section class="who rv" id="who">
-  <figure class="skit" aria-hidden="true"><img src="img/skit-5.png" alt="Three women squashed onto a two-seater sofa with mugs, mid conversation."></figure>
   <div class="pic"><img src="img/team-photo.jpg" alt="Victoria with her two care managers, laughing together at a table in the Harmony Care office."></div>
   <div class="txt">
     <span class="lbl">Who we are</span>
@@ -528,7 +606,12 @@ section{position:relative}
 
 
 <section class="index edge" id="services">
-  <figure class="skit" aria-hidden="true"><img src="img/skit-3.png" alt="A man holding one end of an absurdly long list while a small girl stands on the far end."></figure>
+  <div class="scene scene-list" data-scene="list" aria-hidden="true">
+    <img class="ly man" src="img/sc-list-man.png" alt="">
+    <img class="ly slack" src="img/sc-list-slack.png" alt="">
+    <img class="ly taut" src="img/sc-list-taut.png" alt="">
+    <img class="ly puller" src="img/sc-list-girl.png" alt="">
+  </div>
   <div class="rv"><span class="lbl">Everything we offer</span>
     <h2 class="idx-h">The full list</h2></div>
   <div class="idx rv">
@@ -551,13 +634,10 @@ section{position:relative}
 </section>
 
 <section class="faq edge" id="faq">
-  <div class="tin" aria-hidden="true">
-    <img class="tin-l" src="img/tin-left.png" alt="">
-    <svg class="tin-string" viewBox="0 0 1000 120" preserveAspectRatio="none">
-      <path id="tin-path" d="M0,60 Q500,110 1000,60" fill="none"
-            stroke="#5F564C" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
-    <img class="tin-r" src="img/tin-right.png" alt="">
+  <div class="scene scene-string" data-scene="string" aria-hidden="true">
+    <img class="ly tl" src="img/tin-left.png" alt="">
+    <svg class="wire" viewBox="0 0 1000 120" preserveAspectRatio="none"><path class="wirepath" d="M0,60 Q500,110 1000,60" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <img class="ly tr" src="img/tin-right.png" alt="">
   </div>
   <div class="rv"><span class="lbl">Questions people actually ask</span>
     <h2 class="idx-h">Before you call</h2></div>
@@ -640,29 +720,43 @@ section{position:relative}
   },{rootMargin:'0px 0px -12% 0px',threshold:.08});
   document.querySelectorAll('.rv').forEach(function(n){io.observe(n)});
 
-  // Scroll-linked motion for the painted figures beside each heading.
-  // Plain transforms on a rAF loop: WebGL would buy nothing here, these are
-  // flat watercolour cutouts, not shaded geometry.
+  // Scroll-linked motion for the painted scenes. Plain transforms and one
+  // SVG path per string: WebGL would buy nothing on flat watercolour cutouts.
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduce) {
-    var marks = [].slice.call(document.querySelectorAll('.skit, .pose, .tin'));
+    document.documentElement.classList.add('js');
+    var scenes = [].slice.call(document.querySelectorAll('.scene, .pose'));
     var ticking = false;
+    function tri(p, c, w){ var d = Math.abs(p - c) / w; return d >= 1 ? 0 : 1 - d; }
     function place(){
       var vh = innerHeight || 1;
-      for (var i=0;i<marks.length;i++){
-        var r = marks[i].getBoundingClientRect();
-        var p = 1 - (r.top + r.height/2) / vh;      // 0 at the bottom, 1 at the top
+      for (var i = 0; i < scenes.length; i++){
+        var el = scenes[i];
+        var r = el.getBoundingClientRect();
+        var p = 1 - (r.top + r.height / 2) / vh;   // 0 at the bottom, 1 at the top
         if (p < 0) p = 0; else if (p > 1) p = 1;
-        marks[i].style.setProperty('--p', p.toFixed(3));
-        if (p > .06) marks[i].classList.add('in');
-        if (marks[i].classList.contains('tin')) {
-          // slack at the edges of the section, taut and ringing through the middle
-          var t = 1 - Math.abs(p - 0.5) * 2;          // 0 at the ends, 1 mid-section
-          var sag = 50 - t * 46;                       // 50px of sag down to 4
-          var ring = t > .55 ? Math.sin(p * 90) * 5 * (t - .55) / .45 : 0;
-          var path = marks[i].querySelector('#tin-path');
-          if (path) path.setAttribute('d',
-            'M0,60 Q500,' + (60 + sag + ring).toFixed(1) + ' 1000,60');
+        var t = 1 - Math.abs(p - .5) * 2;          // 0 at the ends, 1 mid-viewport
+        el.style.setProperty('--p', p.toFixed(3));
+        el.style.setProperty('--t', t.toFixed(3));
+        if (p > .04) el.classList.add('in');
+        var kind = el.getAttribute('data-scene');
+        if (kind === 'pull'){
+          el.style.setProperty('--k1', tri(p, .22, .14).toFixed(3));
+          el.style.setProperty('--k2', tri(p, .42, .14).toFixed(3));
+          el.style.setProperty('--k3', tri(p, .60, .14).toFixed(3));
+          el.style.setProperty('--k4', tri(p, .78, .14).toFixed(3));
+        } else if (kind === 'string'){
+          el.style.setProperty('--tug', tri(p, .68, .09).toFixed(3));
+        }
+        var path = el.querySelector('.wirepath');
+        if (path){
+          if (kind === 'cord'){
+            var sag = 190 - t * 132;               // droops to the floor, pulls up taut
+            path.setAttribute('d', 'M60,150 Q500,' + sag.toFixed(1) + ' 940,55');
+          } else if (kind === 'string'){
+            var sag2 = 112 - t * 54;
+            path.setAttribute('d', 'M0,60 Q500,' + sag2.toFixed(1) + ' 1000,60');
+          }
         }
       }
       ticking = false;
