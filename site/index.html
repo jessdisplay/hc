@@ -252,7 +252,7 @@ section{position:relative}
 .faqs p{padding:0 3rem 1.5rem 0;max-width:60ch;color:var(--muted);font-size:1rem;line-height:1.6}
 
 /* Vik lands the pose as the contact section arrives. */
-.pose{position:absolute;right:var(--gut);bottom:0;z-index:0;margin:0;
+.pose{position:absolute;right:var(--gut);bottom:0;z-index:3;margin:0;
   width:clamp(10rem,20vw,17rem);pointer-events:none;
   transform-origin:50% 100%}
 .js .pose{opacity:0;transform:translateY(40px) rotate(-9deg) scale(.88)}
@@ -283,14 +283,15 @@ section{position:relative}
 
 .foot{position:relative;border-top:1px solid var(--rule);padding-block:clamp(3.5rem,6vw,5.5rem) 3.5rem;
   background:var(--plate);overflow:visible}
-.foot::before{content:"";position:absolute;left:-10%;right:-10%;bottom:-55%;height:34rem;z-index:0;
-  background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 30%,transparent),transparent 72%);
-  pointer-events:none;animation:foot-pulse 14s ease-in-out infinite alternate}
-@keyframes foot-pulse{from{transform:translate3d(-3%,3%,0) scale(1)}to{transform:translate3d(3%,-2%,0) scale(1.12)}}
+.foot{overflow:clip}
+.foot::before{content:"";position:absolute;left:-15%;right:-15%;top:-8rem;height:30rem;z-index:0;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--pink) 26%,transparent),transparent 70%);
+  pointer-events:none;animation:foot-pulse 16s ease-in-out infinite alternate}
+@keyframes foot-pulse{from{transform:translate3d(-4%,0,0) scale(1)}to{transform:translate3d(4%,2%,0) scale(1.14)}}
 .foot>*{position:relative;z-index:1}
 /* the dog sleeps on the footer line, breathing. The footer is allowed one joke. */
-.foot-dog{position:absolute;right:clamp(1.5rem,7vw,5rem);bottom:100%;z-index:1;
-  width:clamp(5.5rem,9vw,8.5rem);pointer-events:none;transform-origin:50% 100%;
+.foot-dog{position:absolute;right:clamp(1.5rem,7vw,5rem);top:0;z-index:2;
+  width:clamp(6rem,10vw,9.5rem);pointer-events:none;transform-origin:50% 0;
   animation:doze 5.5s ease-in-out infinite alternate}
 @keyframes doze{from{transform:scaleY(1)}to{transform:scaleY(1.035)}}
 @media (prefers-reduced-motion:reduce){.foot::before,.foot-dog{animation:none}}
@@ -721,7 +722,7 @@ section{position:relative}
         var t = 1 - Math.abs(p - .5) * 2;          // 0 at the ends, 1 mid-viewport
         el.style.setProperty('--p', p.toFixed(3));
         el.style.setProperty('--t', t.toFixed(3));
-        if (p > (el.classList.contains('pose') ? .27 : .04)) el.classList.add('in');
+        if (p > (el.classList.contains('pose') ? .12 : .04)) el.classList.add('in');
         if (el.classList.contains('scene-two')){
           var fr = el.getAttribute('data-frames') === '2'
             ? (t < .55 ? 1 : 4)
