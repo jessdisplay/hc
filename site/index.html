@@ -195,6 +195,7 @@ section{position:relative}
    two of them lean into the call as it tightens. */
 .tin{position:relative;height:clamp(9rem,17vw,14rem);margin:0 0 1.25rem;
   pointer-events:none;opacity:0;transition:opacity .8s ease .1s}
+.tin:not(.in){height:0;margin:0;overflow:hidden}
 .tin.in{opacity:1}
 .tin img{position:absolute;bottom:0;height:100%;width:auto;
   transition:transform .25s linear}
@@ -644,7 +645,7 @@ section{position:relative}
   // flat watercolour cutouts, not shaded geometry.
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduce) {
-    var marks = [].slice.call(document.querySelectorAll('.skit, .pose'));
+    var marks = [].slice.call(document.querySelectorAll('.skit, .pose, .tin'));
     var ticking = false;
     function place(){
       var vh = innerHeight || 1;
