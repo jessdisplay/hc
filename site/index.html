@@ -174,7 +174,7 @@ section{position:relative}
 }
 
 /* ---------------- full bleed break ---------------- */
-.bleed{position:relative;height:clamp(16rem,42vw,52rem);overflow:hidden}
+.bleed{position:relative;height:clamp(18rem,67vw,66rem);overflow:hidden}
 .bleed img{transform:none}
 .bleed .cap{position:absolute;left:var(--gut);bottom:clamp(1.25rem,3vw,2.5rem);color:#F7F1E6;
   text-shadow:0 1px 20px rgba(0,0,0,.5);max-width:34rem}
@@ -254,7 +254,7 @@ section{position:relative}
   transform-origin:50% 100%}
 .js .pose{opacity:0;transform:translateY(40px) rotate(-9deg) scale(.88)}
 .pose img{width:100%;height:auto;display:block}
-.js .pose.in{animation:strike 1.1s cubic-bezier(.22,1.2,.36,1) forwards}
+.js .pose.in{animation:strike 1.35s cubic-bezier(.22,1.2,.36,1) forwards}
 @keyframes strike{
   0%  {opacity:0;transform:translateY(40px) rotate(-9deg) scale(.88)}
   55% {opacity:1;transform:translateY(-6px) rotate(3deg)  scale(1.05)}
@@ -278,7 +278,19 @@ section{position:relative}
 .foot-art{position:relative;overflow:clip;border-top:1px solid var(--rule)}
 .foot-art img{width:100%;height:clamp(14rem,38vw,30rem);object-fit:cover;object-position:center 58%}
 
-.foot{border-top:1px solid var(--rule);padding-block:clamp(3.5rem,6vw,5.5rem) 3.5rem;background:var(--plate)}
+.foot{position:relative;border-top:1px solid var(--rule);padding-block:clamp(3.5rem,6vw,5.5rem) 3.5rem;
+  background:var(--plate);overflow:visible}
+.foot::before{content:"";position:absolute;left:-10%;right:-10%;bottom:-55%;height:34rem;z-index:0;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 30%,transparent),transparent 72%);
+  pointer-events:none;animation:foot-pulse 14s ease-in-out infinite alternate}
+@keyframes foot-pulse{from{transform:translate3d(-3%,3%,0) scale(1)}to{transform:translate3d(3%,-2%,0) scale(1.12)}}
+.foot>*{position:relative;z-index:1}
+/* the dog sleeps on the footer line, breathing. The footer is allowed one joke. */
+.foot-dog{position:absolute;right:clamp(1.5rem,7vw,5rem);bottom:100%;z-index:1;
+  width:clamp(5.5rem,9vw,8.5rem);pointer-events:none;transform-origin:50% 100%;
+  animation:doze 5.5s ease-in-out infinite alternate}
+@keyframes doze{from{transform:scaleY(1)}to{transform:scaleY(1.035)}}
+@media (prefers-reduced-motion:reduce){.foot::before,.foot-dog{animation:none}}
 .foot-top{display:flex;flex-wrap:wrap;gap:2.5rem 3rem;align-items:flex-start}
 .foot-top>a.wm{flex:1 1 26rem;min-width:0}
 .foot-top .wm img{width:clamp(7rem,15vw,14rem);height:auto;object-fit:contain}
@@ -414,10 +426,8 @@ section{position:relative}
 </section>
 
 <section id="work">
-  <div class="edge"><div class="scene scene-two" data-scene="sheet" aria-hidden="true">
+  <div class="edge"><div class="scene scene-two" data-scene="sheet" data-frames="2" aria-hidden="true">
     <img class="f1" src="img/gag-sheet-a.png" alt="">
-    <img class="f2" src="img/gag-sheet-m1.png" alt="">
-    <img class="f3" src="img/gag-sheet-m2.png" alt="">
     <img class="f4" src="img/gag-sheet-b.png" alt="">
   </div></div>
   <div class="edge rv" style="padding-bottom:2rem"><span class="lbl">What we do</span></div>
@@ -466,10 +476,8 @@ section{position:relative}
 
 
 <section class="story" id="story">
-  <div class="edge"><div class="scene scene-two scene-big" data-scene="pull" aria-hidden="true">
+  <div class="edge"><div class="scene scene-two scene-big" data-scene="pull" data-frames="2" aria-hidden="true">
     <img class="f1" src="img/gag-pull-a.png" alt="">
-    <img class="f2" src="img/gag-pull-m1.png" alt="">
-    <img class="f3" src="img/gag-pull-m2.png" alt="">
     <img class="f4" src="img/gag-pull-b.png" alt="">
   </div></div>
   <div class="edge">
@@ -522,10 +530,8 @@ section{position:relative}
 </div>
 
 <section class="steps edge" id="how">
-  <div class="scene scene-two" data-scene="string" aria-hidden="true">
+  <div class="scene scene-two" data-scene="string" data-frames="2" aria-hidden="true">
     <img class="f1" src="img/gag-string-a.png" alt="">
-    <img class="f2" src="img/gag-string-m1.png" alt="">
-    <img class="f3" src="img/gag-string-m2.png" alt="">
     <img class="f4" src="img/gag-string-b.png" alt="">
   </div>
   <div class="rv" style="padding-bottom:1.5rem"><span class="lbl">How it works</span></div>
@@ -582,10 +588,8 @@ section{position:relative}
 
 
 <section class="index edge" id="services">
-  <div class="scene scene-two" data-scene="list" aria-hidden="true">
+  <div class="scene scene-two" data-scene="list" data-frames="2" aria-hidden="true">
     <img class="f1" src="img/gag-list-a.png" alt="">
-    <img class="f2" src="img/gag-list-m1.png" alt="">
-    <img class="f3" src="img/gag-list-m2.png" alt="">
     <img class="f4" src="img/gag-list-b.png" alt="">
   </div>
   <div class="rv"><span class="lbl">Everything we offer</span>
@@ -610,10 +614,8 @@ section{position:relative}
 </section>
 
 <section class="faq edge" id="faq">
-  <div class="scene scene-two" data-scene="cord" aria-hidden="true">
+  <div class="scene scene-two" data-scene="cord" data-frames="2" aria-hidden="true">
     <img class="f1" src="img/gag-cord-a.png" alt="">
-    <img class="f2" src="img/gag-cord-m1.png" alt="">
-    <img class="f3" src="img/gag-cord-m2.png" alt="">
     <img class="f4" src="img/gag-cord-b.png" alt="">
   </div>
   <div class="rv"><span class="lbl">Questions people actually ask</span>
@@ -658,6 +660,7 @@ section{position:relative}
 </div>
 
 <footer class="foot">
+  <img class="foot-dog" src="img/foot-dog.png" alt="" aria-hidden="true">
   <div class="edge">
     <div class="foot-top">
       <a class="wm" href="#top" style="display:flex;align-items:center;gap:1rem;text-decoration:none">
@@ -714,9 +717,11 @@ section{position:relative}
         var t = 1 - Math.abs(p - .5) * 2;          // 0 at the ends, 1 mid-viewport
         el.style.setProperty('--p', p.toFixed(3));
         el.style.setProperty('--t', t.toFixed(3));
-        if (p > .04) el.classList.add('in');
+        if (p > (el.classList.contains('pose') ? .27 : .04)) el.classList.add('in');
         if (el.classList.contains('scene-two')){
-          var fr = t < .26 ? 1 : t < .48 ? 2 : t < .66 ? 3 : 4;
+          var fr = el.getAttribute('data-frames') === '2'
+            ? (t < .55 ? 1 : 4)
+            : (t < .26 ? 1 : t < .48 ? 2 : t < .66 ? 3 : 4);
           if (!el.classList.contains('fr' + fr)){
             el.classList.remove('fr1', 'fr2', 'fr3', 'fr4');
             el.classList.add('fr' + fr);
