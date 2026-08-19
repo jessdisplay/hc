@@ -38,16 +38,24 @@ a{color:inherit}
 .edge{padding-inline:var(--gut);max-width:100%}
 .lbl{font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);
   position:relative;display:inline-block}
-/* an easter egg: the painted heart leans in beside a section label on hover */
-.lbl::after{content:"";position:absolute;left:calc(100% + .75rem);top:50%;
-  width:1.9rem;height:1.9rem;margin-top:-.95rem;
-  background:url("img/motif-heart.png") center/contain no-repeat;
-  opacity:0;transform:translateX(-6px) rotate(-12deg) scale(.7);
-  transition:opacity .5s cubic-bezier(.2,.8,.2,1),transform .5s cubic-bezier(.2,.8,.2,1);
+/* Easter egg: one of the painted cast stands beside each section label and
+   arrives with the section. Decoration only, never announced. */
+.lbl::after{content:"";position:absolute;left:calc(100% + 1rem);bottom:-.55rem;
+  width:2.1rem;height:4.4rem;
+  background-position:bottom center;background-size:contain;background-repeat:no-repeat;
+  opacity:0;transform:translateY(10px) rotate(-3deg);
+  transition:opacity .7s cubic-bezier(.2,.8,.2,1) .25s,transform .7s cubic-bezier(.2,.8,.2,1) .25s;
   pointer-events:none}
-section:hover .lbl::after,.rv.in .lbl::after{opacity:.9;transform:none rotate(0) scale(1);
-  transform:translateX(0) rotate(-4deg) scale(1)}
-@media (prefers-reduced-motion:reduce){.lbl::after{transition:none}}
+.rv.in .lbl::after,section .rv.in .lbl::after{opacity:.96;transform:translateY(0) rotate(0)}
+#work  .lbl::after{background-image:url("img/cast-4.png")}
+#how   .lbl::after{background-image:url("img/cast-5.png")}
+#services .lbl::after{background-image:url("img/cast-6.png")}
+#story .lbl::after{background-image:url("img/cast-2.png")}
+#who   .lbl::after{background-image:url("img/cast-1.png")}
+#faq   .lbl::after{background-image:url("img/cast-3.png")}
+#contact .lbl::after{background-image:url("img/cast-2.png")}
+@media(max-width:44rem){.lbl::after{display:none}}
+@media (prefers-reduced-motion:reduce){.lbl::after{transition:none;opacity:.96;transform:none}}
 .rule{height:1px;background:var(--rule);width:100%}
 
 /* ---------------- nav ---------------- */
