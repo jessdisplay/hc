@@ -48,7 +48,7 @@ h1{font-size:clamp(2rem,5.6vw,3.4rem);font-weight:700}
 .intro .note{margin-top:1.5rem;padding:1.1rem 1.25rem;background:var(--cream);border-radius:3px;
   font-size:1rem;color:var(--ink)}
 
-form{padding-bottom:5rem}
+form.wrap{padding-block-end:clamp(3.5rem,8vw,6rem)}
 fieldset{border:0;border-top:2px solid var(--forest);margin:2.75rem 0 0;padding:1.25rem 0 0}
 legend{font-size:1.35rem;font-weight:700;padding:0;letter-spacing:-.01em}
 .hint{margin-top:.5rem;color:var(--muted);font-size:1rem}
@@ -88,6 +88,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 .err{color:var(--warn);font-size:.9375rem;margin-top:.35rem}
 .err[hidden]{display:none}
 
+.end-art{overflow:clip;border-top:1px solid var(--rule);background:var(--cream)}
+.end-art img{width:100%;height:clamp(10rem,24vw,18rem);object-fit:cover;object-position:center 60%}
 footer{border-top:1px solid var(--rule);background:var(--plate);padding:2rem 0 3rem;
   font-size:.875rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -318,6 +320,8 @@ footer{border-top:1px solid var(--rule);background:var(--plate);padding:2rem 0 3
     </div>
   </form>
 </main>
+
+<div class="end-art" aria-hidden="true"><img src="../img/making.jpg" alt=""></div>
 
 <footer><div class="wrap">
   Harmony Care Support Services Pty Ltd &middot; ABN 99 691 543 834 &middot;
