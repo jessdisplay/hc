@@ -286,6 +286,10 @@ section{position:relative}
 .foot{position:relative;border-top:1px solid var(--rule);padding-block:clamp(3.5rem,6vw,5.5rem) 3.5rem;
   background:var(--plate);overflow:visible}
 .foot{overflow:clip}
+.js .foot-in,.js .foot .ack{opacity:0;transform:translateY(20px);
+  transition:opacity 1s cubic-bezier(.2,.8,.2,1),transform 1s cubic-bezier(.2,.8,.2,1)}
+.js .foot.in .foot-in{opacity:1;transform:none}
+.js .foot.in .ack{opacity:1;transform:none;transition-delay:.18s}
 .foot::before{content:"";position:absolute;left:-15%;right:-15%;top:-8rem;height:30rem;z-index:0;
   background:radial-gradient(closest-side,color-mix(in srgb,var(--pink) 26%,transparent),transparent 70%);
   pointer-events:none;animation:foot-pulse 16s ease-in-out infinite alternate}
@@ -293,7 +297,7 @@ section{position:relative}
 .foot>*{position:relative;z-index:1}
 /* the dog sleeps on the footer line, breathing. The footer is allowed one joke. */
 /* the footer's own small movement: the painted heart in the mark beats slowly */
-.foot-top .wm img{animation:beat 4.5s ease-in-out infinite}
+.foot.in .foot-top .wm img{animation:beat 4.5s ease-in-out infinite 1s}
 @keyframes beat{
   0%,100%{transform:scale(1)}
   8%{transform:scale(1.045)}
@@ -301,7 +305,8 @@ section{position:relative}
   24%{transform:scale(1.028)}
   32%{transform:scale(1)}
 }
-@media (prefers-reduced-motion:reduce){.foot::before,.foot-top .wm img{animation:none}}
+@media (prefers-reduced-motion:reduce){.foot::before,.foot-top .wm img{animation:none}
+  .js .foot-in,.js .foot .ack{opacity:1;transform:none;transition:none}}
 .foot-top{display:flex;flex-wrap:wrap;gap:2.5rem 3rem;align-items:flex-start}
 .foot-top>a.wm{flex:1 1 26rem;min-width:0}
 .foot-top .wm img{width:clamp(7rem,15vw,14rem);height:auto;object-fit:contain}
@@ -705,12 +710,13 @@ section{position:relative}
   addEventListener('scroll',onScroll,{passive:true});onScroll();
 
   if(!('IntersectionObserver' in window)){
-    document.querySelectorAll('.rv').forEach(function(n){n.classList.add('in')});return;
+    document.querySelectorAll('.rv, .foot').forEach(function(n){n.classList.add('in')});return;
   }
   var io=new IntersectionObserver(function(es){
     es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
   },{rootMargin:'0px 0px -12% 0px',threshold:.08});
   document.querySelectorAll('.rv').forEach(function(n){io.observe(n)});
+  var ft=document.querySelector('.foot'); if(ft) io.observe(ft);
 
   // Scroll-linked motion for the painted scenes. Plain transforms and one
   // SVG path per string: WebGL would buy nothing on flat watercolour cutouts.
