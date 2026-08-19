@@ -190,6 +190,22 @@ section{position:relative}
 }
 
 
+/* The tin can call runs along the heading line. The string is real SVG, so it
+   goes slack, snaps taut and rings as you scroll through the section, and the
+   two of them lean into the call as it tightens. */
+.tin{position:relative;height:clamp(9rem,17vw,14rem);margin:0 0 1.25rem;
+  pointer-events:none;opacity:0;transition:opacity .8s ease .1s}
+.tin.in{opacity:1}
+.tin img{position:absolute;bottom:0;height:100%;width:auto;
+  transition:transform .25s linear}
+.tin-l{left:0;transform-origin:50% 100%;
+  transform:rotate(calc(var(--p,0) * 5deg - 1deg)) translateX(calc(var(--p,0) * 10px))}
+.tin-r{right:0;transform-origin:50% 100%;
+  transform:rotate(calc(-1 * var(--p,0) * 5deg + 1deg)) translateX(calc(var(--p,0) * -10px))}
+.tin-string{position:absolute;left:11%;right:11%;top:14%;height:40%;overflow:visible}
+@media(max-width:54rem){.tin{height:8rem}.tin-string{left:16%;right:16%}}
+@media (prefers-reduced-motion:reduce){.tin img{transition:none;transform:none}}
+
 /* ---------------- faq ---------------- */
 .faq{padding-block:clamp(2rem,5vw,4rem) clamp(4rem,9vw,8rem)}
 .faqs{margin-top:clamp(1.5rem,3vw,2.5rem);border-top:1px solid var(--rule)}
@@ -534,7 +550,14 @@ section{position:relative}
 </section>
 
 <section class="faq edge" id="faq">
-  <figure class="skit" aria-hidden="true"><img src="img/skit-6.png" alt="Two people talking to each other on a tin can telephone with the string pulled taut."></figure>
+  <div class="tin" aria-hidden="true">
+    <img class="tin-l" src="img/tin-left.png" alt="">
+    <svg class="tin-string" viewBox="0 0 1000 120" preserveAspectRatio="none">
+      <path id="tin-path" d="M0,60 Q500,110 1000,60" fill="none"
+            stroke="#5F564C" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <img class="tin-r" src="img/tin-right.png" alt="">
+  </div>
   <div class="rv"><span class="lbl">Questions people actually ask</span>
     <h2 class="idx-h">Before you call</h2></div>
   <div class="faqs rv">
@@ -631,6 +654,15 @@ section{position:relative}
         if (p < 0) p = 0; else if (p > 1) p = 1;
         marks[i].style.setProperty('--p', p.toFixed(3));
         if (p > .06) marks[i].classList.add('in');
+        if (marks[i].classList.contains('tin')) {
+          // slack at the edges of the section, taut and ringing through the middle
+          var t = 1 - Math.abs(p - 0.5) * 2;          // 0 at the ends, 1 mid-section
+          var sag = 50 - t * 46;                       // 50px of sag down to 4
+          var ring = t > .55 ? Math.sin(p * 90) * 5 * (t - .55) / .45 : 0;
+          var path = marks[i].querySelector('#tin-path');
+          if (path) path.setAttribute('d',
+            'M0,60 Q500,' + (60 + sag + ring).toFixed(1) + ' 1000,60');
+        }
       }
       ticking = false;
     }
