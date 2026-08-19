@@ -10,19 +10,19 @@
 :root{
   --paper:#FBF7EF;--plate:#FFFDF9;--ink:#2E2A26;--muted:#6B6157;
   --rule:#DFD5C4;--hair:#E7DFD1;
-  --rose:#C6746F;--rose-text:#A0524A;--forest:#38553E;--accent:#A0524A;--sage:#9EAE8F;--cream:#F3E3CA;
+  --rose:#F17990;--rose-text:#E96982;--forest:#38553E;--accent:#E96982;--sage:#9EAE8F;--cream:#F3E3CA;
   --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
   --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
   --gut:clamp(1.25rem,4vw,4rem);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#A79D8F;
-  --rule:#333A30;--hair:#272C24;--rose:#DE9A93;--rose-text:#E3A49C;
-  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;--accent:#E3A49C;}}
+  --rule:#333A30;--hair:#272C24;--rose:#F38FA4;--rose-text:#F6A5B5;
+  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;--accent:#F38FA4;}}
 :root[data-theme="dark"]{
   --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#A79D8F;
-  --rule:#333A30;--hair:#272C24;--rose:#DE9A93;--rose-text:#E3A49C;
-  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;--accent:#E3A49C;}
+  --rule:#333A30;--hair:#272C24;--rose:#F38FA4;--rose-text:#F6A5B5;
+  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;--accent:#F38FA4;}
 *{box-sizing:border-box}
 html{overflow-x:clip;max-width:100%}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
@@ -199,7 +199,7 @@ section{position:relative}
 .who h2{font-size:clamp(1.9rem,4.6vw,3.6rem);font-weight:700}
 .who p{color:var(--muted);max-width:38ch}
 .pull{font-size:clamp(1.2rem,2.2vw,1.6rem);line-height:1.35;color:var(--ink);
-  padding-left:1.2rem;border-left:3px solid var(--accent);font-weight:400}
+  padding-left:1.2rem;border-left:3px solid var(--forest);font-weight:400}
 @media(max-width:54rem){.who{grid-template-columns:1fr}}
 
 /* ---------------- portraits strip ---------------- */
@@ -223,7 +223,7 @@ section{position:relative}
 .row .c{font-family:var(--cond);font-size:.6875rem;letter-spacing:.2em;color:var(--accent)}
 .row .rt{font-family:var(--cond);font-size:1.25rem;font-weight:600;line-height:1.2}
 .row summary::after{content:"";justify-self:end;align-self:center;width:.6rem;height:.6rem;
-  border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);
+  border-right:1.5px solid var(--forest);border-bottom:1.5px solid var(--forest);
   transform:rotate(45deg);transition:transform .25s}
 .row[open] summary::after{transform:rotate(-135deg)}
 .row p{font-size:1rem;line-height:1.6;color:var(--muted);padding:0 3rem 1.4rem 5.5rem;max-width:60ch}
@@ -243,7 +243,7 @@ section{position:relative}
   font-family:var(--cond);font-size:clamp(1.05rem,2vw,1.4rem);font-weight:600;letter-spacing:0}
 .faqs summary::-webkit-details-marker{display:none}
 .faqs summary::after{content:"";position:absolute;right:.4rem;top:50%;width:.7rem;height:.7rem;
-  border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);
+  border-right:1.5px solid var(--forest);border-bottom:1.5px solid var(--forest);
   transform:translateY(-60%) rotate(45deg);transition:transform .25s}
 .faqs details[open] summary::after{transform:translateY(-30%) rotate(-135deg)}
 .faqs p{padding:0 3rem 1.5rem 0;max-width:60ch;color:var(--muted);font-size:1rem;line-height:1.6}
@@ -530,7 +530,7 @@ section{position:relative}
 </div>
 
 <section class="steps edge" id="how">
-  <div class="scene scene-two" data-scene="string" data-frames="2" aria-hidden="true">
+  <div class="scene scene-two scene-big" data-scene="string" data-frames="2" aria-hidden="true">
     <img class="f1" src="img/gag-string-a.png" alt="">
     <img class="f4" src="img/gag-string-b.png" alt="">
   </div>
