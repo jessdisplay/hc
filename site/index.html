@@ -47,8 +47,8 @@ a{color:inherit}
    Understated: small angles, a few pixels, one beat per scene.
 -------------------------------------------------- */
 section{position:relative}
-.scene{position:relative;height:clamp(9rem,16vw,14rem);margin:0 0 1.1rem;
-  pointer-events:none;opacity:1}
+.scene{position:relative;height:clamp(9rem,16vw,14rem);margin:0 auto 1.1rem;
+  width:min(100%,56rem);pointer-events:none;opacity:1}
 .js .scene{opacity:0;transition:opacity .8s ease .1s}
 .js .scene.in{opacity:1}
 .scene .ly{position:absolute;bottom:0;height:100%;width:auto}
@@ -56,42 +56,41 @@ section{position:relative}
 
 /* the sheet fold: mid-beat, the sheet lands on her head; she keeps folding */
 .scene-sheet{--g:clamp(0,(var(--t,0) - .62)*4,1)}
-.scene-sheet .worker{left:7%;height:94%}
-.scene-sheet .mate{right:9%;height:90%}
-.scene-sheet .billow{left:50%;bottom:28%;height:46%;opacity:calc(1 - var(--g));
+.scene-sheet .worker{left:27%;height:94%}
+.scene-sheet .mate{right:28%;height:90%}
+.scene-sheet .billow{left:50%;bottom:26%;height:42%;opacity:calc(1 - var(--g));
   transform:translateX(-50%) translateY(calc(var(--t,0)*-8px))}
-.scene-sheet .ghost{left:3%;bottom:50%;height:48%;opacity:var(--g);
+.scene-sheet .ghost{left:26%;bottom:48%;height:50%;opacity:var(--g);
   transform:translateY(calc((1 - var(--g))*-12px))}
 
 /* the phone cord: the cord pulls taut and drags the base along the line */
 .scene-cord{--drag:clamp(0,(var(--t,0) - .72)*4,1)}
-.scene-cord .base{left:5%;height:34%;transform-origin:50% 100%;
+.scene-cord .base{left:9%;height:32%;transform-origin:50% 100%;
   transform:translateX(calc(var(--drag)*44px)) rotate(calc(var(--drag)*4deg))}
-.scene-cord .skater{right:6%;height:96%}
-.scene-cord .wire{left:10%;right:13%;bottom:6%;height:74%}
+.scene-cord .skater{right:9%;height:96%}
+.scene-cord .wire{left:15%;right:17%;bottom:8%;height:68%}
 
 /* the list: paper snaps flat, he tips onto his toes, still reading */
 .scene-list{--taut:clamp(0,(var(--t,0) - .45)*3,1);--tip:clamp(0,(var(--t,0) - .58)*3,1)}
-.scene-list .man{left:3%;height:96%;transform-origin:50% 100%;
+.scene-list .man{left:6%;height:96%;transform-origin:50% 100%;
   transform:rotate(calc(var(--tip)*6deg))}
-.scene-list .slack,.scene-list .taut{left:50%;height:auto;width:56%;
-  transform:translateX(-50%)}
-.scene-list .slack{bottom:15%;opacity:calc(1 - var(--taut))}
-.scene-list .taut{bottom:25%;opacity:var(--taut)}
-.scene-list .puller{right:4%;height:58%;transform-origin:100% 100%;
+.scene-list .slack,.scene-list .taut{left:50%;transform:translateX(-50%)}
+.scene-list .slack{bottom:6%;height:72%;width:auto;opacity:calc(1 - var(--taut))}
+.scene-list .taut{bottom:32%;width:62%;height:auto;opacity:var(--taut)}
+.scene-list .puller{right:6%;height:58%;transform-origin:100% 100%;
   transform:rotate(calc(var(--t,0)*-7deg)) translateX(calc(var(--t,0)*-6px))}
 
 /* the four-way pull: tug, tug, tug, tug; Vik rocks toward whoever is winning */
-.scene-pull{height:clamp(13rem,24vw,21rem)}
+.scene-pull{height:clamp(13rem,24vw,21rem);width:min(100%,52rem)}
 .scene-pull .vik{left:50%;height:100%;transform-origin:50% 100%;
   transform:translateX(-50%) rotate(calc((var(--k2,0) + var(--k4,0) - var(--k1,0) - var(--k3,0))*2.5deg))}
-.scene-pull .k1{left:10%;height:58%;transform-origin:100% 100%;transform:rotate(calc(var(--k1,0)*-7deg))}
-.scene-pull .k2{left:33%;height:36%;transform-origin:100% 100%;transform:rotate(calc(var(--k2,0)*-5deg)) translateY(calc(var(--k2,0)*2px))}
-.scene-pull .k3{right:30%;height:56%;transform-origin:0 100%;transform:rotate(calc(var(--k3,0)*7deg))}
-.scene-pull .k4{right:9%;height:62%;transform-origin:0 100%;transform:rotate(calc(var(--k4,0)*6deg))}
+.scene-pull .k1{left:16%;height:58%;transform-origin:100% 100%;transform:rotate(calc(var(--k1,0)*-7deg))}
+.scene-pull .k2{left:36%;height:34%;transform-origin:100% 100%;transform:rotate(calc(var(--k2,0)*-5deg)) translateY(calc(var(--k2,0)*2px))}
+.scene-pull .k3{right:29%;height:56%;transform-origin:0 100%;transform:rotate(calc(var(--k3,0)*7deg))}
+.scene-pull .k4{right:15%;height:62%;transform-origin:0 100%;transform:rotate(calc(var(--k4,0)*6deg))}
 
 /* the sofa: they settle in with the tea, and the tea steams */
-.scene-sofa{height:clamp(11rem,20vw,17rem)}
+.scene-sofa{height:clamp(12rem,22vw,19rem);margin-bottom:0}
 .scene-sofa .stage{position:absolute;left:50%;bottom:0;height:100%;aspect-ratio:3/2;
   transform:translateX(-50%);max-width:100%}
 .scene-sofa .trio{left:50%;height:100%;transform:translateX(-50%)}
@@ -104,13 +103,13 @@ section{position:relative}
 .scene-sofa .steam{position:absolute;left:0;right:0;top:0;width:100%;height:100%;
   opacity:calc(var(--t,0)*.65);
   transform:translateY(calc(var(--p,0)*-8px))}
-.scene-sofa .steam path{fill:none;stroke:var(--muted);stroke-width:1.4;stroke-linecap:round}
+.scene-sofa .steam path{fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
 
 /* the string: slack, taut, one tug; her can never leaves her ear */
-.scene-string .tl{left:2%;height:96%;transform-origin:50% 100%;
+.scene-string .tl{left:5%;height:96%;transform-origin:50% 100%;
   transform:translateX(calc(var(--tug,0)*12px)) rotate(calc(var(--tug,0)*2.5deg))}
-.scene-string .tr{right:2%;height:96%}
-.scene-string .wire{left:12%;right:12%;top:10%;height:46%}
+.scene-string .tr{right:5%;height:96%}
+.scene-string .wire{left:16%;right:17%;top:16%;height:40%}
 
 @media(max-width:54rem){
   .scene{height:clamp(6.5rem,22vw,9rem)}
