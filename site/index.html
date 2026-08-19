@@ -10,7 +10,7 @@
 :root{
   --paper:#FBF7EF;--plate:#FFFDF9;--ink:#2E2A26;--muted:#6B6157;
   --rule:#DFD5C4;--hair:#E7DFD1;
-  --rose:#F17990;--rose-text:#E96982;--forest:#38553E;--accent:#38553E;--sage:#9EAE8F;--cream:#F3E3CA;
+  --rose:#F17990;--rose-text:#E96982;--forest:#38553E;--accent:#38553E;--pink:#E96982;--sage:#9EAE8F;--cream:#F3E3CA;
   --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
   --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
   --gut:clamp(1.25rem,4vw,4rem);
@@ -18,7 +18,7 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#A79D8F;
   --rule:#333A30;--hair:#272C24;--rose:#F38FA4;--rose-text:#F6A5B5;
-  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;--accent:#A7C08F;}}
+  --forest:#A7C08F;--sage:#8FA37F;--cream:#242820;--accent:#A7C08F;--pink:#F38FA4;}}
 :root[data-theme="dark"]{
   --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#A79D8F;
   --rule:#333A30;--hair:#272C24;--rose:#F38FA4;--rose-text:#F6A5B5;
@@ -71,7 +71,10 @@ section{position:relative}
 .scene-sofa{height:clamp(12rem,22vw,19rem);margin-bottom:0}
 .scene-sofa .stage{position:absolute;left:50%;bottom:0;height:100%;aspect-ratio:3/2;
   transform:translateX(-50%);max-width:100%}
-.scene-sofa .trio{left:50%;height:100%;transform:translateX(-50%)}
+.scene-sofa .trio{left:50%;height:100%;transform:translateX(-50%);opacity:0;transition:opacity .14s linear}
+.scene-sofa .trio.f1{opacity:1}
+.scene-sofa.fr4 .trio.f1{opacity:0}
+.scene-sofa.fr4 .trio.f4{opacity:1}
 .js .scene-sofa.in .trio{animation:plonk .75s cubic-bezier(.25,.9,.3,1) both;transform-origin:50% 100%}
 @keyframes plonk{
   0%{transform:translateX(-50%) translateY(-14px)}
@@ -155,7 +158,7 @@ section{position:relative}
 /* ---------------- statement ---------------- */
 .stmt{padding-block:clamp(5rem,13vw,11rem)}
 .stmt h2{font-size:clamp(1.8rem,5.2vw,4.5rem);font-weight:200;letter-spacing:-.03em;max-width:22ch}
-.stmt h2 b{font-weight:700;color:var(--accent)}
+.stmt h2 b{font-weight:700;color:var(--pink)}
 
 /* ---------------- panels ---------------- */
 .panel{display:grid;grid-template-columns:repeat(2,1fr);align-items:stretch;border-top:1px solid var(--rule)}
@@ -331,7 +334,7 @@ section{position:relative}
    of HARMONY spell HARM, which is not a thing a care brand can put on a wall. */
 .nm{font-family:var(--cond);font-weight:700;font-size:clamp(3rem,13vw,12rem);
   line-height:.82;letter-spacing:-.04em;margin-top:1.2rem}
-.nm .w{color:var(--accent)}
+.nm .w{color:var(--pink)}
 .nm-keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1rem 2rem;
   margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--rule)}
 .nm-keys div{display:flex;align-items:baseline;gap:.7rem;padding-top:.9rem;border-top:2px solid var(--accent)}
@@ -344,7 +347,7 @@ section{position:relative}
 .marq-in{display:flex;align-items:center;gap:2.5rem;width:max-content;
   animation:slide 42s linear infinite;font-family:var(--cond);
   font-size:clamp(1.1rem,2.6vw,2.1rem);font-weight:200;letter-spacing:-.01em;color:var(--ink)}
-.marq-in i{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+.marq-in i{width:6px;height:6px;border-radius:50%;background:var(--pink);flex:none}
 @keyframes slide{to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.marq-in{animation:none}}
 
@@ -551,9 +554,10 @@ section{position:relative}
   </div>
 </section>
 
-<div class="edge"><div class="scene scene-sofa" data-scene="sofa" aria-hidden="true">
+<div class="edge"><div class="scene scene-sofa scene-two" data-scene="sofa" data-frames="2" aria-hidden="true">
   <div class="stage">
-    <img class="ly trio" src="img/skit-5.png" alt="">
+    <img class="ly trio f1" src="img/skit-5.png" alt="">
+    <img class="ly trio f4" src="img/sofa-sip.png" alt="">
     <svg class="steam" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax meet">
       <path d="M372,368 q9,-15 0,-30 q-9,-15 0,-30"/>
       <path d="M502,350 q-9,-15 0,-30 q9,-15 0,-30"/>
