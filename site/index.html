@@ -36,28 +36,21 @@ a{color:inherit}
 
 /* the architectural grid: everything hangs off one hairline margin */
 .edge{padding-inline:var(--gut);max-width:100%}
-.lbl{font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);
-  position:relative;display:inline-block}
-/* Easter egg: one of the painted cast stands beside each section label and
-   arrives with the section. Decoration only, never announced. */
-.lbl::after{content:"";position:absolute;left:calc(100% + 1rem);bottom:-.6rem;
-  width:2.6rem;height:5rem;
-  background-position:bottom center;background-size:contain;background-repeat:no-repeat;
-  opacity:0;
-  /* --p is written by the scroll loop, 0 as the section enters, 1 as it leaves */
-  transform:translateY(calc(14px - var(--p,0) * 10px)) rotate(calc(-4deg + var(--p,0) * 7deg));
-  transition:opacity .7s cubic-bezier(.2,.8,.2,1) .2s;
-  pointer-events:none}
-.rv.in .lbl::after{opacity:.97}
-#work  .lbl::after{background-image:url("img/act-1.png")}
-#how   .lbl::after{background-image:url("img/act-2.png")}
-#services .lbl::after{background-image:url("img/act-3.png")}
-#story .lbl::after{background-image:url("img/act-4.png")}
-#who   .lbl::after{background-image:url("img/act-5.png")}
-#faq   .lbl::after{background-image:url("img/act-6.png")}
-#contact .lbl::after{background-image:url("img/act-2.png")}
-@media(max-width:44rem){.lbl::after{display:none}}
-@media (prefers-reduced-motion:reduce){.lbl::after{transition:none;opacity:.96;transform:none}}
+.lbl{font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:block}
+
+/* Easter eggs: a painted skit sits in the margin beside each section heading,
+   big enough to actually read, and drifts as you scroll past it.
+   --p is written by the scroll loop, 0 entering, 1 leaving. */
+section{position:relative}
+.skit{position:absolute;right:var(--gut);top:clamp(2rem,5vw,4.5rem);z-index:0;
+  width:clamp(11rem,22vw,20rem);pointer-events:none;
+  opacity:0;transform:translateY(24px);
+  transition:opacity 1s cubic-bezier(.2,.8,.2,1) .15s,transform 1s cubic-bezier(.2,.8,.2,1) .15s}
+.skit img{width:100%;height:auto;display:block}
+.rv.in~.skit,.skit.in{opacity:1;
+  transform:translateY(calc(10px - var(--p,0) * 20px)) rotate(calc(-1.5deg + var(--p,0) * 3deg))}
+@media(max-width:70rem){.skit{position:static;width:min(22rem,100%);margin:1.5rem 0 0}}
+@media (prefers-reduced-motion:reduce){.skit{transition:none;opacity:1;transform:none}}
 .rule{height:1px;background:var(--rule);width:100%}
 
 /* ---------------- nav ---------------- */
@@ -359,6 +352,7 @@ a{color:inherit}
 </section>
 
 <section id="work">
+  <figure class="skit" aria-hidden="true"><img src="img/skit-1.png" alt="Two people laughing as they wrestle an enormous fitted sheet, laundry basket tipped over."></figure>
   <div class="edge rv" style="padding-bottom:2rem"><span class="lbl">What we do</span></div>
 
   <article class="panel rv">
@@ -405,6 +399,7 @@ a{color:inherit}
 
 
 <section class="story" id="story">
+  <figure class="skit" aria-hidden="true"><img src="img/skit-4.png" alt="A woman buried under four children climbing on her, laughing helplessly."></figure>
   <div class="edge">
     <div class="rv"><span class="lbl">Our story</span></div>
     <div class="story-grid">
@@ -456,6 +451,7 @@ a{color:inherit}
 </div>
 
 <section class="steps edge" id="how">
+  <figure class="skit" aria-hidden="true"><img src="img/skit-2.png" alt="A teenager riding on the back of a wheelchair like a scooter, both grinning."></figure>
   <div class="rv" style="padding-bottom:1.5rem"><span class="lbl">How it works</span></div>
   <div class="steps-grid rv">
     <div class="stp"><span class="num">01</span><h3>Have a chat</h3>
@@ -474,6 +470,7 @@ a{color:inherit}
 </section>
 
 <section class="who rv" id="who">
+  <figure class="skit" aria-hidden="true"><img src="img/skit-5.png" alt="Three women squashed onto a two-seater sofa with mugs, mid conversation."></figure>
   <div class="pic"><img src="img/team-photo.jpg" alt="Victoria with her two care managers, laughing together at a table in the Harmony Care office."></div>
   <div class="txt">
     <span class="lbl">Who we are</span>
@@ -499,6 +496,7 @@ a{color:inherit}
 
 
 <section class="index edge" id="services">
+  <figure class="skit" aria-hidden="true"><img src="img/skit-3.png" alt="A man holding one end of an absurdly long list while a small girl stands on the far end."></figure>
   <div class="rv"><span class="lbl">Everything we offer</span>
     <h2 class="idx-h">The full list</h2></div>
   <div class="idx rv">
@@ -521,6 +519,7 @@ a{color:inherit}
 </section>
 
 <section class="faq edge" id="faq">
+  <figure class="skit" aria-hidden="true"><img src="img/skit-6.png" alt="Two people talking to each other on a tin can telephone with the string pulled taut."></figure>
   <div class="rv"><span class="lbl">Questions people actually ask</span>
     <h2 class="idx-h">Before you call</h2></div>
   <div class="faqs rv">
@@ -606,7 +605,7 @@ a{color:inherit}
   // flat watercolour cutouts, not shaded geometry.
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduce) {
-    var marks = [].slice.call(document.querySelectorAll('.lbl'));
+    var marks = [].slice.call(document.querySelectorAll('.skit'));
     var ticking = false;
     function place(){
       var vh = innerHeight || 1;
@@ -615,6 +614,7 @@ a{color:inherit}
         var p = 1 - (r.top + r.height/2) / vh;      // 0 at the bottom, 1 at the top
         if (p < 0) p = 0; else if (p > 1) p = 1;
         marks[i].style.setProperty('--p', p.toFixed(3));
+        if (p > .06) marks[i].classList.add('in');
       }
       ticking = false;
     }
