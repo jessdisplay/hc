@@ -252,6 +252,37 @@ a{color:inherit}
 @keyframes slide{to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.marq-in{animation:none}}
 
+
+/* ---------------- the opening ----------------
+   The hero settles rather than snapping in: the photograph eases up out of
+   a slow push while the type arrives a line at a time behind it.
+   ------------------------------------------------------------------ */
+.hero>img{
+  animation:hero-in 2.4s cubic-bezier(.16,.84,.28,1) both,
+            drift 30s ease-in-out 2.4s infinite alternate;
+}
+@keyframes hero-in{
+  from{opacity:0;transform:scale(1.16)}
+  to  {opacity:1;transform:scale(1.06)}
+}
+.hero::after{animation:scrim-in 2s ease .5s both}
+@keyframes scrim-in{from{opacity:0}to{opacity:1}}
+
+.hero-in>*{opacity:0;animation:rise-in .95s cubic-bezier(.16,.84,.28,1) both}
+.hero-in .lbl   {animation-delay:.75s}
+.hero-in h1     {animation-delay:.95s}
+.hero-in .hero-foot{animation-delay:1.35s}
+.hero-cap{opacity:0;animation:rise-in .9s cubic-bezier(.16,.84,.28,1) 1.7s both}
+@keyframes rise-in{
+  from{opacity:0;transform:translateY(22px)}
+  to  {opacity:1;transform:none}
+}
+.nav{opacity:0;animation:rise-in .9s ease .35s both}
+
+@media (prefers-reduced-motion:reduce){
+  .hero>img,.hero::after,.hero-in>*,.hero-cap,.nav{animation:none;opacity:1;transform:none}
+}
+
 /* ---------------- reveal ---------------- */
 .rv{opacity:0;transform:translateY(18px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
 .rv.in{opacity:1;transform:none}
