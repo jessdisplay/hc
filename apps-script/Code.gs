@@ -67,6 +67,10 @@ function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents);
 
+    // The intake form emails the founders. No PIN: it is a public enquiry form,
+    // and nothing it can do is destructive.
+    if (body.kind === 'intake') return intake_(body.form || {});
+
     var pin = PropertiesService.getScriptProperties().getProperty('INTAKE_PIN');
     if (!pin) return json_({ ok: false, error: 'The intake PIN has not been set on the script yet.' });
     if (String(body.pin || '') !== pin) return json_({ ok: false, error: 'That PIN is not right.' });
@@ -161,4 +165,63 @@ function watchIntake() {
       '\n\nThe index: https://docs.google.com/spreadsheets/d/' + INDEX_SHEET + '/edit'
     );
   }
+}
+
+
+/**
+ * A new enquiry from the website intake form. Emails the founders and nothing
+ * else: no storage, no spreadsheet, so there is no second copy of somebody's
+ * health information sitting around.
+ *
+ * Set a script property FOUNDERS to a comma separated list of addresses.
+ * Falls back to NOTIFY, then does nothing rather than losing the enquiry
+ * silently, which is why the failure is reported back to the page.
+ */
+function intake_(f) {
+  var props = PropertiesService.getScriptProperties();
+  var to = props.getProperty('FOUNDERS') || props.getProperty('NOTIFY');
+  if (!to) return json_({ ok: false, error: 'The form is not connected to an inbox yet.' });
+
+  function val(v) {
+    if (v === null || v === undefined || v === '') return 'not answered';
+    return Array.isArray(v) ? v.join(', ') : String(v);
+  }
+  function block(title, rows) {
+    var out = '\n\n' + title.toUpperCase() + '\n' + Array(title.length + 1).join('-') + '\n';
+    rows.forEach(function (r) { out += r[0] + ': ' + val(f[r[1]]) + '\n'; });
+    return out;
+  }
+
+  var who = val(f.called) !== 'not answered' ? val(f.called) : val(f.name);
+
+  var body =
+    'A new enquiry came in through the website.\n' +
+    'Reply to them directly, they are expecting a call.\n' +
+    block('About', [['Name','name'],['Prefers to be called','called'],['Pronouns','pronouns'],
+      ['Date of birth','dob'],['Phone','phone'],['Email','email'],['Suburb','suburb'],
+      ['Filled in by','who']]) +
+    block('Communication', [['Best way to reach them','contact'],
+      ['Access needs','access'],['Notes','access_more']]) +
+    block('NDIS', [['Where they are up to','plan_status'],['Plan end date','plan_end'],
+      ['Plan management','plan_mgmt'],['What they want to change','goals']]) +
+    block('Looking for', [['Supports','supports'],['Wants to start','when']]) +
+    block('Safety', [['Living arrangement','living'],['Health and safety','health'],
+      ['Behaviour support plan','bsp'],['Others supporting them','others'],
+      ['Emergency contact','ec_name'],['Emergency phone','ec_phone']]) +
+    '\n\nThey ticked the consent box, so you are clear to contact them.\n' +
+    'This email is the only copy. Nothing was stored on the website.\n';
+
+  try {
+    MailApp.sendEmail({
+      to: to,
+      subject: 'New enquiry: ' + who,
+      body: body,
+      replyTo: val(f.email) !== 'not answered' ? val(f.email) : undefined,
+      name: 'Harmony Care website'
+    });
+  } catch (err) {
+    return json_({ ok: false, error: 'Could not send that. Please call us.' });
+  }
+
+  return json_({ ok: true });
 }

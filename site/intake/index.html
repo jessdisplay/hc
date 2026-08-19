@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Get started with Harmony Care</title>
+<meta name="description" content="Tell us a bit about you and what you are looking for. Nothing here is compulsory.">
+<style>
+:root{
+  --paper:#FBF7EF;--plate:#FFFDF9;--ink:#2E2A26;--muted:#5F564C;
+  --rule:#DFD5C4;--hair:#E7DFD1;--accent:#A0524A;--forest:#38553E;
+  --sage:#9EAE8F;--cream:#F3E3CA;--warn:#8A4B2A;
+  --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
+  --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --gut:clamp(1.25rem,4vw,3rem);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#B3AA9C;
+  --rule:#333A30;--hair:#272C24;--accent:#E3A49C;--forest:#A7C08F;--cream:#242820;--warn:#E0A87F;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;-webkit-font-smoothing:antialiased}
+h1,h2,legend,.lbl,.btn,.wm{font-family:var(--cond)}
+h1,h2{margin:0;line-height:1.02;letter-spacing:-.015em;text-wrap:balance}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:46rem;margin:0 auto;padding:0 var(--gut)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--forest);color:var(--paper);
+  padding:.85rem 1.2rem;z-index:99;font-family:var(--cond);letter-spacing:.1em;text-transform:uppercase;font-size:.8125rem}
+.skip:focus{left:0}
+
+header.top{border-bottom:1px solid var(--rule);background:var(--plate)}
+.top-in{max-width:46rem;margin:0 auto;padding:1.1rem var(--gut);display:flex;align-items:center;gap:.85rem}
+.top-in img{width:3.2rem;height:auto}
+.wm{line-height:1}
+.wm .a{font-size:1.25rem;font-weight:700}
+.wm .b{font-size:1.25rem;font-weight:200}
+.wm .s{font-size:.5rem;letter-spacing:.32em;color:var(--muted);margin-top:.22rem;
+  border-top:1px solid var(--rule);padding-top:.22rem}
+
+.intro{padding:clamp(2.5rem,6vw,4.5rem) 0 1.5rem}
+.lbl{font-size:.6875rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.8rem}
+h1{font-size:clamp(2rem,5.6vw,3.4rem);font-weight:700}
+.intro p{margin-top:1.2rem;font-size:1.125rem;color:var(--muted)}
+.intro .note{margin-top:1.5rem;padding:1.1rem 1.25rem;background:var(--cream);border-radius:3px;
+  font-size:1rem;color:var(--ink)}
+
+form{padding-bottom:5rem}
+fieldset{border:0;border-top:2px solid var(--forest);margin:2.75rem 0 0;padding:1.25rem 0 0}
+legend{font-size:1.35rem;font-weight:700;padding:0;letter-spacing:-.01em}
+.hint{margin-top:.5rem;color:var(--muted);font-size:1rem}
+.f{margin-top:1.75rem}
+.f>label,.f .q{display:block;font-weight:600;margin-bottom:.15rem}
+.f .help{display:block;color:var(--muted);font-size:.9375rem;margin-bottom:.55rem}
+input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea{
+  width:100%;font:inherit;font-size:1.0625rem;padding:.75rem .85rem;color:var(--ink);
+  background:var(--plate);border:1.5px solid var(--rule);border-radius:3px}
+textarea{min-height:7rem;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.opts{display:grid;gap:.5rem;margin-top:.35rem}
+.opt{display:flex;gap:.75rem;align-items:flex-start;padding:.7rem .85rem;
+  background:var(--plate);border:1.5px solid var(--rule);border-radius:3px;cursor:pointer}
+.opt:hover{border-color:var(--sage)}
+.opt input{margin:.25rem 0 0;width:1.15rem;height:1.15rem;flex:none;accent-color:var(--forest)}
+.opt span{font-size:1rem}
+.opt b{display:block;font-weight:600}
+.opt i{display:block;font-style:normal;color:var(--muted);font-size:.9375rem}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1.25rem}
+
+.consent{margin-top:2.5rem;padding:1.4rem 1.5rem;border:1.5px solid var(--rule);
+  border-left:4px solid var(--accent);border-radius:3px;background:var(--plate)}
+.consent h2{font-size:1.15rem;font-weight:700;margin-bottom:.6rem}
+.consent p{font-size:1rem;color:var(--muted)}
+.consent p+p{margin-top:.7rem}
+
+.actions{margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+.btn{font-family:var(--cond);font-size:.8125rem;letter-spacing:.16em;text-transform:uppercase;
+  padding:1rem 1.6rem;border-radius:3px;cursor:pointer;border:1.5px solid var(--forest);
+  background:var(--forest);color:var(--paper)}
+.btn:hover{background:var(--ink);border-color:var(--ink)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.status{font-size:1rem}
+.status[hidden]{display:none}
+.status.bad{color:var(--warn)}
+.err{color:var(--warn);font-size:.9375rem;margin-top:.35rem}
+.err[hidden]{display:none}
+
+footer{border-top:1px solid var(--rule);background:var(--plate);padding:2rem 0 3rem;
+  font-size:.875rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#form">Skip to the form</a>
+
+<header class="top">
+  <div class="top-in">
+    <img src="../img/emblem.png" alt="">
+    <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
+      <div class="s">SUPPORT SERVICES</div></span>
+  </div>
+</header>
+
+<main>
+  <div class="wrap intro">
+    <span class="lbl">Getting started</span>
+    <h1>Tell us a bit about you</h1>
+    <p>This helps us work out whether we are the right fit, and what to talk about
+      when we call. It takes about ten minutes.</p>
+    <div class="note">
+      <p><strong>Nothing here is compulsory.</strong> Skip anything you would rather
+        talk about in person, or leave it blank and we will ask when we speak.
+        If filling in a form is not how you want to do this, call
+        <a href="tel:0434721051">0434 721 051</a> and we will fill it in together.</p>
+    </div>
+  </div>
+
+  <form class="wrap" id="form" novalidate>
+
+    <fieldset>
+      <legend>About you</legend>
+      <p class="hint">Just enough to know who we are speaking to.</p>
+
+      <div class="two">
+        <div class="f"><label for="name">Your name</label>
+          <input type="text" id="name" name="name" autocomplete="name"></div>
+        <div class="f"><label for="called">What you like to be called</label>
+          <span class="help">If it is different from your name above.</span>
+          <input type="text" id="called" name="called"></div>
+      </div>
+
+      <div class="two">
+        <div class="f"><label for="pronouns">Your pronouns</label>
+          <input type="text" id="pronouns" name="pronouns" placeholder="she/her, he/him, they/them"></div>
+        <div class="f"><label for="dob">Date of birth</label>
+          <span class="help">Helps us check which supports you are eligible for.</span>
+          <input type="date" id="dob" name="dob" autocomplete="bday"></div>
+      </div>
+
+      <div class="two">
+        <div class="f"><label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel"></div>
+        <div class="f"><label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email"></div>
+      </div>
+
+      <div class="f"><label for="suburb">Suburb</label>
+        <span class="help">So we know whether we reach you.</span>
+        <input type="text" id="suburb" name="suburb" autocomplete="address-level2"></div>
+
+      <div class="f"><label for="who">Who is filling this in</label>
+        <select id="who" name="who">
+          <option value="">Choose one</option>
+          <option>The person who needs support</option>
+          <option>A family member or carer</option>
+          <option>A support coordinator</option>
+          <option>An advocate or guardian</option>
+          <option>Someone else</option>
+        </select></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>How you like to communicate</legend>
+      <p class="hint">We would rather get this right from the first phone call.</p>
+
+      <div class="f"><span class="q" id="q-contact">Best way to reach you</span>
+        <div class="opts" role="group" aria-labelledby="q-contact">
+          <label class="opt"><input type="checkbox" name="contact" value="Phone call"><span><b>Phone call</b></span></label>
+          <label class="opt"><input type="checkbox" name="contact" value="Text message"><span><b>Text message</b></span></label>
+          <label class="opt"><input type="checkbox" name="contact" value="Email"><span><b>Email</b></span></label>
+          <label class="opt"><input type="checkbox" name="contact" value="Through my support person"><span><b>Through my support person</b></span></label>
+        </div>
+      </div>
+
+      <div class="f"><span class="q" id="q-access">Anything that would make communicating easier</span>
+        <span class="help">Tick anything that applies. We will organise it, not you.</span>
+        <div class="opts" role="group" aria-labelledby="q-access">
+          <label class="opt"><input type="checkbox" name="access" value="Interpreter">
+            <span><b>An interpreter</b><i>Tell us the language below.</i></span></label>
+          <label class="opt"><input type="checkbox" name="access" value="Auslan">
+            <span><b>Auslan</b></span></label>
+          <label class="opt"><input type="checkbox" name="access" value="Easy Read">
+            <span><b>Easy Read documents</b></span></label>
+          <label class="opt"><input type="checkbox" name="access" value="Large print">
+            <span><b>Large print</b></span></label>
+          <label class="opt"><input type="checkbox" name="access" value="Extra time">
+            <span><b>Extra time, or shorter conversations</b></span></label>
+          <label class="opt"><input type="checkbox" name="access" value="Support person present">
+            <span><b>A support person with me</b></span></label>
+          <label class="opt"><input type="checkbox" name="access" value="Communication device">
+            <span><b>I use a communication device or board</b></span></label>
+        </div>
+      </div>
+
+      <div class="f"><label for="access_more">Anything else about how you communicate</label>
+        <span class="help">Including how you let someone know if you are unwell or something is wrong.</span>
+        <textarea id="access_more" name="access_more"></textarea></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Your NDIS plan</legend>
+      <p class="hint">If you do not have one yet, that is fine. Say so and we will point you the right way.</p>
+
+      <div class="f"><label for="plan_status">Where you are up to</label>
+        <select id="plan_status" name="plan_status">
+          <option value="">Choose one</option>
+          <option>I have an NDIS plan</option>
+          <option>I have applied and I am waiting</option>
+          <option>I am thinking about applying</option>
+          <option>I am not sure if I am eligible</option>
+          <option>This is not about the NDIS</option>
+        </select></div>
+
+      <div class="two">
+        <div class="f"><label for="plan_end">Plan end date</label>
+          <span class="help">If you know it.</span>
+          <input type="date" id="plan_end" name="plan_end"></div>
+        <div class="f"><label for="plan_mgmt">How your plan is managed</label>
+          <select id="plan_mgmt" name="plan_mgmt">
+            <option value="">Choose one</option>
+            <option>Self managed</option>
+            <option>Plan managed</option>
+            <option>NDIA managed</option>
+            <option>A mix</option>
+            <option>Not sure</option>
+          </select></div>
+      </div>
+
+      <div class="f"><label for="goals">What you are hoping to change</label>
+        <span class="help">In your words. This matters more to us than the plan wording.</span>
+        <textarea id="goals" name="goals"></textarea></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>What you are looking for</legend>
+      <p class="hint">Tick anything that sounds close. We will sort out the detail together.</p>
+      <div class="f"><span class="q" id="q-supports">Supports</span>
+        <div class="opts" role="group" aria-labelledby="q-supports">
+          <label class="opt"><input type="checkbox" name="supports" value="Daily living and personal care"><span><b>Daily living and personal care</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Household tasks"><span><b>Household tasks</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Getting out into the community"><span><b>Getting out into the community</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Group or centre activities"><span><b>Group or centre based activities</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Building daily living skills"><span><b>Building daily living skills</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Meals"><span><b>Meals and mealtime support</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Travel and transport"><span><b>Travel and transport</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Supported independent living"><span><b>Supported independent living</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Support coordination"><span><b>Support coordination</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Psychosocial recovery coaching"><span><b>Psychosocial recovery coaching</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Employment or study"><span><b>Help with work or study</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="High intensity supports"><span><b>High intensity supports</b><i>Complex bowel care, enteral feeding, catheter management.</i></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Behaviour support plan"><span><b>Help putting a behaviour support plan into practice</b></span></label>
+          <label class="opt"><input type="checkbox" name="supports" value="Not sure yet"><span><b>Not sure yet</b></span></label>
+        </div>
+      </div>
+
+      <div class="f"><label for="when">When you would like to start</label>
+        <input type="text" id="when" name="when" placeholder="As soon as possible, in a month, just exploring"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Keeping you safe</legend>
+      <p class="hint">Only what we would need to know before someone walks through your
+        door. Skip anything you would rather say out loud.</p>
+
+      <div class="f"><label for="living">Who you live with</label>
+        <input type="text" id="living" name="living" placeholder="On my own, with family, in shared accommodation"></div>
+
+      <div class="f"><label for="health">Health or safety things we should know</label>
+        <span class="help">Allergies, mobility, seizures, medication, anything that changes how support is done.</span>
+        <textarea id="health" name="health"></textarea></div>
+
+      <div class="f"><label for="bsp">Do you have a behaviour support plan?</label>
+        <select id="bsp" name="bsp">
+          <option value="">Choose one</option>
+          <option>Yes</option>
+          <option>No</option>
+          <option>One is being written</option>
+          <option>Not sure</option>
+        </select></div>
+
+      <div class="f"><label for="others">Other people already supporting you</label>
+        <span class="help">Other providers, allied health, a support coordinator, family.</span>
+        <textarea id="others" name="others"></textarea></div>
+
+      <div class="two">
+        <div class="f"><label for="ec_name">Emergency contact</label>
+          <input type="text" id="ec_name" name="ec_name"></div>
+        <div class="f"><label for="ec_phone">Their phone</label>
+          <input type="tel" id="ec_phone" name="ec_phone"></div>
+      </div>
+    </fieldset>
+
+    <div class="consent">
+      <h2>Before you send this</h2>
+      <p>We collect this so we can contact you and work out whether we can help. We
+        keep it secure, we only share it with people supporting you, and we will
+        not use it for anything else. You can ask to see it, correct it, or have it
+        deleted at any time.</p>
+      <p>If you are unhappy with how we handle your information you can tell us on
+        <a href="tel:0434721051">0434 721 051</a>, and you can always contact the
+        NDIS Quality and Safeguards Commission on
+        <a href="tel:1800035544">1800 035 544</a>.</p>
+      <div class="f">
+        <div class="opts">
+          <label class="opt"><input type="checkbox" id="consent" name="consent" value="yes" required>
+            <span><b>I am happy for Harmony Care to contact me about this enquiry.</b></span></label>
+        </div>
+        <p class="err" id="consent-err" hidden>Please tick this so we know we are allowed to call you.</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" type="submit" id="send">Send to Harmony Care</button>
+      <p class="status" id="status" role="status" aria-live="polite" hidden></p>
+    </div>
+  </form>
+</main>
+
+<footer><div class="wrap">
+  Harmony Care Support Services Pty Ltd &middot; ABN 99 691 543 834 &middot;
+  38 Nash Street, Gympie QLD 4570 &middot; <a href="tel:0434721051">0434 721 051</a>
+</div></footer>
+
+<script src="../config.js"></script>
+<script>
+(function(){
+  var HOOK = (window.HC_HOOK || "");
+  var form = document.getElementById('form');
+  var send = document.getElementById('send');
+  var out  = document.getElementById('status');
+  var cons = document.getElementById('consent');
+  var cerr = document.getElementById('consent-err');
+
+  function say(msg, bad){ out.hidden=false; out.textContent=msg; out.classList.toggle('bad', !!bad); }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    cerr.hidden = true;
+
+    if(!cons.checked){
+      cerr.hidden = false;
+      cons.focus();
+      say('Almost there, just the tick box above.', true);
+      return;
+    }
+
+    var data = {};
+    new FormData(form).forEach(function(v,k){
+      if(data[k]) { data[k] = [].concat(data[k], v); } else { data[k] = v; }
+    });
+
+    if(!HOOK){
+      say('This form is not switched on yet. Please call 0434 721 051 and we will '
+        + 'go through it with you.', true);
+      return;
+    }
+
+    send.disabled = true;
+    say('Sending…');
+
+    fetch(HOOK, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ kind:'intake', form:data })
+    }).then(function(r){ return r.json(); })
+      .then(function(r){
+        send.disabled = false;
+        if(!r.ok){ return say(r.error || 'That did not go through. Please call us.', true); }
+        form.reset();
+        say('Thank you. That has gone to the team and someone will be in touch.');
+      })
+      .catch(function(){
+        send.disabled = false;
+        say('That did not go through. Please call 0434 721 051.', true);
+      });
+  });
+})();
+</script>
+</body>
+</html>
