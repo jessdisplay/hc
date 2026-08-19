@@ -40,20 +40,22 @@ a{color:inherit}
   position:relative;display:inline-block}
 /* Easter egg: one of the painted cast stands beside each section label and
    arrives with the section. Decoration only, never announced. */
-.lbl::after{content:"";position:absolute;left:calc(100% + 1rem);bottom:-.55rem;
-  width:2.1rem;height:4.4rem;
+.lbl::after{content:"";position:absolute;left:calc(100% + 1rem);bottom:-.6rem;
+  width:2.6rem;height:5rem;
   background-position:bottom center;background-size:contain;background-repeat:no-repeat;
-  opacity:0;transform:translateY(10px) rotate(-3deg);
-  transition:opacity .7s cubic-bezier(.2,.8,.2,1) .25s,transform .7s cubic-bezier(.2,.8,.2,1) .25s;
+  opacity:0;
+  /* --p is written by the scroll loop, 0 as the section enters, 1 as it leaves */
+  transform:translateY(calc(14px - var(--p,0) * 10px)) rotate(calc(-4deg + var(--p,0) * 7deg));
+  transition:opacity .7s cubic-bezier(.2,.8,.2,1) .2s;
   pointer-events:none}
-.rv.in .lbl::after,section .rv.in .lbl::after{opacity:.96;transform:translateY(0) rotate(0)}
-#work  .lbl::after{background-image:url("img/cast-4.png")}
-#how   .lbl::after{background-image:url("img/cast-5.png")}
-#services .lbl::after{background-image:url("img/cast-6.png")}
-#story .lbl::after{background-image:url("img/cast-2.png")}
-#who   .lbl::after{background-image:url("img/cast-1.png")}
-#faq   .lbl::after{background-image:url("img/cast-3.png")}
-#contact .lbl::after{background-image:url("img/cast-2.png")}
+.rv.in .lbl::after{opacity:.97}
+#work  .lbl::after{background-image:url("img/act-1.png")}
+#how   .lbl::after{background-image:url("img/act-2.png")}
+#services .lbl::after{background-image:url("img/act-3.png")}
+#story .lbl::after{background-image:url("img/act-4.png")}
+#who   .lbl::after{background-image:url("img/act-5.png")}
+#faq   .lbl::after{background-image:url("img/act-6.png")}
+#contact .lbl::after{background-image:url("img/act-2.png")}
 @media(max-width:44rem){.lbl::after{display:none}}
 @media (prefers-reduced-motion:reduce){.lbl::after{transition:none;opacity:.96;transform:none}}
 .rule{height:1px;background:var(--rule);width:100%}
@@ -598,6 +600,30 @@ a{color:inherit}
     es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
   },{rootMargin:'0px 0px -12% 0px',threshold:.08});
   document.querySelectorAll('.rv').forEach(function(n){io.observe(n)});
+
+  // Scroll-linked motion for the painted figures beside each heading.
+  // Plain transforms on a rAF loop: WebGL would buy nothing here, these are
+  // flat watercolour cutouts, not shaded geometry.
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) {
+    var marks = [].slice.call(document.querySelectorAll('.lbl'));
+    var ticking = false;
+    function place(){
+      var vh = innerHeight || 1;
+      for (var i=0;i<marks.length;i++){
+        var r = marks[i].getBoundingClientRect();
+        var p = 1 - (r.top + r.height/2) / vh;      // 0 at the bottom, 1 at the top
+        if (p < 0) p = 0; else if (p > 1) p = 1;
+        marks[i].style.setProperty('--p', p.toFixed(3));
+      }
+      ticking = false;
+    }
+    addEventListener('scroll', function(){
+      if (!ticking){ ticking = true; requestAnimationFrame(place); }
+    }, {passive:true});
+    addEventListener('resize', place, {passive:true});
+    place();
+  }
 })();
 </script>
 </body>
