@@ -36,7 +36,18 @@ a{color:inherit}
 
 /* the architectural grid: everything hangs off one hairline margin */
 .edge{padding-inline:var(--gut);max-width:100%}
-.lbl{font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.lbl{font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);
+  position:relative;display:inline-block}
+/* an easter egg: the painted heart leans in beside a section label on hover */
+.lbl::after{content:"";position:absolute;left:calc(100% + .75rem);top:50%;
+  width:1.9rem;height:1.9rem;margin-top:-.95rem;
+  background:url("img/motif-heart.png") center/contain no-repeat;
+  opacity:0;transform:translateX(-6px) rotate(-12deg) scale(.7);
+  transition:opacity .5s cubic-bezier(.2,.8,.2,1),transform .5s cubic-bezier(.2,.8,.2,1);
+  pointer-events:none}
+section:hover .lbl::after,.rv.in .lbl::after{opacity:.9;transform:none rotate(0) scale(1);
+  transform:translateX(0) rotate(-4deg) scale(1)}
+@media (prefers-reduced-motion:reduce){.lbl::after{transition:none}}
 .rule{height:1px;background:var(--rule);width:100%}
 
 /* ---------------- nav ---------------- */
@@ -157,17 +168,24 @@ a{color:inherit}
 .index{padding-block:clamp(4rem,10vw,9rem) clamp(2rem,5vw,4rem)}
 .idx-h{font-size:clamp(2rem,5.6vw,4.5rem);font-weight:700;margin-top:.6rem}
 .idx{margin-top:clamp(2rem,4vw,3rem);border-top:1px solid var(--rule)}
-.row{display:grid;grid-template-columns:3.5rem minmax(0,15rem) minmax(0,1fr);gap:1rem 2rem;
-  align-items:baseline;padding:1.15rem 0;border-bottom:1px solid var(--hair);
-  transition:background .25s,padding-left .25s}
-.row:hover{background:var(--cream);padding-left:.75rem}
+.row{border-bottom:1px solid var(--hair)}
+.row summary{list-style:none;cursor:pointer;display:grid;
+  grid-template-columns:3.5rem minmax(0,1fr) 1.5rem;gap:1rem 2rem;align-items:baseline;
+  padding:1.25rem 0;transition:background .25s,padding-left .25s}
+.row summary::-webkit-details-marker{display:none}
+.row summary:hover{background:var(--cream);padding-left:.75rem}
 .row .c{font-family:var(--cond);font-size:.6875rem;letter-spacing:.2em;color:var(--accent)}
-.row h3{font-size:1.125rem;font-weight:600;letter-spacing:0;line-height:1.25}
-.row p{font-size:.9375rem;line-height:1.5;color:var(--muted)}
+.row .rt{font-family:var(--cond);font-size:1.25rem;font-weight:600;line-height:1.2}
+.row summary::after{content:"";justify-self:end;align-self:center;width:.6rem;height:.6rem;
+  border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);
+  transform:rotate(45deg);transition:transform .25s}
+.row[open] summary::after{transform:rotate(-135deg)}
+.row p{font-size:1rem;line-height:1.6;color:var(--muted);padding:0 3rem 1.4rem 5.5rem;max-width:60ch}
 @media(max-width:54rem){
-  .row{grid-template-columns:2.5rem minmax(0,1fr);gap:.35rem 1rem}
-  .row p{grid-column:2}
+  .row summary{grid-template-columns:2.5rem minmax(0,1fr) 1.2rem;gap:.75rem 1rem}
+  .row p{padding-left:3.25rem;padding-right:0}
 }
+
 
 /* ---------------- faq ---------------- */
 .faq{padding-block:clamp(2rem,5vw,4rem) clamp(4rem,9vw,8rem)}
@@ -233,14 +251,14 @@ a{color:inherit}
 
 /* ---------------- the name ---------------- */
 .name{padding-block:clamp(3rem,8vw,7rem)}
-.nm{display:flex;flex-wrap:wrap;gap:.02em;font-family:var(--cond);font-weight:700;
-  font-size:clamp(3.4rem,15vw,14rem);line-height:.82;letter-spacing:-.04em;margin-top:1.2rem}
-.nm .k{color:var(--accent)}
-.nm .o{color:var(--ink);opacity:.24;font-weight:200}
+/* The word is never broken into a highlighted prefix. The first four letters
+   of HARMONY spell HARM, which is not a thing a care brand can put on a wall. */
+.nm{font-family:var(--cond);font-weight:700;font-size:clamp(3rem,13vw,12rem);
+  line-height:.82;letter-spacing:-.04em;margin-top:1.2rem}
+.nm .w{color:var(--accent)}
 .nm-keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1rem 2rem;
   margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--rule)}
-.nm-keys div{display:flex;align-items:baseline;gap:.7rem}
-.ki{font-family:var(--cond);font-weight:700;font-size:1.5rem;color:var(--accent);width:1.1em}
+.nm-keys div{display:flex;align-items:baseline;gap:.7rem;padding-top:.9rem;border-top:2px solid var(--accent)}
 .kn{font-size:1.0625rem;color:var(--muted)}
 .nm-note{margin-top:1.75rem;max-width:44ch;color:var(--muted)}
 
@@ -403,17 +421,16 @@ a{color:inherit}
 <section class="name edge" id="name">
   <div class="rv"><span class="lbl">Where the name came from</span></div>
   
-  <div class="nm rv" style="margin-top:1.5rem">
-    <span class="k" data-kid="1">H</span><span class="k" data-kid="2">A</span><span class="k" data-kid="3">R</span><span class="k" data-kid="4">M</span><span class="o">O</span><span class="o">N</span><span class="o">Y</span>
-  </div>
+  <div class="nm rv" style="margin-top:1.5rem"><span class="w">HARMONY</span></div>
   <div class="nm-keys rv">
-    <div><span class="ki">H</span><span class="kn">[first child]</span></div>
-    <div><span class="ki">A</span><span class="kn">[second child]</span></div>
-    <div><span class="ki">R</span><span class="kn">[third child]</span></div>
-    <div><span class="ki">M</span><span class="kn">[fourth child]</span></div>
+    <div><span class="kn">[first child]</span></div>
+    <div><span class="kn">[second child]</span></div>
+    <div><span class="kn">[third child]</span></div>
+    <div><span class="kn">[fourth child]</span></div>
   </div>
-  <p class="nm-note rv">Four children, four letters, one name. They are the reason
-    the business exists and the reason it is called what it is.</p>
+  </div>
+  <p class="nm-note rv">Four children, one name built from their initials. They are
+    the reason the business exists and the reason it is called what it is.</p>
 </section>
 
 <div class="marq rv" aria-hidden="true"><div class="marq-in">
@@ -475,21 +492,21 @@ a{color:inherit}
   <div class="rv"><span class="lbl">Everything we offer</span>
     <h2 class="idx-h">The full list</h2></div>
   <div class="idx rv">
-    <div class="row"><span class="c">01</span><h3>Daily living</h3><p>Personal care and daily personal activities, at home and in the community.</p></div>
-    <div class="row"><span class="c">02</span><h3>Household tasks</h3><p>The cooking, the washing, the shopping, the tidying. Kept on top of, not taken over.</p></div>
-    <div class="row"><span class="c">03</span><h3>Community participation</h3><p>Getting out, joining in, and building the connections that make a week worth having.</p></div>
-    <div class="row"><span class="c">04</span><h3>Group and centre activities</h3><p>Shared programs where you want them, one to one where you do not.</p></div>
-    <div class="row"><span class="c">05</span><h3>Daily care and life skills</h3><p>Building the practical skills you want, at the pace you want them.</p></div>
-    <div class="row"><span class="c">06</span><h3>Meal preparation</h3><p>Planning, shopping and cooking, tailored to what you actually like eating.</p></div>
-    <div class="row"><span class="c">07</span><h3>Travel and transport</h3><p>Lifts to appointments, work and everything else. Insured, licensed, on time.</p></div>
-    <div class="row"><span class="c">08</span><h3>Supported independent living</h3><p>Support in your own home or a shared one, arranged around your tenancy and your terms.</p></div>
-    <div class="row"><span class="c">09</span><h3>Shared living and daily tasks</h3><p>Making a shared household work for everybody living in it.</p></div>
-    <div class="row"><span class="c">10</span><h3>Support coordination</h3><p>We read the plan, make the calls, and translate it out of acronym.</p></div>
-    <div class="row"><span class="c">11</span><h3>Specialist support coordination</h3><p>For when the situation is complex and needs someone who has seen complex before.</p></div>
-    <div class="row"><span class="c">12</span><h3>Psychosocial recovery coaching</h3><p>Working alongside mental health, at your pace, on your goals.</p></div>
-    <div class="row"><span class="c">13</span><h3>Employment and education</h3><p>Support to find work or study, and to keep it once you have it.</p></div>
-    <div class="row"><span class="c">14</span><h3>High intensity personal activities</h3><p>Complex bowel care, enteral feeding and catheter management, by trained staff.</p></div>
-    <div class="row"><span class="c">15</span><h3>Behaviour support implementation</h3><p>Putting a behaviour support plan into practice properly, and reviewing whether it is working.</p></div>
+    <details class="row"><summary><span class="c">01</span><span class="rt">Daily living</span></summary><p>Personal care and daily personal activities, at home and in the community.</p></details>
+    <details class="row"><summary><span class="c">02</span><span class="rt">Household tasks</span></summary><p>The cooking, the washing, the shopping, the tidying. Kept on top of, not taken over.</p></details>
+    <details class="row"><summary><span class="c">03</span><span class="rt">Community participation</span></summary><p>Getting out, joining in, and building the connections that make a week worth having.</p></details>
+    <details class="row"><summary><span class="c">04</span><span class="rt">Group and centre activities</span></summary><p>Shared programs where you want them, one to one where you do not.</p></details>
+    <details class="row"><summary><span class="c">05</span><span class="rt">Daily care and life skills</span></summary><p>Building the practical skills you want, at the pace you want them.</p></details>
+    <details class="row"><summary><span class="c">06</span><span class="rt">Meal preparation</span></summary><p>Planning, shopping and cooking, tailored to what you actually like eating.</p></details>
+    <details class="row"><summary><span class="c">07</span><span class="rt">Travel and transport</span></summary><p>Lifts to appointments, work and everything else. Insured, licensed, on time.</p></details>
+    <details class="row"><summary><span class="c">08</span><span class="rt">Supported independent living</span></summary><p>Support in your own home or a shared one, arranged around your tenancy and your terms.</p></details>
+    <details class="row"><summary><span class="c">09</span><span class="rt">Shared living and daily tasks</span></summary><p>Making a shared household work for everybody living in it.</p></details>
+    <details class="row"><summary><span class="c">10</span><span class="rt">Support coordination</span></summary><p>We read the plan, make the calls, and translate it out of acronym.</p></details>
+    <details class="row"><summary><span class="c">11</span><span class="rt">Specialist support coordination</span></summary><p>For when the situation is complex and needs someone who has seen complex before.</p></details>
+    <details class="row"><summary><span class="c">12</span><span class="rt">Psychosocial recovery coaching</span></summary><p>Working alongside mental health, at your pace, on your goals.</p></details>
+    <details class="row"><summary><span class="c">13</span><span class="rt">Employment and education</span></summary><p>Support to find work or study, and to keep it once you have it.</p></details>
+    <details class="row"><summary><span class="c">14</span><span class="rt">High intensity personal activities</span></summary><p>Complex bowel care, enteral feeding and catheter management, by trained staff.</p></details>
+    <details class="row"><summary><span class="c">15</span><span class="rt">Behaviour support implementation</span></summary><p>Putting a behaviour support plan into practice properly, and reviewing whether it is working.</p></details>
   </div>
 </section>
 
