@@ -89,6 +89,10 @@ a{color:inherit}
 .hero-foot p{max-width:30rem;font-size:1.0625rem;line-height:1.5;color:#EFE6D8}
 .hero-foot .btn{color:#F7F1E6;margin-left:auto}
 .hero-foot .btn:hover{background:#F7F1E6;color:#141310;border-color:#F7F1E6}
+.hero-cap{position:absolute;right:var(--gut);bottom:clamp(2rem,5vw,4rem);z-index:3;
+  font-family:var(--cond);font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(247,241,230,.62)}
+@media(max-width:54rem){.hero-cap{display:none}}
 
 /* ---------------- statement ---------------- */
 .stmt{padding-block:clamp(5rem,13vw,11rem)}
@@ -228,7 +232,9 @@ a{color:inherit}
 
 /* ---------------- the name ---------------- */
 .name{padding-block:clamp(3rem,8vw,7rem)}
-.nm-art{margin-top:1.5rem;border:1px solid var(--rule);overflow:clip;background:var(--cream)}
+.nm-art{margin:1.5rem 0 0;border:1px solid var(--rule);overflow:clip;background:var(--cream)}
+.nm-art figcaption{padding:.85rem 1.1rem;font-size:.875rem;color:var(--muted);
+  border-top:1px solid var(--rule);background:var(--plate)}
 .nm-art img{width:100%;height:clamp(11rem,26vw,22rem);object-fit:cover;object-position:center 45%}
 .nm{display:flex;flex-wrap:wrap;gap:.02em;font-family:var(--cond);font-weight:700;
   font-size:clamp(3.4rem,15vw,14rem);line-height:.82;letter-spacing:-.04em;margin-top:1.2rem}
@@ -288,7 +294,8 @@ a{color:inherit}
          turn up, make it happen, and get out of the way.</p>
       <a class="btn line" href="#work">See what we do</a>
     </div>
-  </div>
+    </div>
+  <span class="hero-cap">Where it started</span>
 </header>
 
 <section class="stmt edge rv">
@@ -355,8 +362,8 @@ a{color:inherit}
         <p>Then one day my kids said: Mum, you care so much, you could really
           make a difference.</p>
         <p>So the name is theirs. Harmony is built from the first letters of my
-          four children&rsquo;s names, and they are still the reason for all of
-          it. The promise is to you.</p>
+          four children&rsquo;s names. They are grown now, and they are still the
+          reason for all of it. The promise is to you.</p>
         <p class="sig">Victoria Scilipote<span>Founder</span></p>
       </div>
       <div class="story-pic rv"><img src="img/p-elder.jpg" alt="A quiet moment at home."></div>
@@ -367,7 +374,10 @@ a{color:inherit}
 
 <section class="name edge" id="name">
   <div class="rv"><span class="lbl">Where the name came from</span></div>
-  <div class="nm-art rv"><img src="img/hero-family.jpg" alt="Painted illustration of the same family at home."></div>
+  <figure class="nm-art rv">
+    <img src="img/hero-family.jpg" alt="Painted illustration of Victoria at home with her four children when they were young.">
+    <figcaption>Victoria and the four, back when the idea was theirs. They are grown now.</figcaption>
+  </figure>
   <div class="nm rv">
     <span class="k" data-kid="1">H</span><span class="k" data-kid="2">A</span><span class="k" data-kid="3">R</span><span class="k" data-kid="4">M</span><span class="o">O</span><span class="o">N</span><span class="o">Y</span>
   </div>
