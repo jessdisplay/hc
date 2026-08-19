@@ -57,14 +57,14 @@ section{position:relative}
 /* two-state gags: one coherent drawing per skit, the beat swaps the state.
    A is before, B is the joke landing. --beat snaps through the middle of the
    section, and the swap IS the animation, with a few pixels of body english. */
-.scene-two{--beat:clamp(0,(var(--t,0) - .52)*7,1)}
+/* four painted frames per gag, scrubbed by the scroll. Frames are discrete,
+   a short crossfade keeps the swap from flashing, and frame one doubles as
+   the no-JS and reduced-motion state. */
 .scene-two img{position:absolute;left:50%;bottom:0;height:100%;width:auto;
-  max-width:none;transform:translateX(-50%)}
-.scene-two .a{opacity:calc(1 - var(--beat))}
-.scene-two .b{opacity:var(--beat)}
-.scene-two[data-scene="list"] img{transform:translateX(-50%) rotate(calc(var(--beat)*.8deg))}
-.scene-two[data-scene="string"] img{transform:translateX(calc(-50% + var(--beat)*6px))}
-.scene-two[data-scene="cord"] img{transform:translateX(calc(-50% + var(--beat)*5px))}
+  max-width:none;transform:translateX(-50%);opacity:0;transition:opacity .14s linear}
+.scene-two .f1{opacity:1}
+.scene-two.fr2 .f1,.scene-two.fr3 .f1,.scene-two.fr4 .f1{opacity:0}
+.scene-two.fr2 .f2,.scene-two.fr3 .f3,.scene-two.fr4 .f4{opacity:1}
 .scene-big{height:clamp(14rem,26vw,22rem)}
 
 /* the sofa: they settle in with the tea, and the tea steams */
@@ -174,8 +174,8 @@ section{position:relative}
 }
 
 /* ---------------- full bleed break ---------------- */
-.bleed{position:relative;height:clamp(20rem,62vh,40rem);overflow:hidden}
-.bleed img{transform:scale(1.05)}
+.bleed{position:relative;height:clamp(16rem,42vw,52rem);overflow:hidden}
+.bleed img{transform:none}
 .bleed .cap{position:absolute;left:var(--gut);bottom:clamp(1.25rem,3vw,2.5rem);color:#F7F1E6;
   text-shadow:0 1px 20px rgba(0,0,0,.5);max-width:34rem}
 .bleed .cap h3{font-size:clamp(1.5rem,4vw,3rem);font-weight:200}
@@ -415,8 +415,10 @@ section{position:relative}
 
 <section id="work">
   <div class="edge"><div class="scene scene-two" data-scene="sheet" aria-hidden="true">
-    <img class="a" src="img/gag-sheet-a.png" alt="">
-    <img class="b" src="img/gag-sheet-b.png" alt="">
+    <img class="f1" src="img/gag-sheet-a.png" alt="">
+    <img class="f2" src="img/gag-sheet-m1.png" alt="">
+    <img class="f3" src="img/gag-sheet-m2.png" alt="">
+    <img class="f4" src="img/gag-sheet-b.png" alt="">
   </div></div>
   <div class="edge rv" style="padding-bottom:2rem"><span class="lbl">What we do</span></div>
 
@@ -465,8 +467,10 @@ section{position:relative}
 
 <section class="story" id="story">
   <div class="edge"><div class="scene scene-two scene-big" data-scene="pull" aria-hidden="true">
-    <img class="a" src="img/gag-pull-a.png" alt="">
-    <img class="b" src="img/gag-pull-b.png" alt="">
+    <img class="f1" src="img/gag-pull-a.png" alt="">
+    <img class="f2" src="img/gag-pull-m1.png" alt="">
+    <img class="f3" src="img/gag-pull-m2.png" alt="">
+    <img class="f4" src="img/gag-pull-b.png" alt="">
   </div></div>
   <div class="edge">
     <div class="rv"><span class="lbl">Our story</span></div>
@@ -518,9 +522,11 @@ section{position:relative}
 </div>
 
 <section class="steps edge" id="how">
-  <div class="scene scene-two" data-scene="cord" aria-hidden="true">
-    <img class="a" src="img/gag-cord-a.png" alt="">
-    <img class="b" src="img/gag-cord-b.png" alt="">
+  <div class="scene scene-two" data-scene="string" aria-hidden="true">
+    <img class="f1" src="img/gag-string-a.png" alt="">
+    <img class="f2" src="img/gag-string-m1.png" alt="">
+    <img class="f3" src="img/gag-string-m2.png" alt="">
+    <img class="f4" src="img/gag-string-b.png" alt="">
   </div>
   <div class="rv" style="padding-bottom:1.5rem"><span class="lbl">How it works</span></div>
   <div class="steps-grid rv">
@@ -577,8 +583,10 @@ section{position:relative}
 
 <section class="index edge" id="services">
   <div class="scene scene-two" data-scene="list" aria-hidden="true">
-    <img class="a" src="img/gag-list-a.png" alt="">
-    <img class="b" src="img/gag-list-b.png" alt="">
+    <img class="f1" src="img/gag-list-a.png" alt="">
+    <img class="f2" src="img/gag-list-m1.png" alt="">
+    <img class="f3" src="img/gag-list-m2.png" alt="">
+    <img class="f4" src="img/gag-list-b.png" alt="">
   </div>
   <div class="rv"><span class="lbl">Everything we offer</span>
     <h2 class="idx-h">The full list</h2></div>
@@ -602,9 +610,11 @@ section{position:relative}
 </section>
 
 <section class="faq edge" id="faq">
-  <div class="scene scene-two" data-scene="string" aria-hidden="true">
-    <img class="a" src="img/gag-string-a.png" alt="">
-    <img class="b" src="img/gag-string-b.png" alt="">
+  <div class="scene scene-two" data-scene="cord" aria-hidden="true">
+    <img class="f1" src="img/gag-cord-a.png" alt="">
+    <img class="f2" src="img/gag-cord-m1.png" alt="">
+    <img class="f3" src="img/gag-cord-m2.png" alt="">
+    <img class="f4" src="img/gag-cord-b.png" alt="">
   </div>
   <div class="rv"><span class="lbl">Questions people actually ask</span>
     <h2 class="idx-h">Before you call</h2></div>
@@ -694,7 +704,6 @@ section{position:relative}
     document.documentElement.classList.add('js');
     var scenes = [].slice.call(document.querySelectorAll('.scene, .pose'));
     var ticking = false;
-    function tri(p, c, w){ var d = Math.abs(p - c) / w; return d >= 1 ? 0 : 1 - d; }
     function place(){
       var vh = innerHeight || 1;
       for (var i = 0; i < scenes.length; i++){
@@ -706,23 +715,11 @@ section{position:relative}
         el.style.setProperty('--p', p.toFixed(3));
         el.style.setProperty('--t', t.toFixed(3));
         if (p > .04) el.classList.add('in');
-        var kind = el.getAttribute('data-scene');
-        if (kind === 'pull'){
-          el.style.setProperty('--k1', tri(p, .22, .14).toFixed(3));
-          el.style.setProperty('--k2', tri(p, .42, .14).toFixed(3));
-          el.style.setProperty('--k3', tri(p, .60, .14).toFixed(3));
-          el.style.setProperty('--k4', tri(p, .78, .14).toFixed(3));
-        } else if (kind === 'string'){
-          el.style.setProperty('--tug', tri(p, .68, .09).toFixed(3));
-        }
-        var path = el.querySelector('.wirepath');
-        if (path){
-          if (kind === 'cord'){
-            var sag = 190 - t * 132;               // droops to the floor, pulls up taut
-            path.setAttribute('d', 'M60,150 Q500,' + sag.toFixed(1) + ' 940,55');
-          } else if (kind === 'string'){
-            var sag2 = 112 - t * 54;
-            path.setAttribute('d', 'M0,60 Q500,' + sag2.toFixed(1) + ' 1000,60');
+        if (el.classList.contains('scene-two')){
+          var fr = t < .26 ? 1 : t < .48 ? 2 : t < .66 ? 3 : 4;
+          if (!el.classList.contains('fr' + fr)){
+            el.classList.remove('fr1', 'fr2', 'fr3', 'fr4');
+            el.classList.add('fr' + fr);
           }
         }
       }
