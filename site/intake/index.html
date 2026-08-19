@@ -49,10 +49,13 @@ h1{font-size:clamp(2rem,5.6vw,3.4rem);font-weight:700}
   font-size:1rem;color:var(--ink)}
 
 form.wrap{padding-block-end:clamp(3.5rem,8vw,6rem)}
-fieldset{border:0;border-top:2px solid var(--forest);margin:2.75rem 0 0;padding:1.25rem 0 0}
-legend{font-size:1.35rem;font-weight:700;padding:0;letter-spacing:-.01em}
+/* the legend sits above its own rule rather than cutting through it */
+fieldset{border:0;margin:2.75rem 0 0;padding:0}
+legend{display:block;width:100%;font-size:1.35rem;font-weight:700;padding:0 0 .6rem;
+  letter-spacing:-.01em;border-bottom:2px solid var(--forest);margin-bottom:1.25rem}
 .hint{margin-top:.5rem;color:var(--muted);font-size:1rem}
-.f{margin-top:1.75rem}
+.f{margin-top:1.75rem;display:flex;flex-direction:column}
+.f>input,.f>select,.f>textarea{margin-top:auto}
 .f>label,.f .q{display:block;font-weight:600;margin-bottom:.15rem}
 .f .help{display:block;color:var(--muted);font-size:.9375rem;margin-bottom:.55rem}
 input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea{
@@ -68,7 +71,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 .opt span{font-size:1rem}
 .opt b{display:block;font-weight:600}
 .opt i{display:block;font-style:normal;color:var(--muted);font-size:.9375rem}
-.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1.25rem}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1.25rem;align-items:stretch}
 
 .consent{margin-top:2.5rem;padding:1.4rem 1.5rem;border:1.5px solid var(--rule);
   border-left:4px solid var(--accent);border-radius:3px;background:var(--plate)}
