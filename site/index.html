@@ -133,6 +133,8 @@ a{color:inherit}
 /* ---------------- who ---------------- */
 .who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:0;border-top:1px solid var(--rule)}
 .who .pic{aspect-ratio:4/5;overflow:hidden;background:var(--cream)}
+.who .pic-paint{background:#FBF7EF}
+.who .pic-paint img{object-fit:contain;padding:clamp(1rem,3vw,2.5rem)}
 .who .txt{padding:clamp(2rem,5vw,5rem);display:flex;flex-direction:column;gap:1.1rem;justify-content:center}
 .who h2{font-size:clamp(1.9rem,4.6vw,3.6rem);font-weight:700}
 .who p{color:var(--muted);max-width:38ch}
@@ -410,7 +412,7 @@ a{color:inherit}
 </section>
 
 <section class="who rv" id="who">
-  <div class="pic"><img src="img/p-portrait.jpg" alt="A woman in her fifties standing in the doorway of a warm home."></div>
+  <div class="pic pic-paint"><img src="img/vik-painted.jpg" alt="Painted portrait of Victoria Scilipote, founder of Harmony Care Support Services."></div>
   <div class="txt">
     <span class="lbl">Who we are</span>
     <h2>Small, and staying that way</h2>
@@ -427,7 +429,7 @@ a{color:inherit}
 </section>
 
 <div class="strip rv">
-  <div class="f"><img src="img/p-elder.jpg" alt="Portrait of an older woman at home."></div>
+  <div class="f"><img src="img/p-out.jpg" alt="A young woman using a wheelchair and a support worker on a coastal boardwalk."></div>
   <div class="f"><img src="img/p-teen.jpg" alt="Portrait of a teenager at home."></div>
   <div class="f"><img src="img/p-who.jpg" alt="A support worker arriving at a participant's front door."></div>
   <div class="f"><img src="img/cast.jpg" alt="Painted illustration of the Harmony Care cast."></div>
