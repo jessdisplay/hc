@@ -47,47 +47,25 @@ a{color:inherit}
    Understated: small angles, a few pixels, one beat per scene.
 -------------------------------------------------- */
 section{position:relative}
-.scene{position:relative;height:clamp(9rem,16vw,14rem);margin:0 auto 1.1rem;
+.scene{position:relative;height:clamp(11rem,19vw,17rem);margin:0 auto 1.1rem;
   width:min(100%,56rem);pointer-events:none;opacity:1}
 .js .scene{opacity:0;transition:opacity .8s ease .1s}
 .js .scene.in{opacity:1}
 .scene .ly{position:absolute;bottom:0;height:100%;width:auto}
 .scene .wire{position:absolute;color:var(--muted);overflow:visible}
 
-/* the sheet fold: mid-beat, the sheet lands on her head; she keeps folding */
-.scene-sheet{--g:clamp(0,(var(--t,0) - .62)*4,1)}
-.scene-sheet .worker{left:27%;height:94%}
-.scene-sheet .mate{right:28%;height:90%}
-.scene-sheet .billow{left:50%;bottom:26%;height:42%;opacity:calc(1 - var(--g));
-  transform:translateX(-50%) translateY(calc(var(--t,0)*-8px))}
-.scene-sheet .ghost{left:26%;bottom:48%;height:50%;opacity:var(--g);
-  transform:translateY(calc((1 - var(--g))*-12px))}
-
-/* the phone cord: the cord pulls taut and drags the base along the line */
-.scene-cord{--drag:clamp(0,(var(--t,0) - .72)*4,1)}
-.scene-cord .base{left:9%;height:32%;transform-origin:50% 100%;
-  transform:translateX(calc(var(--drag)*44px)) rotate(calc(var(--drag)*4deg))}
-.scene-cord .skater{right:9%;height:96%}
-.scene-cord .wire{left:15%;right:17%;bottom:8%;height:68%}
-
-/* the list: paper snaps flat, he tips onto his toes, still reading */
-.scene-list{--taut:clamp(0,(var(--t,0) - .45)*3,1);--tip:clamp(0,(var(--t,0) - .58)*3,1)}
-.scene-list .man{left:6%;height:96%;transform-origin:50% 100%;
-  transform:rotate(calc(var(--tip)*6deg))}
-.scene-list .slack,.scene-list .taut{left:50%;transform:translateX(-50%)}
-.scene-list .slack{bottom:6%;height:72%;width:auto;opacity:calc(1 - var(--taut))}
-.scene-list .taut{bottom:32%;width:62%;height:auto;opacity:var(--taut)}
-.scene-list .puller{right:6%;height:58%;transform-origin:100% 100%;
-  transform:rotate(calc(var(--t,0)*-7deg)) translateX(calc(var(--t,0)*-6px))}
-
-/* the four-way pull: tug, tug, tug, tug; Vik rocks toward whoever is winning */
-.scene-pull{height:clamp(13rem,24vw,21rem);width:min(100%,52rem)}
-.scene-pull .vik{left:50%;height:100%;transform-origin:50% 100%;
-  transform:translateX(-50%) rotate(calc((var(--k2,0) + var(--k4,0) - var(--k1,0) - var(--k3,0))*2.5deg))}
-.scene-pull .k1{left:16%;height:58%;transform-origin:100% 100%;transform:rotate(calc(var(--k1,0)*-7deg))}
-.scene-pull .k2{left:36%;height:34%;transform-origin:100% 100%;transform:rotate(calc(var(--k2,0)*-5deg)) translateY(calc(var(--k2,0)*2px))}
-.scene-pull .k3{right:29%;height:56%;transform-origin:0 100%;transform:rotate(calc(var(--k3,0)*7deg))}
-.scene-pull .k4{right:15%;height:62%;transform-origin:0 100%;transform:rotate(calc(var(--k4,0)*6deg))}
+/* two-state gags: one coherent drawing per skit, the beat swaps the state.
+   A is before, B is the joke landing. --beat snaps through the middle of the
+   section, and the swap IS the animation, with a few pixels of body english. */
+.scene-two{--beat:clamp(0,(var(--t,0) - .52)*7,1)}
+.scene-two img{position:absolute;left:50%;bottom:0;height:100%;width:auto;
+  max-width:none;transform:translateX(-50%)}
+.scene-two .a{opacity:calc(1 - var(--beat))}
+.scene-two .b{opacity:var(--beat)}
+.scene-two[data-scene="list"] img{transform:translateX(-50%) rotate(calc(var(--beat)*.8deg))}
+.scene-two[data-scene="string"] img{transform:translateX(calc(-50% + var(--beat)*6px))}
+.scene-two[data-scene="cord"] img{transform:translateX(calc(-50% + var(--beat)*5px))}
+.scene-big{height:clamp(14rem,26vw,22rem)}
 
 /* the sofa: they settle in with the tea, and the tea steams */
 .scene-sofa{height:clamp(12rem,22vw,19rem);margin-bottom:0}
@@ -106,14 +84,10 @@ section{position:relative}
 .scene-sofa .steam path{fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
 
 /* the string: slack, taut, one tug; her can never leaves her ear */
-.scene-string .tl{left:5%;height:96%;transform-origin:50% 100%;
-  transform:translateX(calc(var(--tug,0)*12px)) rotate(calc(var(--tug,0)*2.5deg))}
-.scene-string .tr{right:5%;height:96%}
-.scene-string .wire{left:16%;right:17%;top:16%;height:40%}
 
 @media(max-width:54rem){
-  .scene{height:clamp(6.5rem,22vw,9rem)}
-  .scene-pull{height:clamp(8.5rem,28vw,12rem)}
+  .scene{height:clamp(7.5rem,26vw,11rem)}
+  .scene-big{height:clamp(9rem,32vw,13rem)}
   .scene-sofa{height:clamp(8rem,26vw,11rem)}
 }
 @media (prefers-reduced-motion:reduce){
@@ -440,11 +414,9 @@ section{position:relative}
 </section>
 
 <section id="work">
-  <div class="edge"><div class="scene scene-sheet" data-scene="sheet" aria-hidden="true">
-    <img class="ly worker" src="img/sc-sheet-worker.png" alt="">
-    <img class="ly ghost" src="img/sc-sheet-ghost.png" alt="">
-    <img class="ly billow" src="img/sc-sheet-billow.png" alt="">
-    <img class="ly mate" src="img/sc-sheet-mate.png" alt="">
+  <div class="edge"><div class="scene scene-two" data-scene="sheet" aria-hidden="true">
+    <img class="a" src="img/gag-sheet-a.png" alt="">
+    <img class="b" src="img/gag-sheet-b.png" alt="">
   </div></div>
   <div class="edge rv" style="padding-bottom:2rem"><span class="lbl">What we do</span></div>
 
@@ -492,12 +464,9 @@ section{position:relative}
 
 
 <section class="story" id="story">
-  <div class="edge"><div class="scene scene-pull" data-scene="pull" aria-hidden="true">
-    <img class="ly k1" src="img/sc-pull-k1.png" alt="">
-    <img class="ly k2" src="img/sc-pull-k2.png" alt="">
-    <img class="ly vik" src="img/sc-pull-vik.png" alt="">
-    <img class="ly k3" src="img/sc-pull-k3.png" alt="">
-    <img class="ly k4" src="img/sc-pull-k4.png" alt="">
+  <div class="edge"><div class="scene scene-two scene-big" data-scene="pull" aria-hidden="true">
+    <img class="a" src="img/gag-pull-a.png" alt="">
+    <img class="b" src="img/gag-pull-b.png" alt="">
   </div></div>
   <div class="edge">
     <div class="rv"><span class="lbl">Our story</span></div>
@@ -549,10 +518,9 @@ section{position:relative}
 </div>
 
 <section class="steps edge" id="how">
-  <div class="scene scene-cord" data-scene="cord" aria-hidden="true">
-    <img class="ly base" src="img/sc-cord-base.png" alt="">
-    <svg class="wire" viewBox="0 0 1000 200" preserveAspectRatio="none"><path class="wirepath" d="M60,150 Q500,190 940,55" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 5"/></svg>
-    <img class="ly skater" src="img/sc-cord-skater.png" alt="">
+  <div class="scene scene-two" data-scene="cord" aria-hidden="true">
+    <img class="a" src="img/gag-cord-a.png" alt="">
+    <img class="b" src="img/gag-cord-b.png" alt="">
   </div>
   <div class="rv" style="padding-bottom:1.5rem"><span class="lbl">How it works</span></div>
   <div class="steps-grid rv">
@@ -608,11 +576,9 @@ section{position:relative}
 
 
 <section class="index edge" id="services">
-  <div class="scene scene-list" data-scene="list" aria-hidden="true">
-    <img class="ly man" src="img/sc-list-man.png" alt="">
-    <img class="ly slack" src="img/sc-list-slack.png" alt="">
-    <img class="ly taut" src="img/sc-list-taut.png" alt="">
-    <img class="ly puller" src="img/sc-list-girl.png" alt="">
+  <div class="scene scene-two" data-scene="list" aria-hidden="true">
+    <img class="a" src="img/gag-list-a.png" alt="">
+    <img class="b" src="img/gag-list-b.png" alt="">
   </div>
   <div class="rv"><span class="lbl">Everything we offer</span>
     <h2 class="idx-h">The full list</h2></div>
@@ -636,10 +602,9 @@ section{position:relative}
 </section>
 
 <section class="faq edge" id="faq">
-  <div class="scene scene-string" data-scene="string" aria-hidden="true">
-    <img class="ly tl" src="img/tin-left.png" alt="">
-    <svg class="wire" viewBox="0 0 1000 120" preserveAspectRatio="none"><path class="wirepath" d="M0,60 Q500,110 1000,60" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    <img class="ly tr" src="img/tin-right.png" alt="">
+  <div class="scene scene-two" data-scene="string" aria-hidden="true">
+    <img class="a" src="img/gag-string-a.png" alt="">
+    <img class="b" src="img/gag-string-b.png" alt="">
   </div>
   <div class="rv"><span class="lbl">Questions people actually ask</span>
     <h2 class="idx-h">Before you call</h2></div>
