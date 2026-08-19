@@ -32,12 +32,19 @@ a{color:var(--accent)}
   padding:.85rem 1.2rem;z-index:99;font-family:var(--cond);letter-spacing:.1em;text-transform:uppercase;font-size:.8125rem}
 .skip:focus{left:0}
 
-header.top{border-bottom:1px solid var(--rule);background:var(--plate)}
-.top-in{max-width:46rem;margin:0 auto;padding:1.1rem var(--gut);display:flex;align-items:center;gap:.85rem}
-.top-in img{width:3.2rem;height:auto}
+.nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:1.5rem;
+  padding:1.1rem clamp(1.25rem,4vw,3rem);background:color-mix(in srgb,var(--paper) 92%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+.wm-link{display:flex;align-items:center;gap:.85rem;text-decoration:none;color:var(--ink);margin-right:auto}
+.wm-link img{width:4.2rem;height:auto}
+.nav .l{font-family:var(--cond);font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;
+  text-decoration:none;color:var(--ink);opacity:.72}
+.nav .l:hover{opacity:1}
+@media(max-width:64rem){.nav .l{display:none}}
+.btn.small{padding:.7rem 1.1rem;font-size:.6875rem}
 .wm{line-height:1}
-.wm .a{font-size:1.25rem;font-weight:700}
-.wm .b{font-size:1.25rem;font-weight:200}
+.wm .a{font-size:1.45rem;font-weight:700}
+.wm .b{font-size:1.45rem;font-weight:200}
 .wm .s{font-size:.5rem;letter-spacing:.32em;color:var(--muted);margin-top:.22rem;
   border-top:1px solid var(--rule);padding-top:.22rem}
 
@@ -59,8 +66,14 @@ legend{display:block;width:100%;font-size:1.35rem;font-weight:700;padding:0 0 .6
 .f>label,.f .q{display:block;font-weight:600;margin-bottom:.15rem}
 .f .help{display:block;color:var(--muted);font-size:.9375rem;margin-bottom:.55rem}
 input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea{
-  width:100%;font:inherit;font-size:1.0625rem;padding:.75rem .85rem;color:var(--ink);
-  background:var(--plate);border:1.5px solid var(--rule);border-radius:3px}
+  width:100%;font:inherit;font-size:1.0625rem;color:var(--ink);
+  background:var(--plate);border:1.5px solid var(--rule);border-radius:3px;
+  padding:0 .85rem;height:3.35rem;line-height:1.2}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
+  linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 1.35rem) 1.45rem,calc(100% - 1.05rem) 1.45rem;
+  background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:2.75rem}
+textarea{height:auto;padding:.75rem .85rem;line-height:1.6}
 textarea{min-height:7rem;resize:vertical}
 input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 .opts{display:grid;gap:.5rem;margin-top:.35rem}
@@ -93,21 +106,40 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 
 .end-art{overflow:clip;border-top:1px solid var(--rule);background:var(--cream)}
 .end-art img{width:100%;height:clamp(13rem,30vw,24rem);object-fit:cover;object-position:center 34%}
-footer{border-top:1px solid var(--rule);background:var(--plate);padding:2rem 0 3rem;
-  font-size:.875rem;color:var(--muted)}
+.foot{border-top:1px solid var(--rule);background:var(--plate);padding-block:clamp(2.5rem,5vw,4rem) 3rem}
+.foot-in{max-width:66rem;margin:0 auto;padding-inline:clamp(1.25rem,4vw,3rem);
+  display:flex;flex-wrap:wrap;gap:2.5rem 3rem;align-items:flex-start}
+.foot-in .wm-link img{width:6rem}
+.foot-in .wm .a,.foot-in .wm .b{font-size:2rem}
+.foot-links{display:flex;gap:2.5rem;margin-left:auto;flex-wrap:wrap}
+.foot-col{display:flex;flex-direction:column;gap:.5rem}
+.foot-col h4{font-family:var(--cond);font-size:.5625rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 .3rem;font-weight:400}
+.foot-col a{font-size:.875rem;text-decoration:none;color:var(--ink);
+  border-bottom:1px solid transparent;width:fit-content}
+.foot-col a:hover{border-bottom-color:var(--accent)}
+.ack{max-width:66rem;margin:clamp(2rem,4vw,3rem) auto 0;padding:1.5rem clamp(1.25rem,4vw,3rem) 0;
+  border-top:1px solid var(--hair);font-size:.8125rem;line-height:1.6;color:var(--muted)}
+.ack b{color:var(--ink);font-weight:600}
+.fine{margin-top:1.25rem;font-size:.75rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <a class="skip" href="#form">Skip to the form</a>
 
-<header class="top">
-  <div class="top-in">
+<nav class="nav">
+  <a class="wm-link" href="../">
     <img src="../img/emblem.png" alt="">
     <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
       <div class="s">SUPPORT SERVICES</div></span>
-  </div>
-</header>
+  </a>
+  <a class="l" href="../#work">What we do</a>
+  <a class="l" href="../#services">Services</a>
+  <a class="l" href="../#story">Our story</a>
+  <a class="l" href="../#who">Who we are</a>
+  <a class="btn small" href="tel:0434721051">Call us</a>
+</nav>
 
 <main>
   <div class="wrap intro">
@@ -326,10 +358,31 @@ footer{border-top:1px solid var(--rule);background:var(--plate);padding:2rem 0 3
 
 <div class="end-art" aria-hidden="true"><img src="../img/making.jpg" alt=""></div>
 
-<footer><div class="wrap">
-  Harmony Care Support Services Pty Ltd &middot; ABN 99 691 543 834 &middot;
-  38 Nash Street, Gympie QLD 4570 &middot; <a href="tel:0434721051">0434 721 051</a>
-</div></footer>
+<footer class="foot">
+  <div class="foot-in">
+    <a class="wm-link" href="../">
+      <img src="../img/emblem.png" alt="">
+      <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
+        <div class="s">SUPPORT SERVICES</div></span>
+    </a>
+    <div class="foot-links">
+      <div class="foot-col"><h4>Explore</h4>
+        <a href="../#work">What we do</a><a href="../#how">How it works</a>
+        <a href="../#services">Services</a><a href="../#who">Who we are</a></div>
+      <div class="foot-col"><h4>Get in touch</h4>
+        <a href="tel:0434721051">0434 721 051</a>
+        <a href="mailto:victoria@harmonycaresupportservices.com.au">Email us</a></div>
+    </div>
+  </div>
+  <div class="ack">
+    <b>Always was, always will be.</b> Harmony Care Support Services acknowledges
+    Aboriginal and Torres Strait Islander people as the traditional custodians of
+    this land. We pay our respects to the Kabi Kabi / Gubbi Gubbi people, on whose
+    country we live, work and provide support, and to elders past, present and emerging.
+    <p class="fine">Harmony Care Support Services Pty Ltd &middot; ABN 99 691 543 834
+      &middot; ACN 691 543 834 &middot; 38 Nash Street, Gympie QLD 4570</p>
+  </div>
+</footer>
 
 <script src="../config.js"></script>
 <script>
