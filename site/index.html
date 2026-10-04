@@ -180,7 +180,15 @@ section{position:relative}
 
 /* ---------------- full bleed break ---------------- */
 .bleed{position:relative;height:clamp(18rem,67vw,66rem);overflow:hidden}
+.bleed picture{display:block;height:100%}
 .bleed img{transform:none}
+/* Above 99rem the 66rem cap makes the band wider than 3:2, so a 21:9 plate takes over,
+   the band grows with the viewport, and the crop is anchored to the floor so nobody is sliced. */
+@media (min-width:99rem){.bleed{height:min(max(66rem,36vw),100vh)}.bleed img{object-position:50% 100%}
+  /* The wide plate puts cream fabric under the caption, so a soft corner scrim carries the type. */
+  .bleed::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(72rem 38rem at 0% 100%,rgba(28,18,10,.6),rgba(28,18,10,0) 70%)}
+  .bleed .cap{z-index:1}}
 .bleed .cap{position:absolute;left:var(--gut);bottom:clamp(1.25rem,3vw,2.5rem);color:#F7F1E6;
   text-shadow:0 1px 20px rgba(0,0,0,.5);max-width:34rem}
 .bleed .cap h3{font-size:clamp(1.5rem,4vw,3rem);font-weight:200}
@@ -541,7 +549,10 @@ section{position:relative}
 </div></div>
 
 <div class="bleed">
-  <img src="img/p-break.jpg" alt="People making things together in a bright studio: pottery, sewing, guitar, plants.">
+  <picture>
+    <source media="(min-width:99rem)" srcset="img/p-break-wide.jpg">
+    <img src="img/p-break.jpg" alt="People making things together in a bright studio: pottery, sewing, guitar, plants.">
+  </picture>
   <div class="cap"><h3>A life with <b>things in it.</b></h3></div>
 </div>
 
