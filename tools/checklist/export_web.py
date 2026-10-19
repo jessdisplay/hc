@@ -58,7 +58,7 @@ def read(path):
 def structure(docs):
     sections = {s["section_no"]: s for s in mw.STANDARDS["sections"]}
     modules = []
-    for module, key, heading, outcome, rows, clause, mine in mw.groups(
+    for module, key, heading, outcome, rows, clause, mine, also in mw.groups(
             [dict(d, section=d.pop("section")) for d in docs]):
         if not modules or modules[-1]["label"] != module:
             modules.append({"label": module, "standards": []})
@@ -66,6 +66,7 @@ def structure(docs):
             "key": key, "heading": heading, "outcome": outcome, "cite": clause,
             "indicators": mw.indicator_lines(rows) if key in sections else [],
             "docs": [d["no"] for d in mine],
+            "also": [d["no"] for d in also],
         })
     return modules
 

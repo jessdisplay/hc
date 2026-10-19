@@ -12,6 +12,7 @@ document exactly; make_workbook.py stops if one does not.
 
 FILL_SIGN, FILL, SIGN = "Fill in and sign", "Fill in", "Sign"
 READ_SIGN, READ_ACCEPT = "Read and sign", "Read, then accept it in the Worker Declarations"
+ASSESS = "Do the assessment the plan is based on (the plan has no line for their signature)"
 
 PARTICIPANT = {
     "tab": "Send to participants",
@@ -52,7 +53,7 @@ PARTICIPANT = {
         ("Later on", [
             ("Change to Supports Agreement", SIGN),
             ("Client Survey", FILL),
-            ("Feedback and Complaints Form", FILL),
+            ("Feedback and Complaints Form", "Fill in, and sign unless they want to stay anonymous"),
             ("Exit and Transition Form", SIGN),
         ]),
     ],
@@ -82,26 +83,45 @@ WORKER = {
             ("Worker Supervision Record", SIGN),
             ("HR Performance Appraisal", "Fill in the self-evaluation, then sign"),
             ("Staff Performance Improvement Plan", "Sign (only if a plan is needed)"),
-            ("High Intensity Worker Training Plan and Competency Record", SIGN),
+            ("High Intensity Worker Training Plan and Competency Record (with wound care)", SIGN),
+            ("High Intensity Worker Training Plan and Competency Record (without wound care)", SIGN),
             ("Training and Evaluation Form (behaviour support knowledge test)", FILL),
-            ("Coaching Form for Positive Behaviour Support Plan", SIGN),
+            ("Coaching Form for Positive Behaviour Support Plan", "Sign; relief workers also fill in section B"),
             ("Training and Development Register (Implementing Behaviour Supports)", "Sign each training line"),
+        ]),
+        ("For each participant they support", [
+            ("Client Induction Checklist", "Fill in and sign (the worker managing the intake)"),
+            ("Client Support Plan", "Sign on the client's worker line"),
+            ("Mealtime Management Plan", "Read and sign the endorsement page"),
+            ("Complex Bowel Care Support Plan", "Develop it with the participant, and sign as a plan developer"),
+            ("Enteral Feeding Support Plan", "Develop it with the participant, and sign as a plan developer"),
+            ("Urinary Catheter Support Plan", "Develop it with the participant, and sign as a plan developer"),
+            ("Complex Wound Management Support Plan", READ_SIGN),
+        ]),
+        ("When something happens", [
+            ("Incident Report Form", "Give the Incident Manager the facts"),
+            ("Feedback and Compliments Register", "Record any feedback they receive, and sign the entry"),
+            ("Emergency Test Register", "Sign each test they run"),
         ]),
         ("Working in a SIL house", [
             ("SIL Worker Training Plan", SIGN),
             ("SIL Worker Competency Assessment Record", SIGN),
             ("SIL House-Level Safeguarding Plan", READ_SIGN),
-            ("SIL House Emergency Plan", READ_SIGN),
+            ("SIL House Emergency Plan", "Read (the form has no line for workers to sign)"),
             ("SIL House Vision, Values and Service Delivery Statement", READ_SIGN),
+            ("SIL Supported Decision-Making Assessment and Record", "Sign the declaration"),
             ("SIL Supported Decision-Making Record", "Fill in an entry each time, and sign the declaration"),
+            ("Worker Induction to a House Checklist and Record", "Fill in (the inducting worker)"),
+            ("SIL House Meeting Record", "Fill in (when they take the minutes)"),
+            ("SIL Co-Tenancy Concern and Resolution Record", "Help complete it, and sign if they managed the concern"),
             ("SIL Conflict of Interest Declaration and Register", "Fill in and sign (only if they have an interest)"),
         ]),
-        ("On every shift (kept in the participant's file)", [
+        ("On every shift", [
             ("Worker Timesheets (NDIS Support Record)", FILL_SIGN),
-            ("Progress Notes Template", FILL),
+            ("Progress Notes Template", FILL_SIGN),
             ("Administering Medication Checklist and Medication Chart", "Initial each dose given"),
             ("Collection and Storage of Medicine Register", "Sign each entry"),
-            ("Client Cash Reconciliation", "Fill in (when they handle the participant's money)"),
+            ("Client Cash Reconciliation", "Fill in and sign (when they handle the participant's money)"),
             ("Daily Fluid Balance Chart", "Fill in (initial each entry)"),
             ("Bowel Monitoring Chart", FILL),
             ("Enteral Feeding and Tube Flush Chart", FILL),
@@ -124,15 +144,18 @@ PRACTITIONER = {
     "intro": "People outside Harmony who write, fill in or sign part of a participant's paperwork.",
     "groups": [
         ("Qualified health practitioner (nurse, speech pathologist, dietitian)", [
-            ("Complex Bowel Care Support Plan", "Write the plan with the participant, and sign"),
-            ("Enteral Feeding Support Plan", "Write the plan with the participant, and sign"),
-            ("Urinary Catheter Support Plan", "Write the plan with the participant, and sign"),
+            ("Complex Bowel Care Support Plan", ASSESS),
+            ("Enteral Feeding Support Plan", ASSESS),
+            ("Urinary Catheter Support Plan", ASSESS),
             ("Complex Wound Management Support Plan", "Write the plan with the participant, and sign"),
             ("Mealtime Management Plan", "Write the plan, and sign"),
-            ("High Intensity Worker Training Plan and Competency Record", "Train and assess the worker, and sign"),
+            ("High Intensity Worker Training Plan and Competency Record (with wound care)",
+             "Train and assess the worker, and sign"),
+            ("High Intensity Worker Training Plan and Competency Record (without wound care)",
+             "Train and assess the worker, and sign"),
         ]),
         ("Prescriber (the participant's doctor)", [
-            ("Services Medication and Participant Details", "Fill in the prescriber's details, and sign"),
+            ("Services Medication and Participant Details", SIGN),
             ("Administering Medication Checklist and Medication Chart", "Write and sign each medication order"),
         ]),
         ("Behaviour support practitioner", [
@@ -143,7 +166,7 @@ PRACTITIONER = {
             ("Positive Behaviour Support Plan Training Report", "Fill in and sign after training the workers"),
         ]),
         ("SDA provider (the participant's housing provider)", [
-            ("SDA and SIL Collaboration Agreement", SIGN),
+            ("SDA and SIL Collaboration Agreement", "Sign, and complete the Home Risk Assessment in the annexure"),
         ]),
     ],
 }

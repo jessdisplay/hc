@@ -2,7 +2,8 @@
  "source": {
   "guidelines": "National Disability Insurance Scheme (Quality Indicators for NDIS Practice Standards) Guidelines 2018, compilation No. 3 (F2026C00528), in force 1 July 2026",
   "rules": "National Disability Insurance Scheme (Provider Registration and Practice Standards) Rules 2018, compilation No. 6 (F2026C00527), in force 1 July 2026",
-  "taken_from": "riseos-harmony riseOS-BE/migrations/1789000000000_seed-quality-indicators.js, itself generated from the authorised Word file"
+  "taken_from": "riseos-harmony riseOS-BE/migrations/1789000000000_seed-quality-indicators.js, itself generated from the authorised Word file",
+  "rules_refs_from": "the Guidelines' own section-to-clause tables (F2026C00528, sha256 c7181726...836f)"
  },
  "sections": [
   {
@@ -31,7 +32,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 3"
   },
   {
    "section_no": "7",
@@ -53,7 +55,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 4"
   },
   {
    "section_no": "8",
@@ -81,7 +84,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 5"
   },
   {
    "section_no": "9",
@@ -121,7 +125,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 6"
   },
   {
    "section_no": "10",
@@ -151,7 +156,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 7"
   },
   {
    "section_no": "11",
@@ -209,7 +215,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 9"
   },
   {
    "section_no": "12",
@@ -303,7 +310,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 10"
   },
   {
    "section_no": "13",
@@ -331,7 +339,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 11"
   },
   {
    "section_no": "14",
@@ -365,7 +374,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 12"
   },
   {
    "section_no": "15",
@@ -401,7 +411,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 13"
   },
   {
    "section_no": "16",
@@ -435,7 +446,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 14"
   },
   {
    "section_no": "17",
@@ -517,7 +529,8 @@
      "parent": 9,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 15"
   },
   {
    "section_no": "18",
@@ -569,7 +582,8 @@
      "parent": 4,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 16"
   },
   {
    "section_no": "18A",
@@ -657,7 +671,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 16A"
   },
   {
    "section_no": "19",
@@ -685,7 +700,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 18"
   },
   {
    "section_no": "20",
@@ -803,7 +819,8 @@
      "parent": 15,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 19"
   },
   {
    "section_no": "21",
@@ -875,7 +892,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 20"
   },
   {
    "section_no": "22",
@@ -909,7 +927,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 21"
   },
   {
    "section_no": "23",
@@ -937,7 +956,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 22"
   },
   {
    "section_no": "24",
@@ -1025,7 +1045,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 24"
   },
   {
    "section_no": "25",
@@ -1053,7 +1074,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 25"
   },
   {
    "section_no": "26",
@@ -1081,7 +1103,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 26"
   },
   {
    "section_no": "26A",
@@ -1181,7 +1204,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 26A"
   },
   {
    "section_no": "27",
@@ -1215,7 +1239,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 1, clause 27"
   },
   {
    "section_no": "29",
@@ -1243,7 +1268,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 3"
   },
   {
    "section_no": "30",
@@ -1271,7 +1297,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 4"
   },
   {
    "section_no": "30A",
@@ -1323,7 +1350,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 4A"
   },
   {
    "section_no": "31",
@@ -1351,7 +1379,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 5"
   },
   {
    "section_no": "32",
@@ -1379,7 +1408,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 6"
   },
   {
    "section_no": "33",
@@ -1407,7 +1437,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 7"
   },
   {
    "section_no": "34",
@@ -1441,7 +1472,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 8"
   },
   {
    "section_no": "35",
@@ -1469,7 +1501,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 2, clause 9"
   },
   {
    "section_no": "47",
@@ -1497,7 +1530,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 3"
   },
   {
    "section_no": "48",
@@ -1537,7 +1571,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 4"
   },
   {
    "section_no": "49",
@@ -1571,7 +1606,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 5"
   },
   {
    "section_no": "50",
@@ -1623,7 +1659,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 6"
   },
   {
    "section_no": "51",
@@ -1651,7 +1688,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 7"
   },
   {
    "section_no": "52",
@@ -1685,7 +1723,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 8"
   },
   {
    "section_no": "53",
@@ -1737,7 +1776,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 9"
   },
   {
    "section_no": "54",
@@ -1765,7 +1805,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 4, clause 10"
   },
   {
    "section_no": "64",
@@ -1811,7 +1852,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 6, clause 3"
   },
   {
    "section_no": "65",
@@ -1845,7 +1887,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 6, clause 4"
   },
   {
    "section_no": "66",
@@ -1879,7 +1922,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 6, clause 5"
   },
   {
    "section_no": "72B",
@@ -1955,7 +1999,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 7A, clause 3"
   },
   {
    "section_no": "72C",
@@ -2013,7 +2058,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 7A, clause 4"
   },
   {
    "section_no": "72D",
@@ -2059,7 +2105,8 @@
      "parent": null,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 7A, clause 5"
   },
   {
    "section_no": "72E",
@@ -2195,7 +2242,8 @@
      "parent": 14,
      "continued": []
     }
-   ]
+   ],
+   "rules_ref": "Schedule 7A, clause 6"
   }
  ]
 }

@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 import openpyxl
+from openpyxl.drawing.image import Image as XLImage
 from openpyxl.formatting.rule import FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
@@ -26,6 +27,9 @@ from send_lists import SEND_TABS
 
 HERE = Path(__file__).parent
 STANDARDS = json.loads((HERE / "standards.json").read_text())
+# The lockup cropped, unchanged, from the letterhead band the branded set is printed on.
+LOGO = HERE / "hc-lockup.png"
+LETTERHEAD_CREAM = "FDFBF6"
 
 # Harmony Care Palette 01 (site/index.html tokens).
 FOREST, SAGE, ROSE, CREAM, INK, MUTED, RULE = (
@@ -105,9 +109,82 @@ TITLE_TO_SECTION = [
                   r"|Conflict of Interest", "72E"),
     ("Module 5a", r".", "M5A-ALL"),
 ]
-# Diversity Policy is filed under person-centred supports but is the policy for
-# 'Individual values and beliefs', which otherwise has no document of its own.
-TITLE_OVERRIDE = {"Diversity Policy": "7"}
+# Placed by the indicator that names them (checked 19 Oct 2026 against the Guidelines).
+TITLE_OVERRIDE = {
+    # filed under person-centred supports, but the policy for 'Individual values and beliefs'
+    "Diversity Policy": "7",
+    "SDA and SIL Collaboration Agreement": "21",  # 21(4): SIL delivered in SDA dwellings
+    "Business Plan": "11",  # 11(4): strategic and business planning
+    "Professional Indemnity and Public Liability certificate of currency": "12",  # 12(6): insurance
+    "Vehicle insurance certificate (comprehensive, transport vehicle)": "12",
+    "WorkCover Queensland certificate of currency": "12",
+    "Internal Audit Schedule (Module 2A)": "13",  # 13(2): the internal audit program
+    "Subject to a Significant Risk Factor Register": "20",  # 20(2A): reliance on the provider
+    # both training records serve every Module 1 support ('wound' in the new titles must not file them under 35)
+    "High Intensity Worker Training Plan and Competency Record (with wound care)": "M1-ALL",
+    "High Intensity Worker Training Plan and Competency Record (without wound care)": "M1-ALL",
+}
+# Standards no document is filed under, but which these documents also meet.
+SEE_ALSO = {
+    "48": ["Restrictive Practices Register (plans with a regulated restrictive practice)"],  # 48(3)
+    "53": ["Incident Report Form", "Incident Management Register"],  # 53(3)
+    "17": ["Position Description: Support Coordinator"],
+    "21": ["Support Coordination Services Agreement"],
+}
+# Two pairs of files share a title; their own approval blocks tell them apart.
+RENAME_BY_ID = {
+    "1W6DVKrS-vxcNGVZTdUk6GVqvmCJJYvoP": "Exit and Transition Form (draft copy, Module 1 and SIL set)",
+    "16JGOsNDrYd_Zt0uiUFbtSOXjhqQU7T2y":
+        "High Intensity Worker Training Plan and Competency Record (with wound care)",
+    "1kVLrYz8JW_v3Q8CLwObqXBO6pMlc0ZXa":
+        "High Intensity Worker Training Plan and Competency Record (without wound care)",
+}
+STATUS_BY_ID = {"1W6DVKrS-vxcNGVZTdUk6GVqvmCJJYvoP": "Draft"}  # its approval block reads 'Draft for'
+
+# Where the 16 Oct reading was wrong, from the document itself (checked 19 Oct 2026).
+PLAN_DEVELOPERS = ("The client (or guardian) and a worker develop it, after a qualified health "
+                   "practitioner's assessment; the Principal checks it is complete")
+CORRECTIONS = {
+    "Risk Taking Form": ("completed_by", "Harmony (Key Management Personnel) documents it with the client",
+                         "the form says Harmony documents the activity and its risks"),
+    "Client Support Plan": ("completed_by", "Director (Principal) with the client and their support network; "
+                                            "the client fills in the sections about themselves",
+                            "the form asks the client to 'please fill the below'"),
+    "Complex Bowel Care Support Plan": ("completed_by", PLAN_DEVELOPERS,
+                                       "its 'Developed by' rows name the client and a worker"),
+    "Enteral Feeding Support Plan": ("completed_by", PLAN_DEVELOPERS,
+                                     "its 'Developed by' rows name the client and a worker"),
+    "Urinary Catheter Support Plan": ("completed_by", PLAN_DEVELOPERS,
+                                      "its 'Developed by' rows name the client and a worker"),
+}
+# Things only Harmony can fix in its own documents; added to 'Notes for the next audit'.
+WOUND = ("Complex wound management is in the audited folder but was not part of the Module 1 scope "
+         "audited on 6 October 2026 (bowel care, enteral feeding, urinary catheter).")
+HARMONY_NOTES = {
+    "Risk Taking Form": "Its Harmony signature line still names the sole trader (Victoria J Scilipote, "
+                        "ABN 50 660 758 851); on the company's paper the party is Harmony Care Support "
+                        "Services Pty Ltd, ABN 99 691 543 834.",
+    "Client Support Plan": "Its Harmony signature line reads 'on behalf of Victoria J Scilipote' under the "
+                           "company's ABN; the signing party should be the company.",
+    "SDA and SIL Collaboration Agreement": "The execution line is pre-printed with 2022. The SDA provider "
+                                           "also completes the Home Risk Assessment in the annexure.",
+    "Position Description: Disability Support Worker": "Two versions of this position description are on "
+                                                        "file (see the 'second version'); confirm which is current.",
+    "Position Description: Disability Support Worker (second version)": "Two versions of this position "
+                                                                        "description are on file; this one "
+                                                                        "carries the company's ABN.",
+    "Business Continuity Plan (PDF, July 2026)": "Two continuity plans are on file; this one is signed, the "
+                                                 "Word management plan is not. Confirm which is current.",
+    "Business Continuity, Emergency and Disaster Preparedness Management Plan":
+        "Two continuity plans are on file; the July 2026 PDF is signed, this one is not. Confirm which is current.",
+    "Exit Interview Form": "Its approval block still holds a template placeholder ('{{Entity_Name}}', July "
+                           "2020) where the approver should be.",
+    "Exit and Transition Form (draft copy, Module 1 and SIL set)": "Its approval block reads 'Draft for'. The "
+                                                                   "core folder copy is the approved one.",
+    "Complex Wound Management Policy": WOUND, "Complex Wound Management Support Plan": WOUND,
+    "Wound Observation and Dressing Chart": WOUND, "Complex Wound Management (Easy Read)": WOUND,
+}
+VERSIONS = json.loads((HERE / "versions.json").read_text())  # from read_versions.py
 
 FILLED_IN = {"Form", "Register", "Plan", "Record", "Checklist", "Chart", "Agreement", "Template"}
 FILE_OF = {"Each client": "Participant", "Each behaviour support plan": "Participant",
@@ -175,7 +252,7 @@ COLS = [  # (header, width, key)
 ]
 COL = {key or head: i + 1 for i, (head, _, key) in enumerate(COLS)}
 TYPED = {"version", "approved_by", "approval_date", "last_reviewed"}
-HEADER_ROW = 4
+HEADER_ROW = 5  # row 1 carries the logo
 
 thin = Side(style="thin", color=RULE)
 BORDER = Border(bottom=thin)
@@ -185,6 +262,16 @@ F = lambda size=10, **k: Font(name="Arial", size=size, **k)  # noqa: E731
 
 def fill(rgb):
     return PatternFill("solid", fgColor=rgb)
+
+
+def add_logo(ws, last_col, height_px=62):
+    """The Harmony Care lockup across row 1, on the letterhead's own cream."""
+    img = XLImage(str(LOGO))
+    img.width, img.height = round(img.width * height_px / img.height), height_px
+    ws.add_image(img, "A1")
+    ws.row_dimensions[1].height = height_px * 0.75 + 10
+    for i in range(1, last_col + 1):
+        ws.cell(1, i).fill = fill(LETTERHEAD_CREAM)
 
 
 def read_base(path):
@@ -197,10 +284,13 @@ def read_base(path):
             continue
         d = dict(zip(head, (c.value for c in row)))
         status = d["Status"]
+        url = row[1].hyperlink.target if row[1].hyperlink else None
+        fid = url.split("/d/")[1].split("/")[0] if url else None
         docs.append({
+            "id": fid,
             "area": d["Area"],
-            "title": d["Document (opens the file)"],
-            "url": row[1].hyperlink.target if row[1].hyperlink else None,
+            "title": RENAME_BY_ID.get(fid, d["Document (opens the file)"]),
+            "url": url,
             "type": d["Type"], "for": d["For"],
             "when": d["When it is needed"], "how_often": d["How often"],
             "completed_by": d["Completed by"], "signed_by": d["Signed by"],
@@ -210,7 +300,8 @@ def read_base(path):
             "last_reviewed": d["Last reviewed (type the date)"],
             "rule": d["Harmony's rule (source)"], "notes": d["Notes for the next audit"],
             # A few rows carry a fixed status (working copy, superseded) instead of the formula.
-            "fixed_status": None if (status is None or str(status).startswith("=")) else status,
+            "fixed_status": STATUS_BY_ID.get(fid) or (
+                None if (status is None or str(status).startswith("=")) else status),
         })
     return wb, docs
 
@@ -227,6 +318,10 @@ def place(doc):
     raise SystemExit(f"no Practice Standard for {doc['area']!r} / {doc['title']!r}")
 
 
+def _add(notes, line):
+    return f"{notes} {line}" if notes else line
+
+
 def enrich(docs):
     by_title = {d["title"]: d for d in docs}
     for reg_title, ours in POLICY_REGISTER.items():
@@ -237,6 +332,26 @@ def enrich(docs):
     for title, v in VERSION_KNOWN.items():
         by_title[title]["version"] = v
     for d in docs:
+        own = VERSIONS.get(d["id"], {})  # the document's own approval block wins
+        if own.get("version"):
+            d["version"] = own["version"]
+        who = own.get("approved_by", "")
+        if who.startswith("Victoria J Scilipote"):
+            d["approved_by"] = "Victoria J Scilipote"
+        if own.get("approval_date"):
+            d["approval_date"] = own["approval_date"]
+    for title, (field, value, why) in CORRECTIONS.items():
+        d = by_title[title]
+        d[field] = value
+        d["notes"] = _add(d["notes"], f"Corrected 19 Oct 2026 from the document: {why}.")
+    for title, note in HARMONY_NOTES.items():
+        for d in docs:
+            if d["title"] == title:
+                d["notes"] = _add(d["notes"], note)
+    missing = [t for t in list(CORRECTIONS) + list(HARMONY_NOTES) if t not in by_title]
+    if missing:
+        raise SystemExit(f"corrections name documents that do not exist: {missing}")
+    for d in docs:
         d["section"] = place(d)
         if d["type"] in FILLED_IN:
             d["file"] = FILE_OVERRIDE.get(d["title"]) or FILE_OF[d["for"]]
@@ -245,7 +360,9 @@ def enrich(docs):
 
 
 def groups(docs):
-    """Yield (module label, section key, heading, outcome, rows, clause, docs) in Guidelines order."""
+    """(module label, section key, heading, outcome, rows, clause, docs, also) in Guidelines order.
+
+    'also' are documents filed under another standard that meet this one too."""
     sections = {s["section_no"]: s for s in STANDARDS["sections"]}
     order = []
     for ord_, label in MODULES + [(9, "Business and registration")]:
@@ -254,17 +371,20 @@ def groups(docs):
         keys += ["BUS"] if ord_ == 9 else []
         for k in keys:
             mine = [d for d in docs if d["section"] == k]
-            if not mine:
+            also = [d for t in SEE_ALSO.get(k, []) for d in docs if d["title"] == t]
+            if len(also) != len(SEE_ALSO.get(k, [])):
+                raise SystemExit(f"SEE_ALSO for {k} names a document that does not exist")
+            if not mine and not also:
                 continue
             if k in EXTRA:
                 _, heading, outcome = EXTRA[k]
-                order.append((label, k, heading, outcome, [], None, mine))
+                order.append((label, k, heading, outcome, [], None, mine, also))
             else:
                 s = sections[k]
                 order.append((label, k, s["heading"], s["outcome"], s["rows"],
-                              f"Practice Standards Rules, {label.split(':')[0]}, {s['clause_label'].lower()}; "
-                              f"Quality Indicators Guidelines s {k}", mine))
-    placed = sum(len(g[-1]) for g in order)
+                              f"Practice Standards Rules, {s['rules_ref']}; "
+                              f"Quality Indicators Guidelines, section {k}", mine, also))
+    placed = sum(len(g[6]) for g in order)
     if placed != len(docs):
         raise SystemExit(f"{len(docs) - placed} documents fell outside every group")
     return order
@@ -285,7 +405,7 @@ def indicator_lines(rows):
 
 def height(text, width_units, size=10):
     """Row height in points that fits wrapped text in a cell this many units wide."""
-    per_line = max(1, int(width_units * 1.15 * 10 / size))
+    per_line = max(1, int(width_units * 1.0 * 10 / size))
     lines = sum(max(1, -(-len(p) // per_line)) for p in str(text).split("\n"))
     return min(409, max(15, lines * size * 1.32 + 4))
 
@@ -299,21 +419,23 @@ def write_checklist(wb, order, at):
     span = sum(w for _, w, k in COLS[COL["title"] - 1:COL["signed_by"]])
     d0, d1 = get_column_letter(COL["title"]), get_column_letter(COL["signed_by"])
 
-    ws["A1"] = "Harmony Care Support Services: documents and forms by Practice Standard"
-    ws["A1"].font = F(bold=True, size=14, color=FOREST)
-    ws["A2"] = "Highlighted rows are forms someone must fill in, coloured by whose file they belong in:"
-    ws["A2"].font = F(color=MUTED)
+    add_logo(ws, len(COLS) - 1)
+    ws["A2"] = "Documents and forms by Practice Standard"
+    ws["A2"].font = F(bold=True, size=14, color=FOREST)
+    ws["A3"] = "Highlighted rows are forms someone must fill in, coloured by whose file they belong in:"
+    ws["A3"].font = F(color=MUTED)
     for col, who in zip(("F", "G", "H"), ("Participant", "Worker", "Organisation")):
-        ws[f"{col}2"] = FILE_LABEL[who] if who != "Organisation" else "The organisation"
-        ws[f"{col}2"].fill = fill(TINT[who])
-        ws[f"{col}2"].font = F(bold=True)
-        ws[f"{col}2"].alignment = Alignment(horizontal="center")
-    ws["I2"] = "No colour: policies and guides, read but not filled in"
-    ws["I2"].font = F(color=MUTED)
-    ws["A3"] = ("Wording of each outcome and indicator: NDIS Practice Standards Rules (compilation 6) and "
+        ws[f"{col}3"] = FILE_LABEL[who] if who != "Organisation" else "The organisation"
+        ws[f"{col}3"].fill = fill(TINT[who])
+        ws[f"{col}3"].font = F(bold=True)
+        ws[f"{col}3"].alignment = Alignment(horizontal="center")
+    ws["I3"] = "No colour: policies and guides, read but not filled in"
+    ws["I3"].font = F(color=MUTED)
+    ws["A4"] = ("Wording of each outcome and indicator: NDIS Practice Standards Rules (compilation 6) and "
                 "Quality Indicators Guidelines (compilation 3), both in force 1 July 2026. The 1 and 2 "
-                "buttons at the top left fold the indicators away and back.")
-    ws["A3"].font = F(color=MUTED, italic=True)
+                "buttons at the top left fold the indicators away and back. Wording quoted unchanged from the "
+                "Federal Register of Legislation (legislation.gov.au, F2026C00527 and F2026C00528).")
+    ws["A4"].font = F(color=MUTED, italic=True)
 
     for i, (head, _, key) in enumerate(COLS, 1):
         c = ws.cell(HEADER_ROW, i, head)
@@ -328,7 +450,12 @@ def write_checklist(wb, order, at):
     no = 0
     module_seen = None
     doc_rows = []
-    for module, key, heading, outcome, rows, clause, docs in order:
+    # Number every document first, so a standard can point at one filed further down.
+    for module, _, heading, *_, docs, _also in order:
+        for d in docs:
+            no += 1
+            d["no"], d["module"], d["standard"] = no, module.split(":")[0], heading
+    for module, key, heading, outcome, rows, clause, docs, also in order:
         if module != module_seen:
             module_seen = module
             ws.merge_cells(f"A{r}:{d1}{r}")
@@ -362,11 +489,16 @@ def write_checklist(wb, order, at):
             r += 1
         if lines:
             ws.row_dimensions.group(first, r - 1, outline_level=1, hidden=False)
+        for d in also:
+            ws.cell(r, COL["standard"], "Also meets this standard").font = F(color=MUTED, size=9)
+            ws.merge_cells(f"{d0}{r}:{d1}{r}")
+            c = ws.cell(r, COL["title"], f"No. {d['no']}, {d['title']} (filed under {d['standard']})")
+            c.font = F(color=FOREST, underline="single", italic=True)
+            c.alignment = WRAP
+            if d["url"]:
+                c.hyperlink = d["url"]
+            r += 1
         for d in docs:
-            no += 1
-            d["no"] = no
-            d["module"] = module.split(":")[0]
-            d["standard"] = heading
             for i, (_, w, k) in enumerate(COLS, 1):
                 if k is None:
                     continue
@@ -408,7 +540,7 @@ def write_checklist(wb, order, at):
     red, amber, green, grey = fill("F4C7C3"), fill("FCE8B2"), fill("D7EBD5"), fill("E8E4E0")
     rng = f"{st}{HEADER_ROW + 1}:{st}{end}"
     for value, f_ in (("Overdue", red), ("Due within 30 days", amber), ("No review date on record", amber),
-                      ("In date", green), ("Superseded", grey), ("Working copy", grey)):
+                      ("In date", green), ("Superseded", grey), ("Working copy", grey), ("Draft", grey)):
         ws.conditional_formatting.add(rng, FormulaRule(formula=[f'{st}{HEADER_ROW + 1}="{value}"'], fill=f_))
     rng = f"{due}{HEADER_ROW + 1}:{due}{end}"
     ws.conditional_formatting.add(rng, FormulaRule(
@@ -430,7 +562,7 @@ def write_checklist(wb, order, at):
 
 SEND_COLS = [("No.", 6), ("Form (opens the file)", 46), ("They need to", 30), ("When it is needed", 44),
              ("Who fills it in", 32), ("Who signs", 32), ("Practice Standard", 30)]
-NOT_SENT = ("Superseded", "Working copy")
+NOT_SENT = ("Superseded", "Working copy", "Draft")
 
 
 def _send_sheet(wb, at, name, title, intro, tint, tab_colour, groups):
@@ -440,17 +572,18 @@ def _send_sheet(wb, at, name, title, intro, tint, tab_colour, groups):
     for i, (_, w) in enumerate(SEND_COLS, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
     last = get_column_letter(len(SEND_COLS))
-    ws["A1"] = title
-    ws["A1"].font = F(bold=True, size=14, color=FOREST)
-    ws["A2"] = intro
-    ws["A2"].font = F(color=MUTED)
+    add_logo(ws, len(SEND_COLS))
+    ws["A2"] = title
+    ws["A2"].font = F(bold=True, size=14, color=FOREST)
+    ws["A3"] = intro
+    ws["A3"].font = F(color=MUTED)
     for i, (head, _) in enumerate(SEND_COLS, 1):
-        c = ws.cell(4, i, head)
+        c = ws.cell(HEADER_ROW, i, head)
         c.font = F(bold=True, color="FFFFFF")
         c.fill = fill(FOREST)
         c.alignment = Alignment(wrap_text=True, vertical="center")
-    ws.row_dimensions[4].height = 22
-    r = 5
+    ws.row_dimensions[HEADER_ROW].height = 22
+    r = HEADER_ROW + 1
     for group, rows in groups:
         ws.merge_cells(f"A{r}:{last}{r}")
         c = ws.cell(r, 1, group)
@@ -474,13 +607,12 @@ def _send_sheet(wb, at, name, title, intro, tint, tab_colour, groups):
                 t.hyperlink = d["url"]
                 t.font = F(color=FOREST, underline="single", bold=True)
             r += 1
-    ws.freeze_panes = "C5"
+    ws.freeze_panes = f"C{HEADER_ROW + 1}"
     ws.page_setup.orientation = "landscape"
     ws.page_setup.paperSize = ws.PAPERSIZE_A4
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     ws.page_setup.fitToWidth, ws.page_setup.fitToHeight = 1, 0
-    ws.print_title_rows = "4:4"
-    return r - 5
+    ws.print_title_rows = f"{HEADER_ROW}:{HEADER_ROW}"
 
 
 def write_send_tabs(wb, docs, at):
@@ -501,7 +633,7 @@ def write_send_tabs(wb, docs, at):
                 sent.add(title)
             groups.append((group, rows))
         tint = TINT.get(tab["colour"]) if tab["colour"] != "Organisation" else None
-        n = _send_sheet(wb, at + i, tab["tab"], tab["title"], tab["intro"], tint,
+        _send_sheet(wb, at + i, tab["tab"], tab["title"], tab["intro"], tint,
                         {"Participant": ROSE, "Worker": SAGE}.get(tab["colour"], FOREST), groups)
         print(f"  {tab['tab']}: {sum(len(g[1]) for g in groups)} rows")
     kept = {"Participant": [], "Worker": [], "Organisation": []}
@@ -519,6 +651,9 @@ def write_send_tabs(wb, docs, at):
 
 def fix_start_here(wb, end):
     ws = wb["Start here"]
+    ws["A1"] = None  # the lockup says the name
+    add_logo(ws, 2)
+    ws["A2"] = "Documents, forms and compliance calendar"
     st = get_column_letter(COL["Status"])
     for row in ws.iter_rows():
         for c in row:
@@ -543,6 +678,18 @@ def fix_start_here(wb, end):
     ws.title = "Start here"
 
 
+def forest_not_plum(wb):
+    """The 16 Oct sheet styled its headings plum; the locked Harmony design has no plum."""
+    from copy import copy
+    for ws in wb:
+        for row in ws.iter_rows():
+            for c in row:
+                if c.font and c.font.color is not None and c.font.color.rgb == "005C3A52":
+                    f = copy(c.font); f.color = FOREST; c.font = f
+                if c.fill and c.fill.fill_type == "solid" and c.fill.fgColor.rgb == "005C3A52":
+                    c.fill = fill(FOREST)
+
+
 def main(base, out):
     wb, docs = read_base(base)
     enrich(docs)
@@ -552,6 +699,7 @@ def main(base, out):
     _, end = write_checklist(wb, order, at)
     write_send_tabs(wb, docs, at + 1)
     fix_start_here(wb, end)
+    forest_not_plum(wb)
     wb.active = 0
     wb.save(out)
     counts = {}

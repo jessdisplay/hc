@@ -19,7 +19,17 @@ python3 make_workbook.py "<16 Oct calendar>.xlsx" "<checklist>.xlsx"
 
 # whenever Harmony updates the workbook: refresh the web page's data
 python3 export_web.py "<checklist>.xlsx"
+
+# the all-in printed version on Harmony's letterhead (uses harmony-care-docs/hcpdf.py)
+python3 make_pdf.py "<checklist>.xlsx" "<harmony-care-docs folder>" "<out>.pdf"
+
+# re-read each document's own version block (after downloading both audited folders with rclone)
+python3 -I read_versions.py "<download folder>" brit.json m1sil.json
 ```
+
+`versions.json` is that read: version, approver and approval date as each
+document states them. `hc-lockup.png` is the letterhead lockup, cropped unchanged
+from the band the branded set is printed on.
 
 Run with `/usr/bin/python3` (it has openpyxl). Re-running `make_workbook.py`
 starts again from the 16 Oct file and drops anything typed since, so after the
