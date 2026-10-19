@@ -22,6 +22,8 @@ from openpyxl.formatting.rule import FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
+from send_lists import SEND_TABS
+
 HERE = Path(__file__).parent
 STANDARDS = json.loads((HERE / "standards.json").read_text())
 
@@ -426,6 +428,95 @@ def write_checklist(wb, order, at):
     return ws, end
 
 
+SEND_COLS = [("No.", 6), ("Form (opens the file)", 46), ("They need to", 30), ("When it is needed", 44),
+             ("Who fills it in", 32), ("Who signs", 32), ("Practice Standard", 30)]
+NOT_SENT = ("Superseded", "Working copy")
+
+
+def _send_sheet(wb, at, name, title, intro, tint, tab_colour, groups):
+    """One tab: a title, then each group's forms under a band, every title linked."""
+    ws = wb.create_sheet(name, at)
+    ws.sheet_properties.tabColor = tab_colour
+    for i, (_, w) in enumerate(SEND_COLS, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    last = get_column_letter(len(SEND_COLS))
+    ws["A1"] = title
+    ws["A1"].font = F(bold=True, size=14, color=FOREST)
+    ws["A2"] = intro
+    ws["A2"].font = F(color=MUTED)
+    for i, (head, _) in enumerate(SEND_COLS, 1):
+        c = ws.cell(4, i, head)
+        c.font = F(bold=True, color="FFFFFF")
+        c.fill = fill(FOREST)
+        c.alignment = Alignment(wrap_text=True, vertical="center")
+    ws.row_dimensions[4].height = 22
+    r = 5
+    for group, rows in groups:
+        ws.merge_cells(f"A{r}:{last}{r}")
+        c = ws.cell(r, 1, group)
+        c.font = F(bold=True, size=11, color=FOREST)
+        c.border = Border(top=Side(style="medium", color=FOREST))
+        ws.row_dimensions[r].height = 24
+        c.alignment = Alignment(vertical="bottom")
+        r += 1
+        for d, action in rows:
+            values = [d["no"], d["title"], action, d["when"], d["completed_by"], d["signed_by"],
+                      f"{d['module']}: {d['standard']}"]
+            for i, v in enumerate(values, 1):
+                c = ws.cell(r, i, v)
+                c.font = F(bold=(i == 3))
+                c.alignment = WRAP
+                c.border = BORDER
+                if tint:
+                    c.fill = fill(tint)
+            t = ws.cell(r, 2)
+            if d["url"]:
+                t.hyperlink = d["url"]
+                t.font = F(color=FOREST, underline="single", bold=True)
+            r += 1
+    ws.freeze_panes = "C5"
+    ws.page_setup.orientation = "landscape"
+    ws.page_setup.paperSize = ws.PAPERSIZE_A4
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth, ws.page_setup.fitToHeight = 1, 0
+    ws.print_title_rows = "4:4"
+    return r - 5
+
+
+def write_send_tabs(wb, docs, at):
+    """The 'Send to' tabs, then 'Harmony fills in' for every form on none of them."""
+    by_title = {}
+    for d in docs:
+        if d["fixed_status"] not in NOT_SENT:
+            by_title.setdefault(d["title"], []).append(d)
+    sent = set()
+    for i, tab in enumerate(SEND_TABS):
+        groups = []
+        for group, entries in tab["groups"]:
+            rows = []
+            for title, action in entries:
+                if title not in by_title:
+                    raise SystemExit(f"{tab['tab']}: no document called {title!r}")
+                rows += [(d, action) for d in by_title[title]]
+                sent.add(title)
+            groups.append((group, rows))
+        tint = TINT.get(tab["colour"]) if tab["colour"] != "Organisation" else None
+        n = _send_sheet(wb, at + i, tab["tab"], tab["title"], tab["intro"], tint,
+                        {"Participant": ROSE, "Worker": SAGE}.get(tab["colour"], FOREST), groups)
+        print(f"  {tab['tab']}: {sum(len(g[1]) for g in groups)} rows")
+    kept = {"Participant": [], "Worker": [], "Organisation": []}
+    for d in docs:
+        if d["file"] and d["title"] not in sent and d["fixed_status"] not in NOT_SENT:
+            kept[d["file"]].append((d, "Harmony fills it in"))
+    groups = [("Kept in each participant's file", kept["Participant"]),
+              ("Kept in each worker's file", kept["Worker"]),
+              ("The organisation's own records", kept["Organisation"])]
+    _send_sheet(wb, at + len(SEND_TABS), "Harmony fills in", "Harmony fills these in itself (not sent out)",
+                "Registers, records and plans the Principal, Director or Key Management Personnel complete and "
+                "keep. Nobody outside Harmony needs to be sent these.", TINT["Organisation"], CREAM, groups)
+    print(f"  Harmony fills in: {sum(len(g[1]) for g in groups)} rows")
+
+
 def fix_start_here(wb, end):
     ws = wb["Start here"]
     st = get_column_letter(COL["Status"])
@@ -438,8 +529,10 @@ def fix_start_here(wb, end):
                 ws.cell(c.row, c.column + 1).value = (
                     "Laid out like the Avaana checklist: module, Practice Standard, its outcome and indicators, "
                     "then every document for it. Highlighted rows are forms someone must fill in: pink for each "
-                    "participant's file, green for each worker's file, sand for the organisation's records. "
-                    "Click a title to open the file. Filter by 'Filled in for' or 'Status'.")
+                    "participant's file, green for each worker's file, cream for the organisation's records. "
+                    "Click a title to open the file. Filter by 'Filled in for' or 'Status'. The 'Send to' tabs "
+                    "list what goes out to participants, workers and practitioners, and what each has to do; "
+                    "'Harmony fills in' lists the forms that never leave the office.")
             elif isinstance(c.value, str) and c.value.startswith("After a review"):
                 ws.cell(c.row, c.column + 1).value = (
                     "Type into the green-grey columns: the date in 'Last reviewed', and the version, approver and "
@@ -457,6 +550,7 @@ def main(base, out):
     at = wb.sheetnames.index("All documents")
     del wb["All documents"]
     _, end = write_checklist(wb, order, at)
+    write_send_tabs(wb, docs, at + 1)
     fix_start_here(wb, end)
     wb.active = 0
     wb.save(out)

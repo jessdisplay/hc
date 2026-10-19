@@ -28,4 +28,5 @@ first run only `export_web.py` is used.
 `standards.json` is the wording of each outcome and indicator, taken from the
 Rise platform's seed of the Quality Indicators Guidelines (compilation 3, in
 force 1 July 2026). Placement rules (which document meets which standard) are
-at the top of `make_workbook.py`.
+at the top of `make_workbook.py`. Who each form goes out to, and what they do
+with it, is in `send_lists.py`; those lists become the Excel's 'Send to' tabs.
