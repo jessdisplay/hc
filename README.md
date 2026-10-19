@@ -32,3 +32,4 @@ plate, in light and dark themes alike.
 | `build_guide_site.py` | Inlines assets, writes `index.html`. |
 | `assets/` | Brand artwork and both marks. |
 | `index.html` | Built output. Generated, not edited. |
+| `site/checklist/` | Every audited document and form by Practice Standard. Data from `tools/checklist/`. |

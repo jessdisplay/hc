@@ -1,0 +1,2201 @@
+{
+ "source": {
+  "guidelines": "National Disability Insurance Scheme (Quality Indicators for NDIS Practice Standards) Guidelines 2018, compilation No. 3 (F2026C00528), in force 1 July 2026",
+  "rules": "National Disability Insurance Scheme (Provider Registration and Practice Standards) Rules 2018, compilation No. 6 (F2026C00527), in force 1 July 2026",
+  "taken_from": "riseos-harmony riseOS-BE/migrations/1789000000000_seed-quality-indicators.js, itself generated from the authorised Word file"
+ },
+ "sections": [
+  {
+   "section_no": "6",
+   "heading": "Person-centred supports",
+   "outcome": "Each participant accesses supports that promote, uphold and respect their legal and human rights and is enabled to exercise informed choice and control. The provision of supports promotes, upholds and respects individual rights to freedom of expression, self-determination and decision-making.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 3",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant’s legal and human rights are understood and incorporated into everyday practice.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Communication with each participant about the provision of supports is responsive to their needs and is provided in the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Each participant is supported to engage with their support network and chosen community as directed by the participant.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "7",
+   "heading": "Individual values and beliefs",
+   "outcome": "Each participant accesses supports that respect their culture, diversity, values and beliefs.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 4",
+   "rows": [
+    {
+     "item": "1",
+     "text": "At the direction of the participant, the culture, diversity, values and beliefs of that participant are identified and sensitively responded to.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant’s right to practice their culture, values and beliefs while accessing supports is supported.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "8",
+   "heading": "Privacy and Dignity",
+   "outcome": "Each participant accesses supports that respect and protect their dignity and right to privacy.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 5",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Consistent processes and practices are in place that respect and protect the personal privacy and dignity of each participant.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is advised of confidentiality policies using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Each participant understands and agrees to what personal information will be collected and why, including recorded material in audio and/or visual format.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "9",
+   "heading": "Independence and Informed Choice",
+   "outcome": "Each participant is supported by the provider to make informed choices, exercise control and maximise their independence relating to the supports provided.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 6",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Active decision-making and individual choice is supported for each participant including the timely provision of information using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant’s right to the dignity of risk in decision-making is supported. When needed, each participant is supported to make informed choices about the benefits and risks of the options under consideration.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Each participant’s autonomy is respected, including their right to intimacy and sexual expression.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Each participant has sufficient time to consider and review their options and seek advice if required, at any stage of support provision, including assessment, planning, provision, review and exit.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Each participant’s right to access an advocate (including an independent advocate) of their choosing is supported, as is their right to have the advocate present.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "10",
+   "heading": "Violence, Abuse, Neglect, Exploitation and Discrimination",
+   "outcome": "Each participant accesses supports free from violence, abuse, neglect, exploitation or discrimination.",
+   "notes": [
+    "Note: A registered NDIS provider has obligations in relation to incident management systems and reportable incidents that may apply to incidents or a reportable incidents (see sections 73Y and 73Z of the Act and the National Disability Insurance Scheme (Incident Management and Reportable Incidents) Rules 2018)."
+   ],
+   "module_ord": 1,
+   "clause_label": "Clause 7",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Policies, procedures and practices are in place which actively prevent violence, abuse, neglect, exploitation or discrimination.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is provided with information about the use of an advocate (including an independent advocate) and access to an advocate is facilitated where allegations of violence, abuse, neglect, exploitation or discrimination have been made.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Allegations and incidents of violence, abuse, neglect, exploitation or discrimination, are acted upon, each participant affected is supported and assisted, records are made of any details and outcomes of reviews and investigations (where applicable) and action is taken to prevent similar incidents occurring again.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "11",
+   "heading": "Governance and Operational Management",
+   "outcome": "Each participant’s support is overseen by robust governance and operational management systems relevant (proportionate) to the size, and scale of the provider and the scope and complexity of supports delivered.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 9",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Opportunities are provided by the governing body for people with disability to contribute to the governance of the organisation and have input into the development of organisational policy and processes relevant to the provision of supports and the protection of participant rights.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "A defined structure is implemented by the governing body to meet a governing body’s financial, legislative, regulatory and contractual responsibilities, and to monitor and respond to quality and safeguarding matters associated with delivering supports to participants.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "The skills and knowledge required for the governing body to govern effectively are identified, and relevant training is undertaken by members of the governing body to address any gaps.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "The governing body ensures that strategic and business planning considers legislative requirements, organisational risks, other requirements related to operating under the NDIS (for example Agency requirements and guidance), participants’ and workers’ needs and the wider organisational environment.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "The performance of management, including responses to individual issues, is monitored by the governing body to drive continuous improvement in management practices.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "The provider is managed by a suitably qualified and/or experienced persons with clearly defined responsibility, authority and accountability for the provision of supports.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "There is a documented system of delegated responsibility and authority to another suitable person in the absence of a usual position holder in place.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "8",
+     "text": "Perceived and actual conflicts of interest are proactively managed and documented, including through development and maintenance of organisational policies.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "12",
+   "heading": "Risk Management",
+   "outcome": "Risks to participants, workers and the provider are identified and managed.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 10",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Risks to the organisation, including risks to participants, financial and work health and safety risks, and risks associated with provision of supports are identified, analysed, prioritised and treated.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "A documented risk management system that effectively manages identified risks is in place, and is relevant and proportionate to the size and scale of the provider and the scope and complexity of supports provided.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "The risk management system covers each of the following:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "incident management;",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "complaints management and resolution;",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "c",
+     "text": "financial management;",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "d",
+     "text": "governance and operational management;",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "e",
+     "text": "human resource management;",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "f",
+     "text": "information management;",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "g",
+     "text": "work health and safety;",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "h",
+     "text": "emergency and disaster management.",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Where relevant, the risk management system includes measures for the prevention and control of infection and outbreaks.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Supports and services are provided in a way that is consistent with the risk management system.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Appropriate insurance is in place, including professional indemnity, public liability and accident insurance.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "13",
+   "heading": "Quality Management",
+   "outcome": "Each participant benefits from a quality management system relevant and proportionate to the size and scale of the provider, which promotes continuous improvement of support delivery.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 11",
+   "rows": [
+    {
+     "item": "1",
+     "text": "A quality management system is maintained that is relevant and proportionate to the size and scale of the provider and the scope and complexity of the supports delivered. The system defines how to meet the requirements of legislation and these standards. The system is reviewed and updated as required to improve support delivery.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "The provider’s quality management system has a documented program of internal audits relevant (proportionate) to the size and scale of the provider and the scope and complexity of supports delivered.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "The provider’s quality management system supports continuous improvement, using outcomes, risk related data, evidence-informed practice and feedback from participants and workers.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "14",
+   "heading": "Information Management",
+   "outcome": "Management of each participant’s information ensures that it is identifiable, accurately recorded, current and confidential. Each participant’s information is easily accessible to the participant and appropriately utilised by relevant workers.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 12",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant’s consent is obtained to collect, use and retain their information or to disclose their information (including assessments) to other parties, including details of the purpose of collection, use and disclosure. Each participant is informed in what circumstances the information could be disclosed, including that the information could be provided without their consent if required or authorised by law.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is informed of how their information is stored and used, and when and how each participant can access or correct their information, and withdraw or amend their prior consent.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "An information management system is maintained that is relevant and proportionate to the size and scale of the organisation and records each participant’s information in an accurate and timely manner.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Documents are stored with appropriate use, access, transfer, storage, security, retrieval, retention, destruction and disposal processes relevant and proportionate to the scope and complexity of supports delivered.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "15",
+   "heading": "Feedback and Complaints Management",
+   "outcome": "Each participant has knowledge of and access to the provider’s complaints management and resolution system. Complaints and other feedback made by all parties are welcomed, acknowledged, respected and well-managed.",
+   "notes": [
+    "Note: A registered NDIS provider has obligations if an incident is the subject of a complaint (see sections 73W and 73X of the Act and the National Disability Insurance Scheme (Complaints Management and Resolution) Rules 2018."
+   ],
+   "module_ord": 1,
+   "clause_label": "Clause 13",
+   "rows": [
+    {
+     "item": "1",
+     "text": "A complaints management and resolution system is maintained that is relevant and proportionate to the scope and complexity of supports delivered and the size and scale of the organisation. The system follows principles of procedural fairness and natural justice and complies with the requirements under the National Disability Insurance Scheme (Complaints Management and Resolution) Rules 2018.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is provided with information on how to give feedback or make a complaint, including avenues external to the provider, and their right to access advocates. There is a supportive environment for any person who provides feedback and/or makes complaints.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Demonstrated continuous improvement in complaints and feedback management by regular review of complaint and feedback policies and procedures, seeking of participant views on the accessibility of the complaints management and resolution system, and incorporation of feedback throughout the provider’s organisation.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "All workers are aware of, trained in, and comply with the required procedures in relation to complaints handling.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "16",
+   "heading": "Incident Management",
+   "outcome": "Each participant is safeguarded by the provider’s incident management system, ensuring that incidents are acknowledged, respond to, well-managed and learned from.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 14",
+   "rows": [
+    {
+     "item": "1",
+     "text": "An incident management system is maintained that is relevant and proportionate to the scope and complexity of supports delivered and the size and scale of the organisation. The system complies with the requirements under the National Disability Insurance Scheme (Incident Management and Reportable Incidents) Rules 2018.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is provided with information on incident management, including how incidents involving the participant have been managed.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Demonstrated continuous improvement in incident management by regular review of incident management policies and procedures, review of the causes, handling and outcomes of incidents, seeking of participant and worker views, and incorporation of feedback throughout the provider’s organisation.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "All workers are aware of, trained in, and comply with the required procedures in relation to incident management.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "17",
+   "heading": "Human Resource Management",
+   "outcome": "Each participant’s support needs are met by workers who are competent in relation to their role, hold relevant qualifications, and who have relevant expertise and experience to provide person-centred support.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 15",
+   "rows": [
+    {
+     "item": "1",
+     "text": "The skills and knowledge required of each position within a provider are identified and documented together with the responsibilities, scope and limitations of each position.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Records of worker pre-employment checks, qualifications and experience are maintained.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "An orientation and induction process is in place that is completed by workers including completion of the mandatory NDIS worker orientation program.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "A system to identify, plan, facilitate, record and evaluate the effectiveness of training and education for workers is in place to ensure that workers meet the needs of each participant. The system identifies training that is mandatory and includes training in relation to staff obligations under the NDIS Practice Standards and other National Disability Insurance Scheme rules.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Timely supervision, support and resources are available to workers relevant to the scope and complexity of supports delivered.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "The performance of workers is managed, developed and documented, including through providing feedback and development opportunities.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "Workers with capabilities that are relevant to assisting in the response to an emergency or disaster (such as contingency planning or infection prevention or control) are identified.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "8",
+     "text": "Plans are in place to identify, source and induct a workforce in the event that workforce disruptions occur in an emergency or disaster.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "9",
+     "text": "Infection prevention and control training, including refresher training, is undertaken by all workers involved in providing supports to participants.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "10",
+     "text": "For each worker, the following details are recorded and kept up to date:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "their contact details;",
+     "parent": 9,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "details of their secondary employment (if any).",
+     "parent": 9,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "18",
+   "heading": "Continuity of Supports",
+   "outcome": "Each participant has access to timely and appropriate support without interruption.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 16",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Day-to-day operations are managed in an efficient and effective way to avoid disruption and ensure continuity of supports.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "In the event of worker absence or vacancy, a suitably qualified and/or experienced person performs the role.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Supports are planned with each participant to meet their specific needs and preferences. These needs and preferences are documented and provided to workers prior to commencing work with each participant to ensure the participant’s experience is consistent with their expressed preferences.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Arrangements are in place to ensure support is provided to the participant without interruption throughout the period of their service agreement. These arrangements are relevant and proportionate to the scope and complexity of supports delivered by the provider.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Alternative arrangements for the continuity of supports for each participant, where changes or interruptions are unavoidable, are:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "explained and agreed with them; and",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "delivered in a way that is appropriate to their needs, preferences and goals.",
+     "parent": 4,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "18A",
+   "heading": "Emergency and disaster management",
+   "outcome": "Emergency and disaster management includes planning that ensures that the risks to the health, safety and wellbeing of participants that may arise in an emergency or disaster are considered and mitigated, and ensures the continuity of supports critical to the health, safety and wellbeing of participants in an emergency or disaster.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 16A",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Measures are in place to enable continuity of supports that are critical to the safety, health and wellbeing of each participant before, during and after an emergency or disaster.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "The measures include planning for each of the following:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "preparing for, and responding to, the emergency or disaster;",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "making changes to participant supports;",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "c",
+     "text": "adapting, and rapidly responding, to changes to participant supports and to other interruptions;",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "d",
+     "text": "communicating changes to participant supports to workers and to participants and their support networks.",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "The governing body develops emergency and disaster management plans (the plans), consults with participants and their support networks about the plans and puts the plans in place.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "The plans explain and guide how the governing body will respond to, and oversee the response to, an emergency or disaster.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Mechanisms are in place for the governing body to actively test the plans, and adjust them, in the context of a particular kind of emergency or disaster.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "The plans have periodic review points to enable the governing body to respond to the changing nature of an emergency or disaster.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "The governing body regularly reviews the plans, and consults with participants and their support networks about the reviews of the plans.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "8",
+     "text": "The governing body communicates the plans to workers, participants and their support networks.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "9",
+     "text": "Each worker is trained in the implementation of the plans.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "19",
+   "heading": "Access to Supports",
+   "outcome": "Each participant accesses the most appropriate supports that meet their needs, goals and preferences.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 18",
+   "rows": [
+    {
+     "item": "1",
+     "text": "The supports available, and any access / entry criteria (including any associated costs) are clearly defined and documented. This information is communicated to each participant using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Reasonable adjustments to the support delivery environment are made and monitored to ensure it is fit for purpose and each participant’s health, privacy, dignity, quality of life and independence is supported.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Each participant is supported to understand under what circumstances supports can be withdrawn. Access to supports required by the participant will not be withdrawn or denied solely on the basis of a dignity of risk choice that has been made by the participant.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "20",
+   "heading": "Support Planning",
+   "outcome": "Each participant is actively involved in the development of their support plans. Support plans reflect participant needs, requirements, preferences, strengths and goals, and are regularly reviewed.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 19",
+   "rows": [
+    {
+     "item": "1",
+     "text": "With each participant’s consent, work is undertaken with the participant and their support network to enable effective assessment and to develop a support plan. Appropriate information and access is sought from a range of resources to ensure the participant’s needs, support requirements, preferences, strengths and goals are included in the assessment and the support plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "In collaboration with each participant:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "risk assessments are regularly undertaken, and documented in their support plans; and",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "appropriate strategies are planned and implemented to treat known risks to them.",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "2A",
+     "text": "Risk assessments include the following:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "consideration of the degree to which participants rely on the provider’s services to meet their daily living needs;",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "the extent to which the health and safety of participants would be affected if those services were disrupted.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Periodic reviews of the effectiveness of risk management strategies are undertaken with each participant to ensure risks are being adequately addressed, and changes are made when required.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Each support plan is reviewed annually or earlier in collaboration with each participant, according to their changing needs or circumstances. Progress in meeting desired outcomes and goals is assessed, at a frequency relevant and proportionate to risks, the participant’s functionality and the participant’s wishes.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Where progress is different from expected outcomes and goals, work is done with the participant to change and update the support plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Each participant’s support plan is:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "provided to them in the language, mode of communication and terms they are most likely to understand; and",
+     "parent": 10,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "readily accessible by them and by workers providing supports to them.",
+     "parent": 10,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "Each participant’s support plan is communicated, where appropriate and with their consent, to their support network, other providers and relevant government agencies.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "8",
+     "text": "Each participant’s support plan includes arrangements, where required, for proactive support for preventative health measures, including support to access recommended vaccinations, dental checkups, comprehensive health assessments and allied health services.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "9",
+     "text": "Each participant’s support plan:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "anticipates and incorporates responses to individual, provider and community emergencies and disasters to ensure their safety, health and wellbeing; and",
+     "parent": 15,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "is understood by each worker supporting them.",
+     "parent": 15,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "21",
+   "heading": "Service Agreements with Participants",
+   "outcome": "Each participant has a clear understanding of the supports they have chosen and how they will be provided.",
+   "notes": [
+    "Note: Specialist disability accommodation providers should also achieve the outcomes set out in part 8 of these Guidelines."
+   ],
+   "module_ord": 1,
+   "clause_label": "Clause 20",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Collaboration occurs with each participant to develop a service agreement which establishes expectations, explains the supports to be delivered, and specifies any conditions attached to the delivery of supports, including why these conditions are attached.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is supported to understand their service agreement and conditions using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Where the service agreement is created in writing, each participant receives a copy of their agreement signed by the participant and the provider. Where this is not practicable, or the participant chooses not to have an agreement, a record is made of the circumstances under which the participant did not receive a copy of their agreement.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Where the provider delivers supported independent living supports to participants in specialist disability accommodation dwellings, documented arrangements are in place with each participant and each specialist disability accommodation provider. At a minimum, the arrangements should outline the party or parties responsible and their roles (where applicable) for the following matters:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "How a Participant’s concerns about the dwelling will be communicated and addressed;",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "How potential conflicts involving participant(s) will be managed;",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "c",
+     "text": "How changes to participant circumstances and/or support needs will be agreed and communicated;",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "d",
+     "text": "In shared living, how vacancies will be filled, including each participant’s right to have their needs, preferences and situation taken into account; and",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "e",
+     "text": "How behaviours of concern which may put tenancies at risk will be managed, if this is a relevant issue for the participant.",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Service agreements set out the arrangements for providing supports to be put in place in the event of an emergency or disaster.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "22",
+   "heading": "Responsive Support Provision",
+   "outcome": "Each participant accesses responsive, timely, competent and appropriate supports to meet their needs, desired outcomes and goals.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 21",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Supports are provided based on the least intrusive options, in accordance with contemporary evidence-informed practices that meet participant needs and help achieve desired outcomes.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "For each participant (with their consent or direction and as agreed in their service agreement) links are developed and maintained by the provider through collaboration with other providers, including health care and allied health providers, to share their information, manage risks to them and meet their needs.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Reasonable efforts are made to involve the participant in selecting their workers, including the preferred gender of workers providing personal care supports.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Where a participant has specific needs which require monitoring and/or daily support, workers are appropriately trained and understand the participant’s needs and preferences.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "23",
+   "heading": "Transitions to or from a provider",
+   "outcome": "Each participant experiences a planned and coordinated transition to or from the provider.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 22",
+   "rows": [
+    {
+     "item": "1",
+     "text": "A planned transition to or from the provider is facilitated in collaboration with each participant when possible, and this is documented, communicated and effectively managed.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Risks associated with each transition to or from the provider are identified, documented and responded to, including risks associated with temporary transitions from the provider to respond to a risk to the participant, such as a health care risk requiring hospitalisation.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Processes for transitioning to or from the provider (including temporary transitions referred to in subsection (2)) are developed, applied, reviewed and communicated.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "24",
+   "heading": "Safe environment",
+   "outcome": "Each participant accesses supports in a safe environment that is appropriate to their needs.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 24",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant can easily identify workers who provide supports to them.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Work is undertaken with each participant, and others, in settings where supports are provided (including their home), to ensure a safe support delivery environment for them.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Where relevant, work is undertaken with other providers (including health care and allied health providers and providers of other services) to identify and manage risks to participants and to correctly interpret their needs and preferences.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "For each participant requiring support with communication, clear arrangements are in place to assist workers who support them to understand their communication needs and the manner in which they express emerging health concerns.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "To avoid delays in treatments for participants:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "protocols are in place for each participant about how to respond to medical emergencies for them; and",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "each worker providing support to them is trained to respond to such emergencies (including how to distinguish between urgent and nonurgent health situations).",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Systems for escalation are established for each participant in urgent health situations.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "Infection prevention and control standard precautions are implemented throughout all settings in which supports are provided to participants.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "8",
+     "text": "Routine environmental cleaning is conducted of settings in which supports are provided to participants (other than in their homes), particularly of frequentlytouched surfaces.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "9",
+     "text": "Each worker is trained, and has refresher training, in infection prevention and control standard precautions including hand hygiene practices, respiratory hygiene and cough etiquette.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "10",
+     "text": "Each worker who provides supports directly to participants is trained, and has refresher training, in the use of PPE.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "11",
+     "text": "PPE is available to each worker, and each participant, who requires it.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "25",
+   "heading": "Participant Money and Property",
+   "outcome": "Participant money and property is secure and each participant uses their own money and property as they determine.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 25",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Where the provider has access to a participant’s money or other property, processes to ensure that it is managed, protected and accounted for are developed, applied, reviewed and communicated. Participants’ money or other property is only used with the consent of the participant and for the purposes intended by the participant.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "If required, each participant is supported to access and spend their own money as the participant determines.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Participants are not given financial advice or information other than that which would reasonably be required under the participant’s plan.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "26",
+   "heading": "Management of Medication",
+   "outcome": "Each participant requiring medication is confident their provider administers, stores and monitors the effects of their medication and works to prevent errors or incidents.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 26",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Records clearly identify the medication and dosage required by each participant, including all information required to correctly identify the participant and to safely administer the medication.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "All workers responsible for administering medication understand the effects and side-effects of the medication and the steps to take in the event of an incident involving medication.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "All medications are stored safely and securely, can be easily identified and differentiated, and are only accessed by appropriately trained workers.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "26A",
+   "heading": "Mealtime management",
+   "outcome": "Each participant requiring mealtime management receives meals that are nutritious, and of a texture that is appropriate to their individual needs, and appropriately planned, and prepared in an environment and manner that meets their individual needs and preferences, and delivered in a way that is appropriate to their individual needs and ensures that the meals are enjoyable.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 26A",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Providers identify each participant requiring mealtime management.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant requiring mealtime management has their individual mealtime management needs assessed by appropriately qualified health practitioners, including by practitioners:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "undertaking comprehensive assessments of their nutrition and swallowing; and",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "assessing their seating and positioning requirements for eating and drinking; and",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "c",
+     "text": "providing mealtime management plans which outline their mealtime management needs, including for swallowing, eating and drinking; and",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "d",
+     "text": "reviewing assessments and plans annually or in accordance with the professional advice of the participant’s practitioner, or more frequently if needs change or difficulty is observed.",
+     "parent": 1,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "With their consent, each participant requiring mealtime management is involved in the assessment and development of their mealtime management plans.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Each worker responsible for providing mealtime management to participants understands the mealtime management needs of those participants and the steps to take if safety incidents occur during meals, such as coughing or choking on food or fluids.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Each worker responsible for providing mealtime management to participants is trained in preparing and providing safe meals with participants that would reasonably be expected to be enjoyable and proactively managing emerging and chronic health risks related to mealtime difficulties, including how to seek help to manage such risks.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Mealtime management plans for participants are available where mealtime management is provided to them and are easily accessible to workers providing mealtime management to them.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "Effective planning is in place to develop menus with each participant requiring mealtime management to support them to:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "be provided with nutritious meals that would reasonably be expected to be enjoyable, reflecting their preferences, their informed choice and any recommendations by an appropriately qualified health practitioner that are reflected in their mealtime management plan; and",
+     "parent": 10,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "if they have chronic health risks (such as swallowing difficulties, diabetes, anaphylaxis, food allergies, obesity or being underweight)—proactively manage those risks.",
+     "parent": 10,
+     "continued": []
+    },
+    {
+     "item": "8",
+     "text": "Procedures are in place for workers to prepare and provide texturemodified foods and fluids in accordance with mealtime management plans for participants and to check that meals for participants are of the correct texture, as identified in the plans.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "9",
+     "text": "Meals that may be provided to participants requiring mealtime management are stored safely and in accordance with health standards, can be easily identified as meals to be provided to particular participants and can be differentiated from meals not to be provided to particular participants.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "27",
+   "heading": "Management of Waste",
+   "outcome": "Each participant, each worker, and any other person in the home is protected from harm as a result of exposure to waste, infectious or hazardous substances generated during the delivery of supports.",
+   "notes": [],
+   "module_ord": 1,
+   "clause_label": "Clause 27",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Policies, procedures and practices are in place for the safe and appropriate storage, handling and disposal of waste and infectious or hazardous substances (including used PPE), and each policy, procedure and practice complies with current legislation and local health district requirements.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "All incidents involving infectious material, body substances or hazardous substances are reported, recorded, investigated and reviewed.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "An emergency plan is in place to respond to clinical waste or hazardous substance management issues and/or accidents. Where the plan is implemented, its effectiveness is evaluated, and revisions are made if required.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Each worker involved in the management of waste, or infectious or hazardous substances, is trained in the safe and appropriate handling of the waste or substances, including the use of PPE or any other clothing required when handling the waste or substances.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "29",
+   "heading": "Complex Bowel Care",
+   "outcome": "Each Participant requiring complex bowel care receives appropriate support relevant (proportionate) to their individual needs.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 3",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is involved in the assessment and development of the plan for their complex bowel care management. With their consent, the participant’s health status is subject to regular and timely review by an appropriately qualified health practitioner. The plan identifies how risks, incidents and emergencies will be managed, including required actions and escalation to ensure participant wellbeing.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Appropriate policies and procedures are in place, including a training plan for workers, that relate to the support provided to each participant receiving complex bowel care.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "All workers working with a participant requiring complex bowel care have received training, relating specifically to each participant’s needs, type of complex bowel care and high intensity support skills descriptor for providing complex bowel care, delivered by an appropriately qualified health practitioner or person that meets the high intensity support skills descriptor for complex bowel care.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "30",
+   "heading": "Enteral (Naso-Gastric Tube – Jejunum or Duodenum) Feeding and Management",
+   "outcome": "Each participant requiring enteral feeding and management receives appropriate nutrition, fluids and medication, relevant and proportionate to their individual needs.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 4",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is involved in the assessment and development of the plan for their enteral feeding and management. With their consent, the participant’s health status is subject to regular and timely review by an appropriately qualified health practitioner. The plan identifies how risks, incidents and emergencies will be managed, including required actions and escalation to ensure participant wellbeing.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Appropriate policies and procedures are in place, including a training plan for workers, that relate to the support provided to each participant who has enteral feeding needs.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "All workers working with a participant who requires enteral feeding have completed training, relating specifically to each participant’s needs, type and method of enteral feeding and regime, and high intensity support skills descriptor for enteral feeding, delivered by an appropriately qualified health practitioner or person that meets the high intensity support skills descriptor for enteral feeding.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "30A",
+   "heading": "Severe dysphagia management",
+   "outcome": "Each participant requiring severe dysphagia management receives appropriate support that is relevant and proportionate to their individual needs and preferences.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 4A",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Providers identify each participant requiring severe dysphagia management.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "With their consent, their individual severe dysphagia management needs are assessed by appropriately qualified health practitioners, including by practitioners conducting regular and timely reviews if needs change or difficulty is observed.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Each participant requiring severe dysphagia management is involved in the assessment and development of their severe dysphagia management plan. The plan identifies:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "their individual needs and preferences (such as for food, fluids, preparation techniques and feeding equipment); and",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "how risks, incidents and emergencies will be managed to ensure their wellbeing and safety, including by setting out any required actions and plans for escalation.",
+     "parent": 2,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Appropriate policies and procedures are in place in relation to the support provided to each participant requiring severe dysphagia management, including training plans for workers supporting them.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Each worker responsible for providing severe dysphagia management to participants has received training, relating specifically to each participant’s needs, managing any severe dysphagia related incident and the high intensity support skills descriptor for severe dysphagia management, delivered by an appropriately qualified health practitioner with expertise in severe dysphagia management.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "31",
+   "heading": "Tracheostomy Management",
+   "outcome": "Each participant with a tracheostomy receives appropriate suctioning and management of their tracheostomy relevant and proportionate to their individual needs.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 5",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is involved in the assessment and development of the plan for their tracheostomy suctioning and management. With their consent, the participant’s health status is subject to regular and timely review by an appropriately qualified health practitioner. The plan identifies how risks, incidents and emergencies will be managed, including required actions and escalation to ensure participant wellbeing.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Appropriate policies and procedures are in place, including a training plan for workers, that relate to the support provided to each participant with a tracheostomy.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "All workers have completed training, relating specifically to each participant’s needs, managing any tracheostomy related incident and high intensity support skills descriptor for providing tracheostomy care (without ventilation) and supporting a person dependent on ventilation, delivered by an appropriately qualified health practitioner or person that meets the high intensity support skills descriptor for tracheostomy suctioning and management.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "32",
+   "heading": "Urinary Catheter Management (In-dwelling Urinary Catheter, In-out Catheter, Suprapubic Catheter)",
+   "outcome": "Each participant with a catheter receives appropriate catheter management relevant and proportionate to their individual needs.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 6",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is involved in the assessment and development of the plan for management of their catheter. With their consent, the participant’s health status is subject to regular and timely review by an appropriately qualified health practitioner. The plan identifies how risks, incidents and emergencies will be managed, including required actions and escalation to ensure participant wellbeing.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Appropriate policies and procedures are in place, including a training plan for workers, that relate to the support provided to each participant with a catheter.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "All workers have completed training, relating specifically to each participant’s needs, type of catheter and high intensity support skills descriptor for catheter changing and management, delivered by an appropriately qualified health practitioner or a person that meets the high intensity support skills descriptor for urinary catheter changing and management.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "33",
+   "heading": "Ventilator Management",
+   "outcome": "Each participant requiring ventilator management receives appropriate support relevant and proportionate to their individual needs and the specific ventilator used.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 7",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is involved in the assessment and development of the plan for their ventilator management. With their consent, the participant’s health status is subject to regular and timely review by an appropriately qualified health practitioner. The plan identifies how risks, incidents and emergencies will be managed, including required actions and escalation to ensure participant wellbeing.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Appropriate policies and procedures are in place, including a training plan for workers, that relate to the support provided to each participant who is ventilator dependent.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "All workers have completed training, relating specifically to each participant’s ventilation needs, managing a related incident and the high intensity support skills descriptor for ventilator management, delivered by an appropriately qualified health practitioner or person who meets the high intensity support skills descriptor for ventilator management.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "34",
+   "heading": "Subcutaneous Injections",
+   "outcome": "Each participant requiring subcutaneous injections receives appropriate support relevant and proportionate to their individual needs and specific subcutaneous injections and medication administered.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 8",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is involved in the assessment and development of the plan for their subcutaneous injections which includes dosage measurement and calculation. With their consent, each participant’s health status is subject to regular and timely review by an appropriately qualified health practitioner. The plan identifies how risks, incidents and emergencies will be managed, including required actions and escalation to ensure participant wellbeing.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "There are documented written or phone orders by the health practitioner prescribing the medication that trained workers may administer by subcutaneous injection.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Appropriate policies and procedures are in place, including a training plan for workers, that relate to the support provided to participants requiring subcutaneous injections and related medication.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "All workers have completed training, relating specifically to the participant’s injection and medication needs and high intensity support skills descriptor for subcutaneous injections, delivered by an appropriately qualified health practitioner or person that meets the high intensity support skills descriptor for subcutaneous injections. Workers must also have a basic understanding of the participant’s related health condition.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "35",
+   "heading": "Complex Wound Management",
+   "outcome": "Each participant requiring complex wound management receives appropriate support relevant and proportionate to their individual needs.",
+   "notes": [],
+   "module_ord": 2,
+   "clause_label": "Clause 9",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is involved in the assessment and development of the plan for their complex wound management. With their consent, the participant’s health status is subject to regular and timely review by an appropriately qualified health practitioner. The plan identifies how risks, incidents and emergencies will be managed, including required actions and escalation to ensure participant wellbeing.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Appropriate policies and procedures are in place, including a training plan for workers, that relate to the support provided to each participant requiring complex wound management.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "All workers working with a participant requiring complex wound management have received training, relating specifically to the participant’s needs that are affected by their wound management regime (for example, showering, toileting and mobility) and high intensity support skills descriptor for providing complex wound management, delivered by an appropriately qualified health practitioner or person that meets the high intensity support skills descriptor for complex wound management.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "47",
+   "heading": "Behaviour Support in the NDIS",
+   "outcome": "Each participant accesses behaviour support that is appropriate to their needs which incorporates evidence-informed practice and complies with relevant legislation and policy frameworks.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 3",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Knowledge and understanding of the NDIS and state and territory behaviour support legislative and policy frameworks.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Demonstrated appropriate knowledge and understanding of evidence-informed practice approaches to behaviour support.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Demonstrated commitment to reducing and eliminating restrictive practices through policies, procedures and practices.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "48",
+   "heading": "Regulated Restrictive Practices",
+   "outcome": "Each participant is only subject to a regulated restrictive practice that meets any state and territory authorisation (however described) requirements and the relevant requirements and safeguards outlined in Commonwealth legislation and policy.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 4",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Knowledge and understanding of regulated restrictive practices as described in the National Disability Insurance Scheme (Restrictive Practices and Behaviour Support) Rules 2018 and knowledge and understanding of any relevant state or territory legislation and/or policy requirements and processes for obtaining authorisation (however described) for the use of any regulated restrictive practices included in a behaviour support plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Where state or territory legislation and/or policy requires authorisation (however described) to, the use of a regulated restrictive practice, such authorisation is obtained and evidence submitted.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Regulated restrictive practices are only used in accordance with a behaviour support plan and all the requirements as prescribed in the National Disability Insurance Scheme (Restrictive Practices and Behaviour Support) Rules 2018. Regulated restrictive practices are implemented, documented and reported in a way that is compliant with relevant legislation and/or policy requirements.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Work is undertaken with specialist behaviour support providers to evaluate the effectiveness of current approaches aimed at reducing and eliminating restrictive practices, including the implementation of strategies in the behaviour support plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Workers maintain the skills required to use restrictive practices and support the participant and other stakeholders to understand the risks associated with the use of restrictive practices.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "49",
+   "heading": "Supporting the Assessment and Development of Behaviour Support Plans",
+   "outcome": "Each participant’s quality of life is maintained and improved by tailored, evidence-informed behaviour support plans that are responsive to their needs.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 5",
+   "rows": [
+    {
+     "item": "1",
+     "text": "The specialist behaviour support provider is supported to gather information for the functional behavioural assessment and other relevant assessments.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Collaboration occurs with the specialist behaviour support provider to develop each participant’s behaviour support plan and the clear identification of key responsibilities in implementing and reviewing the plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Relevant workers have the necessary skills to inform the development of the participant’s behaviour support plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Relevant workers have access to appropriate training to enhance their skills in, and knowledge of, positive behaviour supports and restrictive practices.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "50",
+   "heading": "Behaviour Support Plan Implementation",
+   "outcome": "Each participant’s behaviour support plan is implemented effectively to meet the participant’s behaviour support needs.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 6",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Policies and procedures that support the implementation of behaviour support plans are developed and maintained.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Work is actively undertaken with the specialist behaviour support providers to implement each participant’s behaviour support plan and to align support delivery with evidence-informed practice and positive behaviour support.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Workers are supported to develop and maintain the skills required to consistently implement the strategies in each participant’s behaviour support plan consistent with the positive behaviour support capability framework.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Specialist behaviour support providers are supported to train the workers of the providers implementing a behaviour support plans in the use and monitoring of behaviour support strategies in the behaviour support plan, including positive behaviour support.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Workers receive training in the safe use of restrictive practices.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Collaboration is undertaken with other providers that work with the participant to implement strategies in the participant’s behaviour support plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "Performance management ensures that workers are implementing strategies in the participant’s behaviour support plan appropriately.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "51",
+   "heading": "Monitoring and Reporting the Use of Regulated Restrictive Practices",
+   "outcome": "Each participant is only subject to a restrictive practice that is reported to the Commission.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 7",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Demonstrated compliance with monthly online reporting requirements in relation to the use of regulated restrictive practices, as prescribed in the National Disability Insurance Scheme (Restrictive Practices and Behaviour Support) Rules 2018.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Data is monitored to identify actions for improving outcomes.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Data is used to provide feedback to workers, and with the participant’s consent, their support network, and their specialist behaviour support provider about the implementation of the behaviour support plan to inform the reduction and elimination of restrictive practices.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "52",
+   "heading": "Behaviour Support Plan Review",
+   "outcome": "Each participant has a current behaviour support plan that reflects their needs, and works towards improving their quality of life, reducing behaviours of concern, and reducing and eliminating the use of restrictive practices.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 8",
+   "rows": [
+    {
+     "item": "1",
+     "text": "The implementation of the participant’s behaviour support plan is monitored through a combination of formal and informal approaches, including through feedback from the participant, team meetings, data collection and record keeping, other feedback and supervision.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Information is recorded and data is collected as required by the specialist behaviour support provider and as prescribed in the National Disability Insurance Scheme (Restrictive Practices and Behaviour Support) Rules 2018.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Identification of circumstances where the participant’s needs, situation or progress create a need for more frequent review, including if the participant’s behaviour changes",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Contributions are made to the reviews of the strategies in a participant’s behaviour support plan, with the primary focus of reducing or eliminating restrictive practices based on observed progress or positive changes in the participant’s situation.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "53",
+   "heading": "Reportable Incidents involving the Use of a Restrictive Practice",
+   "outcome": "Each participant that is subject to an emergency or unauthorised use of a restrictive practice has the use of that practice reported and reviewed.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 9",
+   "rows": [
+    {
+     "item": "1",
+     "text": "The participant’s immediate referral to, and assessment by a medical practitioner (where appropriate) is supported following an incident.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Collaboration is undertaken with mainstream service providers, such as police and/or other emergency services, mental health and emergency department, treating medical practitioners and other allied health clinicians, in responding to the unauthorised use of a restrictive practice.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "The Commissioner is notified of all reportable incidents involving the use of an unauthorised restrictive practice in accordance with the National Disability Insurance Scheme (Incident Management and Reportable Incidents) Rules 2018.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Where an unauthorised restrictive practice has been used, the workers and management of providers implementing behaviour support plans engage in debriefing to identify areas for improvement and to inform further action. The outcomes of the debriefing are documented.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Based on the review of incidents, the supports to the participant are adjusted, and where appropriate, the engagement of a specialist behaviour support provider is facilitated to develop or review the participant’s behaviour support plan or interim behaviour support plan, if required, in accordance with the National Disability Insurance Scheme (Restrictive Practices and Behaviour Support) Rules 2018.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Authorisation processes (however described) are initiated as required by their jurisdiction.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "The participant, and with the participant’s consent, their support network and other stakeholders as appropriate, are included in the review of incidents.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "54",
+   "heading": "Interim Behaviour Support Plans",
+   "outcome": "Each participant with an immediate need for a behaviour support plan receives an interim behaviour support plan based on evidence-informed practice, which minimises risk to the participant and others.",
+   "notes": [],
+   "module_ord": 4,
+   "clause_label": "Clause 10",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Collaboration is undertaken with mainstream service providers (such as police and/or other emergency services, mental health and emergency departments, treating medical practitioners and other allied health clinicians) in contributing to an interim behaviour support plan developed by a specialist behaviour support provider.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Work is undertaken with the specialist behaviour support provider to support the development of the interim behaviour support plan.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Workers are supported and facilitated to receive training in the implementation of the interim behaviour support plan.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "64",
+   "heading": "Specialised Support Coordination",
+   "outcome": "Each participant receiving specialised support coordination receives tailored support to implement, monitor and review their support plans and reduce the risk and complexity of their situation.",
+   "notes": [],
+   "module_ord": 6,
+   "clause_label": "Clause 3",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Demonstrated knowledge and understanding of the risk factors experienced by each participant with high-risk and/or complex needs.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Participants are involved in the evaluation of their situation and the identification of the supports required to prevent or respond to a crisis, incident or breakdown of support arrangements, and the promotion of safety for the participant and others.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Consultation is undertaken with the participant and, with the participant’s consent, the participant’s support network and mainstream services (as appropriate) in planning and coordinating supports to implement the participant’s plan, and any plan review.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "In consideration of each participant’s individual needs, preferences and circumstances, suitable NDIS providers and mainstream service providers that have the appropriate skills and experience to deliver the required support are identified.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "There is proactive engagement to ensure that all providers implementing the participant’s plan understand and respond to the risk and/or complexity of the participant’s situation, and collaborate with other relevant providers, where required.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "All monitoring and reporting obligations associated with the participant’s plan are managed effectively.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "65",
+   "heading": "Management of a Participant’s NDIS Supports",
+   "outcome": "Each participant exercises meaningful choice and control over their supports and maximises the value for money they receive from their supports.",
+   "notes": [],
+   "module_ord": 6,
+   "clause_label": "Clause 4",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Supports and services are arranged using the participant’s NDIS amounts as directed by the participant and for the purposes intended by the participant.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant has been provided with information about their support options using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "As appropriate, each participant is supported to build their capacity to coordinate, self-direct and manage their supports and to understand how to participate in Agency planning processes such as establishing agreements with service providers and managing budget flexibility.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Supports funded under a participant’s plan are used effectively and efficiently, and are complemented by community and mainstream services to achieve the objectives of the participant’s plan.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "66",
+   "heading": "Conflict of Interest",
+   "outcome": "Each participant receives transparent, factual advice about their support options which promotes choice and control.",
+   "notes": [],
+   "module_ord": 6,
+   "clause_label": "Clause 5",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Conflict of interest policies are provided or explained to each participant using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is supported to understand the distinction between the provision of specialised support coordination and other reasonable and necessary supports funded under a participant’s plan using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "If the provider has an interest in any support option available to the participant, the participant is aware of this interest. The participant understands that any choice they made about providers of other supports will not impact on the provision of the specialised support coordination.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Referrals to and from other providers are documented for each participant.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "72B",
+   "heading": "Supported decision-making",
+   "outcome": "Each participant is supported to understand and make genuine decisions for themselves, and is provided with accessible information, and decision-making support, about the supports and services delivered in their home and to enable them to access their community.",
+   "notes": [],
+   "module_ord": 8,
+   "clause_label": "Clause 3",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Each participant is provided with information to help them communicate their will and preferences about the delivery of supports and services in their home and daily life. This information is provided using the language, mode of communication and terms that the participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant’s right to the dignity of risk in decision-making about the delivery of supports and services in their home and daily life is supported. When needed, each participant is supported to make informed choices about the benefits and risks of the options under consideration about their home and daily life.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Each participant is supported to make informed decisions about access to mainstream supports and services outside of their home.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Policies and procedures are in place to facilitate supported decision-making by workers. The policies and procedures should require workers, when facilitating supported decision-making about the delivery of supports and services in a participant’s home and daily life, to:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "provide a reasonable period to implement supported decision-making;",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "identify the circumstances in which supported decision-making may be required;",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "c",
+     "text": "seek participant views on whether decision-making support is required and how they would like to be supported;",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "d",
+     "text": "identify and provide the necessary decision-making support in accordance with the participant’s will and preferences;",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "e",
+     "text": "consider and respond to cultural values and beliefs when decision-making support is required; and",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "f",
+     "text": "identify when additional support may be required for day-to-day decision-making including by an authorised decision maker such as a nominee.",
+     "parent": 3,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Relevant workers are trained, and have refresher training, in supported decision-making, including how to support the development of the participant’s ability to make decisions about the delivery of supports and services in a participant’s home and daily life and understand the impact of their decisions.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "72C",
+   "heading": "Safeguarding",
+   "outcome": "Each participant is supported to live in a safe, respectful and supportive home environment, and to have adequate safeguards in place to mitigate harm at home and when participants access their community.",
+   "notes": [],
+   "module_ord": 8,
+   "clause_label": "Clause 4",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Relevant workers demonstrate compliance with their obligations under the NDIS Code of Conduct through respectful, safe and rights-based support in a participant’s home in the delivery of supports and services.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Policies and procedures are in place to balance and respect participants’ dignity of risk in decision-making about the delivery of supports and services in their home and daily life while upholding obligations to safety in the home and when accessing their community. This includes involving participants in safeguarding discussions and ensuring safeguarding approaches are understood and applied consistently by all workers in the participant’s home.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Relevant workers delivering supports and services in a participant’s home and daily life have the skills to identify, assess and respond to harm, bullying and conflict in the participant’s home or when in the community, in a timely manner. This includes ensuring workers are trained in de-escalation, trauma-informed practice and positive behaviour support.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Each participant is supported to strengthen their formal and informal safeguards by being supported through the design and delivery of their supports and services to maintain access to their family, friends and community and through building stable and consistent relationships with workers who deliver supports and services in the participant’s home and daily life.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Each participant is supported to understand the impact of their decisions about the delivery of supports and services in their home and daily life if there is risk associated with their choices about their home and access to their community.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Policies and procedures are in place that set out the responsibilities of relevant workers delivering supports and services in the participant’s home and daily life in identifying, assessing and responding to risks such as bullying and conflict in the home environment. This includes requiring workers to collaborate with relevant providers and specialists to manage and mitigate risks in a person-centred and consistent manner to safeguard the participant and others living in the participant’s home.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "7",
+     "text": "Safeguarding approaches are implemented to address conflict, intimidation and harm between participants. This includes providers consulting with participants to ensure the safeguarding approaches acknowledge the risk and safety unique to each person, while respecting their autonomy.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "8",
+     "text": "Safeguarding approaches are regularly reviewed with participants and adjustments are made to promote continuous quality improvement through day-to-day practice improvements in the participant’s home, worker learning, supervision and governance.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "72D",
+   "heading": "Practice governance",
+   "outcome": "Each participant is supported in their home by workers that have the necessary training, knowledge and skills to support them, and that have the knowledge of, and guidance to use, evidence-informed practices that are tailored to the participant’s needs and enable the provision of safe and high quality supports.",
+   "notes": [],
+   "module_ord": 8,
+   "clause_label": "Clause 5",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Policies and procedures are in place for planning, delivery and evaluation of worker development and training, ensuring workers have skills and competency to deliver supports and services to participants in their home. This includes appropriate mentoring, supervision and training for workers in relation to cultural safety and positive behaviour support.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant is supported in a positive, comfortable and safe home environment by implementing trauma-informed practices in the delivery of supports and services in a participant’s home and daily life.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Workers are trained and assessed as competent in evidence-based practices including person-centred and trauma-informed practices, active support and supported decision-making, to create a participant centred and safe environment for the delivery of supports and services in a participant’s home and daily life.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Policies and procedures are in place that document a vision, values, objectives and strategies for the delivery of supports and services in the home that reflects contemporary practice and prioritises participants’ rights, safety and wellbeing in the participant’s home.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Each participant is provided the opportunity and encouraged to participate in and make decisions about their home including who they live with. This includes consultation with impacted participants before placing new tenants in the home and ensuring that participants are matched with co-tenants that they feel safe to live with.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Appropriate governance oversight of emergency planning is in place in shared living. All impacted participants are consulted to ensure emergency arrangements are coordinated, rehearsed and tailored to individual needs to ensure participants can respond safely to emergencies.",
+     "parent": null,
+     "continued": []
+    }
+   ]
+  },
+  {
+   "section_no": "72E",
+   "heading": "Agreements about tenancy, housing and support arrangements",
+   "outcome": "Each participant who has a tenancy agreement with the provider is supported to understand how the terms and conditions of the tenancy agreement interact with their service agreement with the provider, and each such participant is supported by effective tenancy management and is able to exercise choice and control and their tenancy rights.",
+   "notes": [],
+   "module_ord": 8,
+   "clause_label": "Clause 6",
+   "rows": [
+    {
+     "item": "1",
+     "text": "Where a provider is delivering both assistance with supported independent living and tenancy to the same participant, there are separate service and tenancy agreements.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "2",
+     "text": "Each participant who is receiving both assistance with supported independent living and tenancy from the same provider is supported to understand the distinction between their service agreement and tenancy agreement, including that they are legally separate and that one is not contingent on the other. This includes requiring workers to refer participants to access independent advocacy or legal assistance to understand their rights and responsibilities.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "3",
+     "text": "Policies and procedures are in place that detail how perceived or actual conflicts of interests are identified and managed by a provider that is delivering both assistance with supported independent living and tenancy to the same participant. The conflict of interest policies are made available to participants in the language, mode of communication and terms which each participant is most likely to understand.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "4",
+     "text": "Policies and procedures are in place to ensure participants can raise concerns about their supports and tenancy management without fear of retribution. This includes requiring workers to assist participants to access advocacy and/or legal services where appropriate.",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "5",
+     "text": "Each participant who is receiving both assistance with supported independent living and tenancy from the same provider is supported in their tenancy:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "By the provider providing accessible information and support to ensure the participant understands their rights and responsibilities under relevant tenancy law. This includes information about their house-sharing arrangements, notice periods and exit processes.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "By the provider providing, when required by the participant, more detailed assistance to understand their rights and responsibilities, including to access advocacy and/or legal services.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "c",
+     "text": "To understand their rights to change, in whole or in part, the provider who delivers assistance with supported independent living at any time during the tenancy agreement, and there are appropriate participant centred arrangements to facilitate this.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "d",
+     "text": "To be involved in decisions about their home environment including how shared spaces should be used.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "e",
+     "text": "To have access to house keys and to have private spaces that are managed in accordance with their preferences and subject to paragraph (f). This includes ensuring participants have the right to control who enters their private space.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "f",
+     "text": "By not having any limits applied to their access or possessions, unless there is a behaviour support plan in place for the participant. Any limits to access or possessions are applied in the least restrictive way possible and in accordance with their behaviour support plan.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "g",
+     "text": "By the provider maintaining ongoing compliance with all relevant laws and standards, including building standards and tenancy laws that apply to disability accommodation.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "h",
+     "text": "To understand their tenancy agreement, including any conditions, by using the language, mode of communication and terms which that participant is most likely to understand.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "i",
+     "text": "To have a copy of their agreement as signed by the participant and the provider. Where this is not practicable, a record is made detailing the circumstances in which the participant did not receive a copy of their agreement.",
+     "parent": 4,
+     "continued": []
+    },
+    {
+     "item": "6",
+     "text": "Each participant is supported to have a written service agreement in place that set out the following matters:",
+     "parent": null,
+     "continued": []
+    },
+    {
+     "item": "a",
+     "text": "How a participant’s concerns about their home will be communicated and addressed;",
+     "parent": 14,
+     "continued": []
+    },
+    {
+     "item": "b",
+     "text": "How potential conflicts involving co-tenants will be managed;",
+     "parent": 14,
+     "continued": []
+    },
+    {
+     "item": "c",
+     "text": "How changes to participant circumstances and/or support needs will be agreed and communicated;",
+     "parent": 14,
+     "continued": []
+    },
+    {
+     "item": "d",
+     "text": "How vacancies will be filled, including each participant’s right to have their needs, preferences and situation taken into account;",
+     "parent": 14,
+     "continued": []
+    },
+    {
+     "item": "e",
+     "text": "How behaviours of concern, which may put tenancies at risk will be managed, if this is a relevant issue for the participant; and",
+     "parent": 14,
+     "continued": []
+    },
+    {
+     "item": "f",
+     "text": "How participants can have visitors in their home, including how participants will be supported to exercise this choice safely without unnecessary restrictions.",
+     "parent": 14,
+     "continued": []
+    }
+   ]
+  }
+ ]
+}

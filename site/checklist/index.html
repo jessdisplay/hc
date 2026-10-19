@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Harmony Care documents and forms</title>
+<meta name="description" content="Every document and form Harmony Care holds, by NDIS Practice Standard: when each is needed, who fills it in and whether it is in date.">
+<style>
+:root{
+  --paper:#FBF7EF;--plate:#FFFDF9;--ink:#2E2A26;--muted:#5F564C;
+  --rule:#DFD5C4;--hair:#E7DFD1;--accent:#38553E;--forest:#38553E;
+  --sage:#9EAE8F;--cream:#F3E3CA;--rose:#F17990;--warn:#8A4B2A;
+  --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
+  --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --gut:clamp(1.25rem,4vw,3rem);
+  /* whose file a form belongs in */
+  --t-participant:color-mix(in srgb,var(--rose) 16%,var(--plate));
+  --t-worker:color-mix(in srgb,var(--sage) 26%,var(--plate));
+  --t-organisation:color-mix(in srgb,var(--cream) 70%,var(--plate));
+  --k-participant:var(--rose);--k-worker:var(--sage);--k-organisation:var(--muted);
+  --soon:color-mix(in srgb,var(--cream) 90%,var(--plate));
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#B3AA9C;
+  --rule:#333A30;--hair:#272C24;--accent:#A7C08F;--forest:#A7C08F;--cream:#242820;--warn:#E0A87F;
+  --rose:#F38FA4;--sage:#8FA37F;
+  --t-participant:color-mix(in srgb,var(--rose) 14%,var(--plate));
+  --t-worker:color-mix(in srgb,var(--sage) 18%,var(--plate));
+  --t-organisation:color-mix(in srgb,var(--muted) 16%,var(--plate));
+  --soon:color-mix(in srgb,var(--muted) 34%,var(--plate));}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.lbl,.btn,.wm,.chip,.pill,.stat b,.th,.no,.cite,summary,.ctl label{font-family:var(--cond)}
+h1,h2,h3{margin:0;line-height:1.05;letter-spacing:-.015em;text-wrap:balance}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:76rem;margin:0 auto;padding:0 var(--gut)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--forest);color:var(--paper);
+  padding:.85rem 1.2rem;z-index:99;font-family:var(--cond);letter-spacing:.1em;text-transform:uppercase;font-size:.8125rem}
+.skip:focus{left:0}
+.nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:1.5rem;
+  padding:1.1rem clamp(1.25rem,4vw,3rem);background:color-mix(in srgb,var(--paper) 92%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+.wm-link{display:flex;align-items:center;gap:.85rem;text-decoration:none;color:var(--ink);margin-right:auto}
+.wm-link img{width:4.2rem;height:auto}
+.nav .l{font-family:var(--cond);font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;
+  text-decoration:none;color:var(--ink);opacity:.72}
+.nav .l:hover{opacity:1}
+@media(max-width:64rem){.nav .l{display:none}}
+.wm{line-height:1}
+.wm .a{font-size:1.45rem;font-weight:700}
+.wm .b{font-size:1.45rem;font-weight:200}
+.wm .s{display:block;font-size:.5rem;letter-spacing:.32em;color:var(--muted);margin-top:.22rem;
+  border-top:1px solid var(--rule);padding-top:.22rem}
+
+.intro{padding:clamp(2.5rem,6vw,4.5rem) 0 1.75rem}
+.lbl{font-size:.6875rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.8rem}
+h1{font-size:clamp(2rem,5.2vw,3.4rem);font-weight:700;max-width:22ch}
+.intro .lede{margin-top:1.2rem;font-size:1.125rem;color:var(--muted);max-width:44rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:1px;margin-top:2rem;
+  background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.stat{background:var(--plate);padding:1rem 1.1rem;text-align:left;font:inherit;color:inherit;border:0;cursor:pointer}
+.stat:hover{background:color-mix(in srgb,var(--sage) 10%,var(--plate))}
+.stat[aria-pressed="true"]{box-shadow:inset 0 -3px 0 var(--forest)}
+.stat b{display:block;font-size:2rem;font-weight:700;line-height:1}
+.stat span{display:block;margin-top:.35rem;font-size:.9375rem;color:var(--muted)}
+.stat.overdue b{color:var(--warn)}
+.asof{margin-top:.9rem;font-size:.9375rem;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;margin-top:1.5rem;font-size:.9375rem;color:var(--muted)}
+.legend i{display:inline-block;width:1.1rem;height:1.1rem;border-radius:2px;vertical-align:-.15rem;margin-right:.45rem;border-left:4px solid}
+
+.bar{position:sticky;top:var(--navh,5.6rem);z-index:20;background:color-mix(in srgb,var(--paper) 94%,transparent);
+  backdrop-filter:blur(10px);border-block:1px solid var(--rule);padding:.85rem 0}
+.bar .wrap{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;padding:.55rem .8rem;border-radius:3px;
+  border:1.5px solid var(--rule);background:var(--plate);color:var(--ink);cursor:pointer}
+.chip:hover{border-color:var(--sage)}
+.chip[aria-pressed="true"]{background:var(--forest);border-color:var(--forest);color:var(--paper)}
+.chip .dot{display:inline-block;width:.6rem;height:.6rem;border-radius:50%;margin-right:.45rem;vertical-align:.05rem}
+.ctl{display:flex;align-items:center;gap:.5rem;margin-left:auto}
+.ctl label{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.ctl input{font:inherit;font-size:1rem;color:var(--ink);background:var(--plate);border:1.5px solid var(--rule);
+  border-radius:3px;height:2.6rem;padding:0 .75rem;width:min(16rem,60vw)}
+.ctl input:focus{border-color:var(--accent);outline:none}
+.showing{font-size:.9375rem;color:var(--muted);width:100%}
+@media(max-width:48rem){.bar{position:static}.ctl{margin-left:0;width:100%}.ctl input{flex:1;width:auto}}
+
+.toc{display:flex;flex-wrap:wrap;gap:.35rem 1.5rem;padding:1.5rem 0 0;font-family:var(--cond);
+  font-size:.75rem;letter-spacing:.16em;text-transform:uppercase}
+.toc a{text-decoration:none;color:var(--ink);border-bottom:1px solid var(--rule)}
+.toc a:hover{border-bottom-color:var(--accent)}
+
+main{padding-bottom:clamp(3.5rem,8vw,6rem)}
+.module{margin-top:clamp(2.5rem,5vw,4rem);scroll-margin-top:calc(var(--navh,5.6rem) + 7rem)}
+.module>h2{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:700;padding-bottom:.7rem;border-bottom:2px solid var(--forest)}
+.std{margin-top:2.25rem;scroll-margin-top:calc(var(--navh,5.6rem) + 7rem)}
+.std h3{font-size:1.3rem;font-weight:700;color:var(--forest)}
+.cite{display:block;margin-top:.3rem;font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.outcome{margin-top:.7rem;max-width:52rem;font-style:italic}
+details.ind{margin-top:.6rem;max-width:52rem}
+details.ind summary{cursor:pointer;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);width:fit-content;padding:.2rem 0}
+details.ind ol{margin:.6rem 0 0;padding-left:0;list-style:none;font-size:.9375rem;color:var(--muted)}
+details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre-line}
+
+.docs{margin-top:1rem;border-top:1px solid var(--rule)}
+.th,.doc{display:grid;grid-template-columns:2.4rem minmax(0,1.5fr) 8.5rem minmax(0,1.35fr) 6.5rem 9.5rem;gap:0 1rem;align-items:start}
+.th{font-size:.625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:.6rem .9rem}
+.doc{padding:.85rem .9rem;border-bottom:1px solid var(--hair);border-left:4px solid transparent;font-size:.9375rem}
+.doc[data-file="Participant"]{background:var(--t-participant);border-left-color:var(--k-participant)}
+.doc[data-file="Worker"]{background:var(--t-worker);border-left-color:var(--k-worker)}
+.doc[data-file="Organisation"]{background:var(--t-organisation);border-left-color:var(--k-organisation)}
+.no{font-size:.8125rem;color:var(--muted);padding-top:.15rem}
+.title a{font-weight:600;font-size:1rem;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+.title a:hover{border-bottom-color:var(--accent)}
+.title .type{display:block;color:var(--muted);font-size:.875rem;margin-top:.15rem}
+.who{font-family:var(--cond);font-size:.8125rem;font-weight:600;letter-spacing:.02em}
+.who.none{font-weight:400;color:var(--muted)}
+.when small{display:block;margin-top:.3rem;color:var(--muted);font-size:.8125rem;line-height:1.45}
+.due{font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .55rem;
+  border-radius:2px;line-height:1.25;background:var(--hair);color:var(--ink)}
+.pill.overdue{background:color-mix(in srgb,var(--warn) 22%,var(--plate))}
+.pill.soon{background:var(--soon)}
+.pill.ok{background:color-mix(in srgb,var(--sage) 34%,var(--plate))}
+.k{display:none}
+@media(max-width:64rem){
+  .th{display:none}
+  .doc{grid-template-columns:2rem minmax(0,1fr) auto;grid-template-areas:"no title title" ". who who" ". when when" ". due st";gap:.4rem .75rem}
+  .no{grid-area:no}.title{grid-area:title}.who{grid-area:who}.when{grid-area:when}.due{grid-area:due}.st{grid-area:st;justify-self:end}
+  .k{display:inline;color:var(--muted);font-family:var(--cond);font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;margin-right:.4rem}
+}
+.empty{padding:2rem 0;color:var(--muted)}
+[hidden]{display:none!important}
+
+.end-art{overflow:clip;border-top:1px solid var(--rule);background:var(--cream)}
+.end-art img{display:block;width:100%;height:clamp(13rem,30vw,24rem);object-fit:cover;object-position:center 34%}
+.foot{border-top:1px solid var(--rule);background:var(--plate);padding-block:clamp(2.5rem,5vw,4rem) 3rem}
+.foot-in{max-width:66rem;margin:0 auto;padding-inline:clamp(1.25rem,4vw,3rem)}
+.foot-in .wm-link img{width:6rem}
+.foot-in .wm .a,.foot-in .wm .b{font-size:2rem}
+.ack{max-width:66rem;margin:clamp(2rem,4vw,3rem) auto 0;padding:1.5rem clamp(1.25rem,4vw,3rem) 0;
+  border-top:1px solid var(--hair);font-size:.8125rem;line-height:1.6;color:var(--muted)}
+.ack b{color:var(--ink);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#list">Skip to the documents</a>
+
+<nav class="nav">
+  <a class="wm-link" href="../">
+    <img src="../img/emblem.png" alt="">
+    <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
+      <span class="s">SUPPORT SERVICES</span></span>
+  </a>
+  <a class="l" href="../#work">What we do</a>
+  <a class="l" href="../#services">Services</a>
+  <a class="l" href="../#story">Our story</a>
+  <a class="l" href="../#who">Who we are</a>
+</nav>
+
+<header class="wrap intro">
+  <span class="lbl">For the Harmony Care team</span>
+  <h1>Every document and form, by Practice Standard</h1>
+  <p class="lede">Everything Harmony was audited on, set out under the NDIS Practice Standard it meets:
+    what each standard asks for, when each document is needed, who fills it in, and whether it is due for review.</p>
+  <div class="stats" id="stats" aria-label="Review status"></div>
+  <p class="asof" id="asof"></p>
+  <p class="legend">
+    <span><i style="background:var(--t-participant);border-color:var(--k-participant)"></i>Filled in for each participant</span>
+    <span><i style="background:var(--t-worker);border-color:var(--k-worker)"></i>Filled in for each worker</span>
+    <span><i style="background:var(--t-organisation);border-color:var(--k-organisation)"></i>Filled in by the organisation</span>
+    <span><i style="background:var(--plate);border-color:var(--rule)"></i>Policies and guides: read, not filled in</span>
+  </p>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="chips" id="who" role="group" aria-label="Show">
+      <button class="chip" data-who="" aria-pressed="true">Everything</button>
+      <button class="chip" data-who="Participant" aria-pressed="false"><span class="dot" style="background:var(--k-participant)"></span>Participant forms</button>
+      <button class="chip" data-who="Worker" aria-pressed="false"><span class="dot" style="background:var(--k-worker)"></span>Worker forms</button>
+      <button class="chip" data-who="Organisation" aria-pressed="false"><span class="dot" style="background:var(--k-organisation)"></span>Organisation forms</button>
+      <button class="chip" data-who="none" aria-pressed="false">Policies and guides</button>
+    </div>
+    <div class="ctl"><label for="q">Find</label><input id="q" type="search" placeholder="A document or form" autocomplete="off"></div>
+    <p class="showing" id="showing" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<main id="list" class="wrap">
+  <nav class="toc" id="toc" aria-label="Modules"></nav>
+  <div id="modules"></div>
+  <p class="empty" id="empty" hidden>Nothing matches. Clear the search or choose Everything.</p>
+</main>
+
+<div class="end-art" aria-hidden="true"><img src="../img/making.jpg" alt=""></div>
+
+<footer class="foot">
+  <div class="foot-in">
+    <a class="wm-link" href="../">
+      <img src="../img/emblem.png" alt="">
+      <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
+        <span class="s">SUPPORT SERVICES</span></span>
+    </a>
+  </div>
+  <div class="ack">
+    <b>Always was, always will be.</b> Harmony Care Support Services acknowledges
+    Aboriginal and Torres Strait Islander people as the traditional custodians of
+    this land. We pay our respects to the Kabi Kabi / Gubbi Gubbi people, on whose
+    country we live, work and provide support, and to elders past, present and emerging.
+  </div>
+</footer>
+
+<script>
+(function(){
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var WHO = {Participant:'Each participant', Worker:'Each worker', Organisation:'Organisation'};
+  var SHOWN = {Participant:'participant forms', Worker:'worker forms', Organisation:'organisation forms', none:'policies and guides'};
+  var STATUS = {overdue:'Overdue', soon:'Due within 30 days', none:'No review date on record', ok:'In date'};
+  var state = {who:'', status:'', q:''};
+  var rows = [];
+
+  function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function pretty(s){ if(!s) return ''; var p = s.split('-'); return (+p[2])+' '+MONTHS[+p[1]-1]+' '+p[0]; }
+  function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+
+  var today = new Date(); var TODAY = iso(today);
+  var soon = new Date(today); soon.setDate(soon.getDate()+30); var SOON = iso(soon);
+  function statusOf(d){
+    if(d.fixed_status) return {key:'fixed', label:d.fixed_status};
+    if(!d.next_due) return {key:'none', label:STATUS.none};
+    if(d.next_due < TODAY) return {key:'overdue', label:STATUS.overdue};
+    if(d.next_due < SOON) return {key:'soon', label:STATUS.soon};
+    return {key:'ok', label:STATUS.ok};
+  }
+
+  function docRow(d){
+    var st = statusOf(d);
+    var r = el('div','doc'); r.dataset.file = d.file || '';
+    r.appendChild(el('span','no', d.no + '.'));
+    var t = el('div','title');
+    if(d.url){ var a = el('a', null, d.title); a.href = d.url; a.target = '_blank'; a.rel = 'noopener'; t.appendChild(a); }
+    else t.appendChild(el('span', null, d.title));
+    t.appendChild(el('span','type', d.type + (d.version ? ', version ' + d.version : '')));
+    r.appendChild(t);
+    r.appendChild(el('div', 'who' + (d.file ? '' : ' none'), d.file ? WHO[d.file] : 'Read, not filled in'));
+    var wh = el('div','when', d.when || '');
+    var bits = [];
+    if(d.completed_by) bits.push('Completed by: ' + d.completed_by);
+    if(d.signed_by) bits.push('Signed by: ' + d.signed_by);
+    if(bits.length) wh.appendChild(el('small', null, bits.join('. ')));
+    r.appendChild(wh);
+    var due = el('div','due'); due.appendChild(el('span','k','Next due'));
+    due.appendChild(document.createTextNode(pretty(d.next_due) || 'Not set'));
+    r.appendChild(due);
+    var s = el('div','st'); s.appendChild(el('span','pill ' + st.key, st.label)); r.appendChild(s);
+    return {el:r, d:d, st:st.key, text:(d.title + ' ' + d.type + ' ' + (d.when||'')).toLowerCase()};
+  }
+
+  function build(data){
+    var byNo = {}; data.docs.forEach(function(d){ byNo[d.no] = d; });
+    var host = document.getElementById('modules'), toc = document.getElementById('toc');
+    data.modules.forEach(function(m, i){
+      var sec = el('section','module'); sec.id = 'm' + i;
+      sec.appendChild(el('h2', null, m.label));
+      var a = el('a', null, m.label.split(':')[0]); a.href = '#m' + i; toc.appendChild(a);
+      m.standards.forEach(function(s){
+        var box = el('section','std'); box.id = 's-' + s.key;
+        box.appendChild(el('h3', null, s.heading));
+        if(s.cite) box.appendChild(el('span','cite', s.cite));
+        box.appendChild(el('p','outcome', s.outcome));
+        if(s.indicators.length){
+          var det = el('details','ind');
+          det.appendChild(el('summary', null, 'Indicators to be demonstrated (' + s.indicators.length + ')'));
+          var ol = el('ol'); s.indicators.forEach(function(t){ ol.appendChild(el('li', null, t)); });
+          det.appendChild(ol); box.appendChild(det);
+        }
+        var list = el('div','docs');
+        var th = el('div','th');
+        ['No.','Document','Filled in for','When it is needed','Next due','Status'].forEach(function(h){ th.appendChild(el('span', null, h)); });
+        list.appendChild(th);
+        box._rows = s.docs.map(function(n){ var r = docRow(byNo[n]); list.appendChild(r.el); rows.push(r); return r; });
+        box.appendChild(list);
+        sec.appendChild(box);
+      });
+      host.appendChild(sec);
+    });
+    stats();
+    document.getElementById('asof').textContent =
+      'Review dates as recorded in the checklist on ' + pretty(data.generated) +
+      '. Status is worked out against today, ' + pretty(TODAY) + '.';
+  }
+
+  function stats(){
+    var c = {overdue:0, soon:0, none:0, ok:0};
+    rows.forEach(function(r){ if(c[r.st] != null) c[r.st]++; });
+    var host = document.getElementById('stats'); host.textContent = '';
+    ['overdue','soon','none','ok'].forEach(function(k){
+      var b = el('button','stat ' + k); b.type = 'button';
+      b.setAttribute('aria-pressed', state.status === k ? 'true' : 'false');
+      b.appendChild(el('b', null, String(c[k]))); b.appendChild(el('span', null, STATUS[k]));
+      b.addEventListener('click', function(){ state.status = state.status === k ? '' : k; stats(); apply(); });
+      host.appendChild(b);
+    });
+  }
+
+  function apply(){
+    var shown = 0;
+    rows.forEach(function(r){
+      var ok = (!state.who || (state.who === 'none' ? !r.d.file : r.d.file === state.who)) &&
+               (!state.status || r.st === state.status) &&
+               (!state.q || r.text.indexOf(state.q) !== -1);
+      r.el.hidden = !ok; if(ok) shown++;
+    });
+    document.querySelectorAll('.std').forEach(function(box){
+      box.hidden = !box._rows.some(function(r){ return !r.el.hidden; });
+    });
+    document.querySelectorAll('.module').forEach(function(m){
+      m.hidden = !m.querySelector('.std:not([hidden])');
+      document.querySelector('.toc a[href="#' + m.id + '"]').hidden = m.hidden;
+    });
+    document.getElementById('empty').hidden = shown > 0;
+    var bits = [];
+    if(state.who) bits.push(SHOWN[state.who]);
+    if(state.status) bits.push(STATUS[state.status].toLowerCase());
+    document.getElementById('showing').textContent = 'Showing ' + shown + ' of ' + rows.length + ' documents' +
+      (bits.length ? ': ' + bits.join(', ') : '') + '.';
+  }
+
+  document.querySelectorAll('#who .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.who = b.dataset.who;
+      document.querySelectorAll('#who .chip').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      apply();
+    });
+  });
+  document.getElementById('q').addEventListener('input', function(e){ state.q = e.target.value.trim().toLowerCase(); apply(); });
+
+  // The filter bar sticks just under the nav, whatever height the nav wraps to.
+  var nav = document.querySelector('.nav');
+  function navh(){ document.documentElement.style.setProperty('--navh', nav.offsetHeight + 'px'); }
+  navh(); if(window.ResizeObserver) new ResizeObserver(navh).observe(nav); else addEventListener('resize', navh);
+
+  fetch('checklist.json', {cache:'no-cache'})
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(data){ build(data); apply(); })
+    .catch(function(){
+      var e = document.getElementById('empty'); e.hidden = false;
+      e.textContent = 'The checklist could not load. Refresh the page to try again.';
+    });
+})();
+</script>
+</body>
+</html>
