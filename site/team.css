@@ -1,0 +1,235 @@
+/* Harmony Care team pages (the checklist and the team hub).
+   Dressed like Harmony's own paperwork: the branded document set and its PDF renderer
+   (harmony-care-docs/hcpdf.py) give the cream page, sage rules, forest labels, Georgia text,
+   tinted table headers and the participant / worker / organisation row tints. */
+:root{
+  --paper:#FDFBF6;--plate:#FFFFFF;--ink:#2F2F2F;--body:#3A3A3A;--mid:#6A6A6A;--grey:#8C8C8C;
+  --rule:#D8D4CB;--hair:#E6E2D8;--sage:#9EAE8F;--forest:#38553E;--head:#EEF1EA;
+  --warn:#8A4B2A;--amber:#9A7B2F;
+  --t-participant:#FBE0E6;--t-worker:#DCE7D5;--t-organisation:#F3E3CA;
+  --k-participant:#E58A9C;--k-worker:#8FA37F;--k-organisation:#C9A86A;
+  --serif:Georgia,"Times New Roman",serif;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --gx:clamp(1.25rem,4vw,3rem);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171916;--plate:#1E211C;--ink:#ECE7DD;--body:#D9D3C8;--mid:#AFA89C;--grey:#958E83;
+  --rule:#3A3F36;--hair:#2C302A;--sage:#7F9070;--forest:#A7C08F;--head:#232A21;
+  --warn:#E3A27C;--amber:#D8B865;
+  --t-participant:#3A262B;--t-worker:#26302A;--t-organisation:#352E22;}}
+*{box-sizing:border-box}
+html{font-size:clamp(100%,.25vw + 85%,118.75%)}  /* type grows on big screens */
+body{margin:0;background:var(--paper);color:var(--body);font-family:var(--serif);font-size:1rem;line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;color:var(--ink);font-family:var(--serif);font-weight:700;line-height:1.2;text-wrap:balance}
+p{margin:0}
+a{color:var(--forest)}
+:focus-visible{outline:2px solid var(--forest);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{padding:0 var(--gx)}
+.skip{position:absolute;left:-9999px;top:0;background:var(--forest);color:var(--paper);padding:.7rem 1rem;z-index:99;font-family:var(--sans)}
+.skip:focus{left:0}
+
+/* The letterhead: the real lockup on cream, a sage rule beneath. */
+.nav{display:flex;align-items:center;gap:1.5rem;padding:1rem var(--gx);background:var(--paper);border-bottom:1px solid var(--sage)}
+.nav .home{display:block;margin-right:auto;line-height:0}
+.nav .home img{height:3.2rem;width:auto}
+.nav .l{font-family:var(--sans);font-size:.875rem;color:var(--forest);text-decoration:none}
+.nav .l:hover{text-decoration:underline}
+.nav .l{white-space:nowrap}
+@media(max-width:40rem){.nav{gap:.9rem}.nav .home img{height:2.5rem}.nav .doc-type{display:none}.nav .l{font-size:.8125rem}}
+.nav .doc-type{font-family:var(--sans);font-size:.8125rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--forest)}
+
+/* Title block, like the first page of a Harmony document. */
+.intro{padding-block:clamp(1.75rem,4vw,3rem) 1.25rem}
+h1{font-size:clamp(1.75rem,3.2vw,2.3rem)}
+.lede{margin-top:.6rem;font-size:1.0625rem;color:var(--mid);max-width:46rem}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.25rem}
+.btn{display:inline-block;font-family:var(--sans);font-size:.875rem;padding:.55rem .95rem;border-radius:2px;
+  border:1px solid var(--forest);background:var(--forest);color:var(--paper);text-decoration:none}
+.btn:hover{background:var(--ink);border-color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--forest)}
+.btn.ghost:hover{background:var(--head)}
+.btn-note{display:block;margin-top:.5rem;font-size:.875rem;color:var(--mid);max-width:60rem}
+.also-links{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem;margin-top:.9rem;font-family:var(--sans);font-size:.875rem}
+.also-links a{color:var(--forest);text-decoration:none}
+.also-links a:hover{text-decoration:underline}
+
+/* Review status as one plain line, each number a filter. */
+.stats{display:flex;flex-wrap:wrap;gap:.3rem 1.25rem;margin-top:1.25rem;font-family:var(--sans);font-size:.9375rem;color:var(--mid)}
+.stat{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-decoration:none}
+.stat b{color:var(--ink);font-weight:700;margin-right:.3rem}
+.stat span{text-transform:lowercase}
+.stat.overdue b,.stat.bad b{color:var(--warn)}
+.stat[aria-pressed="true"] span{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.asof{margin-top:.35rem;font-family:var(--sans);font-size:.8125rem;color:var(--grey)}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.25rem;margin-top:.9rem;font-family:var(--sans);font-size:.8125rem;color:var(--mid)}
+.legend i{display:inline-block;width:.9rem;height:.9rem;vertical-align:-.12rem;margin-right:.4rem;border:1px solid var(--rule)}
+
+/* Section headings, as the PDF sets them. */
+.module,.where,.sec{margin-top:clamp(2rem,4vw,3rem);scroll-margin-top:calc(var(--barh,0px) + 1rem)}
+.module>h2,.where>h2,.sec>h2{font-size:1.5rem;color:var(--forest);padding-bottom:.4rem;border-bottom:1px solid var(--forest)}
+.say{margin-top:.5rem;color:var(--mid);max-width:50rem}
+
+/* Filter line, sticky while reading. */
+.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-block:1px solid var(--hair);padding:.6rem 0}
+.bar .wrap{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:.2rem 1.1rem;font-family:var(--sans);font-size:.875rem}
+.chip{background:none;border:0;padding:.2rem 0;font:inherit;color:var(--mid);cursor:pointer;border-bottom:2px solid transparent}
+.chip:hover{color:var(--ink)}
+.chip[aria-pressed="true"]{color:var(--ink);font-weight:700;border-bottom-color:var(--forest)}
+.chip .dot{display:inline-block;width:.6rem;height:.6rem;margin-right:.35rem;vertical-align:.02rem;border:1px solid var(--rule)}
+.ctl{display:flex;align-items:center;gap:.5rem;margin-left:auto;font-family:var(--sans);font-size:.875rem}
+.ctl label{color:var(--mid)}
+.ctl input{font:inherit;color:var(--ink);background:var(--plate);border:1px solid var(--rule);border-radius:2px;height:2.2rem;padding:0 .6rem;width:min(16rem,60vw)}
+.ctl input:focus{border-color:var(--forest);outline:none}
+.showing{font-family:var(--sans);font-size:.8125rem;color:var(--grey);width:100%}
+@media(max-width:48rem){.bar{position:static}.ctl{margin-left:0;width:100%}.ctl input{flex:1;width:auto}}
+.toc{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem;padding:1.1rem 0 0;font-family:var(--sans);font-size:.875rem}
+.toc a{color:var(--forest);text-decoration:none}
+main{padding-bottom:clamp(3rem,6vw,5rem);scroll-margin-top:var(--barh,5rem)}
+
+/* A standard: its name, outcome and indicators, then its documents. */
+.std{margin-top:1.75rem;scroll-margin-top:calc(var(--barh,5rem) + 1rem)}
+.std h3{font-size:1.125rem}
+.cite{display:block;margin-top:.2rem;font-family:var(--sans);font-size:.75rem;color:var(--grey)}
+.outcome{margin-top:.5rem;font-style:italic;max-width:52rem}
+details.ind{margin-top:.45rem;max-width:52rem}
+details.ind summary{cursor:pointer;font-family:var(--sans);font-size:.8125rem;color:var(--forest);width:fit-content}
+details.ind ol{margin:.5rem 0 0;padding-left:0;list-style:none;font-size:.875rem;color:var(--mid)}
+details.ind li{padding:.35rem 0;border-top:1px solid var(--hair);white-space:pre-line}
+.also{margin-top:.5rem;font-size:.875rem;color:var(--mid)}
+@media(min-width:80rem){
+  .std{display:grid;grid-template-columns:clamp(18rem,22vw,30rem) minmax(0,1fr);gap:0 clamp(2rem,3vw,4rem);align-items:start}
+  .std-head{position:sticky;top:calc(var(--barh,5rem) + 1rem);max-height:calc(100vh - var(--barh,5rem) - 2rem);overflow-y:auto;padding-right:.5rem}
+  .std .docs{margin-top:0}
+}
+
+/* The documents table: header band and hairline rows, as in the PDF. */
+.docs{margin-top:.8rem;container-type:inline-size}
+.th,.doc{display:grid;gap:.3rem .75rem;align-items:start;grid-template-columns:2rem minmax(0,1fr) auto;
+  grid-template-areas:"no title title" ". who who" ". when when" ". cb cb" ". sb sb" ". ds ds"}
+.th{display:none;background:var(--head);border-bottom:1px solid var(--forest);padding:.45rem .7rem;
+  font-family:var(--sans);font-size:.6875rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--forest)}
+.th>span{font:inherit;color:inherit;letter-spacing:inherit;line-height:1.3}
+.doc{padding:.7rem .7rem;border-bottom:1px solid var(--hair);font-size:.9375rem}
+.doc[data-file="Participant"]{background:var(--t-participant)}
+.doc[data-file="Worker"]{background:var(--t-worker)}
+.doc[data-file="Organisation"]{background:var(--t-organisation)}
+.th>.no,.doc>.no{grid-area:no}.th>.title,.doc>.title{grid-area:title}.th>.who,.doc>.who{grid-area:who}
+.th>.when,.doc>.when{grid-area:when}.th>.cb,.doc>.cb{grid-area:cb}.th>.sb,.doc>.sb{grid-area:sb}
+.doc>.ds,.th>.due{grid-area:ds}
+.doc>.no{font-family:var(--sans);font-size:.8125rem;color:var(--grey);padding-top:.1rem}
+.doc .title a{font-weight:700;color:var(--forest);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--forest) 35%,transparent);text-underline-offset:3px}
+.doc .title .type{display:block;color:var(--mid);font-size:.8125rem;margin-top:.1rem}
+.doc>.who{font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--ink)}
+.doc>.who.none{font-weight:400;color:var(--mid)}
+.doc>.cb,.doc>.sb{font-size:.8125rem;color:var(--mid);line-height:1.45}
+.doc>.cb:empty,.doc>.sb:empty{display:none}
+.k,.k2{font-family:var(--sans);font-size:.75rem;color:var(--grey);margin-right:.35rem}
+.k::after,.k2::after{content:":"}
+.ds{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;font-family:var(--sans);font-size:.875rem}
+.due{font-variant-numeric:tabular-nums;color:var(--ink)}
+.pill{font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--mid)}
+.pill.overdue,.pill.missing{color:var(--warn)}
+.pill.soon,.pill.none{color:var(--amber)}
+.pill.ok{color:var(--forest)}
+@container (min-width:46rem){
+  .th,.doc{gap:.25rem 1rem;grid-template-columns:2.2rem minmax(0,1.2fr) 7.5rem minmax(0,1.7fr) 8.5rem;
+    grid-template-areas:"no title who when ds" ". . . cb ." ". . . sb ."}
+  .th{display:grid}.th>.cb,.th>.sb,.th>.st{display:none}
+  .k{display:none}.ds{flex-direction:column;align-items:flex-start;gap:.3rem}
+}
+@container (min-width:76rem){
+  .th,.doc{grid-template-columns:2.2rem minmax(0,1.2fr) 8rem minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr) 6.5rem 9rem;
+    grid-template-areas:"no title who when cb sb due st"}
+  .ds{display:contents}.doc .due,.th>.due{grid-area:due}.doc .st,.th>.st{grid-area:st}
+  .th>.cb,.th>.sb,.th>.st{display:block}
+  .k2{display:none}
+  .doc>.cb,.doc>.sb{font-size:.9375rem;color:var(--body)}
+}
+.empty{padding:2rem 0;color:var(--mid)}
+
+/* Where everything goes. */
+details.destn{margin-top:1.5rem}
+details.destn>summary{cursor:pointer;font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--ink)}
+details.destn>summary span{font-weight:400;color:var(--mid);font-size:.9375rem;margin-left:.4rem}
+details.destn>.say{margin-top:.25rem;font-size:.9375rem}
+.dgroups{columns:20rem;column-gap:2.5rem;margin-top:.9rem}
+.dgroup{break-inside:avoid;margin-bottom:1.2rem}
+.dgroup h3{font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--forest);padding:.35rem .5rem;
+  background:var(--head);border-bottom:1px solid var(--forest)}
+.dgroup ul{list-style:none;margin:0;padding:0}
+.dgroup li{padding:.5rem .5rem;border-bottom:1px solid var(--hair);break-inside:avoid}
+.dgroup li a,.dgroup li .nolink{font-weight:700;color:var(--forest)}
+.dgroup li a{text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--forest) 35%,transparent);text-underline-offset:3px}
+.dgroup .do{display:block;font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--ink);margin-top:.1rem}
+.dgroup .kept{display:block;font-family:var(--sans);font-size:.75rem;color:var(--mid)}
+.dgroup li.pick{display:grid;grid-template-columns:1.5rem minmax(0,1fr);gap:0 .35rem;align-items:start}
+.dgroup li.pick input{width:1rem;height:1rem;margin:.25rem 0 0;accent-color:var(--forest)}
+.compose{margin:.25rem 0 1rem;padding:1rem 1.1rem;background:var(--plate);border:1px solid var(--rule);
+  display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));align-items:end}
+.compose h3{grid-column:1/-1;font-size:1.0625rem;color:var(--forest)}
+.compose .cnt{grid-column:1/-1;font-family:var(--sans);font-size:.875rem;color:var(--mid)}
+.compose label{display:flex;flex-direction:column;gap:.25rem;font-family:var(--sans);font-size:.8125rem;color:var(--mid)}
+.compose input[type=text],.compose input[type=email]{font-family:var(--serif);font-size:1rem;color:var(--ink);background:var(--paper);
+  border:1px solid var(--rule);border-radius:2px;height:2.4rem;padding:0 .6rem}
+.compose input:focus{border-color:var(--forest);outline:none}
+.compose .acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.45rem}
+.compose button{font-family:var(--sans);font-size:.875rem;padding:.5rem .85rem;border-radius:2px;border:1px solid var(--forest);
+  background:transparent;color:var(--forest);cursor:pointer}
+.compose button.go{background:var(--forest);color:var(--paper)}
+.compose button:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.compose button[disabled]{opacity:.45;cursor:not-allowed}
+.compose .fine{grid-column:1/-1;font-family:var(--sans);font-size:.8125rem;color:var(--mid)}
+.compose .said{grid-column:1/-1;font-family:var(--sans);font-size:.875rem;color:var(--forest)}
+.compose .said:empty{display:none}
+
+/* The hub's lists. */
+.jump{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem;margin-top:1rem;font-family:var(--sans);font-size:.875rem}
+.jump a{color:var(--forest);text-decoration:none}
+.grp{margin-top:1.5rem}
+.grp>h3{font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--forest);padding:.35rem .5rem;
+  background:var(--head);border-bottom:1px solid var(--forest)}
+.grp>.say{font-size:.9375rem;margin-top:.4rem}
+.grp.plain>h3{background:none;border:0;padding:0;font-family:var(--serif);font-size:1.15rem;color:var(--ink)}
+.forms{list-style:none;margin:0;padding:0;columns:22rem;column-gap:2rem}  /* a long list runs across the width */
+.forms li{display:grid;gap:.1rem;padding:.55rem .5rem;border-bottom:1px solid var(--hair);break-inside:avoid}
+.forms li[data-file="Participant"]{background:var(--t-participant)}
+.forms li[data-file="Worker"]{background:var(--t-worker)}
+.forms li[data-file="Organisation"]{background:var(--t-organisation)}
+.forms .t{font-weight:700;color:var(--forest)}
+.forms a.t{text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--forest) 35%,transparent);text-underline-offset:3px}
+.act{font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--ink)}
+.act.bad{color:var(--warn)}
+.forms .when{font-size:.8125rem;color:var(--mid)}
+details.more{margin-top:.5rem}
+details.more>summary{cursor:pointer;font-family:var(--sans);font-size:.875rem;color:var(--forest);padding:.3rem 0;width:fit-content}
+.items{list-style:none;margin:.3rem 0 0;padding:0;columns:24rem;column-gap:2.5rem}
+.items li{padding:.45rem 0;border-bottom:1px solid var(--hair);break-inside:avoid}
+.items b{font-weight:700;color:var(--ink)}
+.items span{display:block;font-size:.8125rem;color:var(--mid)}
+.items .head{padding-top:.9rem;font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--forest);break-after:avoid}
+.plan{list-style:none;margin:.5rem 0 0;padding:0;columns:30rem;column-gap:2.5rem}
+.plan li{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--hair);font-size:.9375rem;break-inside:avoid}
+.plan .due{font-family:var(--sans);font-size:.8125rem;font-weight:700;color:var(--forest)}
+.plan .past .due{color:var(--warn)}
+@media(max-width:44rem){.plan li{grid-template-columns:1fr;gap:.1rem}}
+.links{list-style:none;margin:.5rem 0 0;padding:0;columns:26rem;column-gap:2.5rem}
+.links li{padding:.55rem 0;border-bottom:1px solid var(--hair);break-inside:avoid}
+.links a{font-weight:700}
+.links span{display:block;font-size:.8125rem;color:var(--mid)}
+
+/* The letterhead footer: lockup left, company details right. */
+.foot{margin-top:2rem;border-top:1px solid var(--sage);padding:1.25rem var(--gx) 2rem;display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:flex-start}
+.foot .home{line-height:0;margin-right:auto}
+.foot .home img{height:2.3rem;width:auto}
+.foot .co{font-family:var(--sans);font-size:.75rem;line-height:1.6;color:var(--mid);text-align:right}
+.foot .co b{color:var(--ink)}
+.foot .co a{color:var(--mid)}
+.foot .ack{flex-basis:100%;font-family:var(--sans);font-size:.75rem;line-height:1.6;color:var(--grey);max-width:60rem}
+.foot .ack a{color:var(--grey)}
+@media(max-width:40rem){.foot .co{text-align:left}}
+/* The lockup is printed on cream; in dark mode it keeps its own cream plate rather than being recoloured. */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .home{background:#FDFBF6;padding:.35rem .6rem;border-radius:2px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

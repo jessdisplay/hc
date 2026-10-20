@@ -6,157 +6,30 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Harmony Care team hub</title>
 <meta name="description" content="The forms, files and checklist the Harmony Care team uses, in one place.">
-<style>
-:root{
-  --paper:#FBF7EF;--plate:#FFFDF9;--ink:#2E2A26;--muted:#5F564C;
-  --rule:#DFD5C4;--hair:#E7DFD1;--accent:#38553E;--forest:#38553E;
-  --sage:#9EAE8F;--cream:#F3E3CA;--rose:#F17990;--warn:#8A4B2A;
-  --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
-  --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
-  --gut:clamp(1.25rem,4vw,3rem);
-  --k-participant:var(--rose);--k-worker:var(--sage);--k-organisation:var(--muted);
-  --soon:color-mix(in srgb,var(--cream) 90%,var(--plate));
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#B3AA9C;
-  --rule:#333A30;--hair:#272C24;--accent:#A7C08F;--forest:#A7C08F;--cream:#242820;--warn:#E0A87F;
-  --rose:#F38FA4;--sage:#8FA37F;--soon:color-mix(in srgb,var(--muted) 34%,var(--plate));}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);
-  font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.lbl,.btn,.wm,.chip,.act,.stat b,summary,.due{font-family:var(--cond)}
-h1,h2,h3{margin:0;line-height:1.05;letter-spacing:-.015em;text-wrap:balance}
-p{margin:0}
-a{color:var(--accent)}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.wrap{max-width:62rem;margin:0 auto;padding:0 var(--gut)}
-[hidden]{display:none!important}
-
-.skip{position:absolute;left:-9999px;top:0;background:var(--forest);color:var(--paper);
-  padding:.85rem 1.2rem;z-index:99;font-family:var(--cond);letter-spacing:.1em;text-transform:uppercase;font-size:.8125rem}
-.skip:focus{left:0}
-.nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:1.5rem;
-  padding:1.1rem clamp(1.25rem,4vw,3rem);background:color-mix(in srgb,var(--paper) 92%,transparent);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
-.wm-link{display:flex;align-items:center;gap:.85rem;text-decoration:none;color:var(--ink);margin-right:auto}
-.wm-link img{width:4.2rem;height:auto}
-.nav .l{font-family:var(--cond);font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;
-  text-decoration:none;color:var(--ink);opacity:.72}
-.nav .l:hover{opacity:1}
-@media(max-width:64rem){.nav .l{display:none}}
-.wm{line-height:1}
-.wm .a{font-size:1.45rem;font-weight:700}
-.wm .b{font-size:1.45rem;font-weight:200}
-.wm .s{display:block;font-size:.5rem;letter-spacing:.32em;color:var(--muted);margin-top:.22rem;
-  border-top:1px solid var(--rule);padding-top:.22rem}
-
-.intro{padding-block:clamp(2.5rem,6vw,4.5rem) 1.5rem}
-.lbl{font-size:.6875rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.8rem}
-h1{font-size:clamp(2rem,5.2vw,3.4rem);font-weight:700;max-width:20ch}
-.lede{margin-top:1.2rem;font-size:1.125rem;color:var(--muted);max-width:42rem}
-.jump{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.75rem}
-.chip{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;padding:.6rem .85rem;border-radius:3px;
-  border:1.5px solid var(--rule);background:var(--plate);color:var(--ink);text-decoration:none}
-.chip:hover{border-color:var(--sage)}
-
-main{padding-bottom:clamp(3.5rem,8vw,6rem)}
-.sec{margin-top:clamp(2.75rem,6vw,4.5rem);scroll-margin-top:6.5rem}
-.sec>h2{font-size:clamp(1.6rem,3.6vw,2.3rem);font-weight:700;padding-bottom:.7rem;border-bottom:2px solid var(--forest)}
-.sec>.say{margin-top:.8rem;color:var(--muted);max-width:44rem}
-.grp{margin-top:2rem}
-.grp>h3{font-size:1.2rem;font-weight:700;color:var(--forest)}
-.grp>.say{margin-top:.35rem;color:var(--muted);font-size:.9375rem;max-width:44rem}
-
-.forms{list-style:none;margin:.8rem 0 0;padding:0;border-top:1px solid var(--rule)}
-.forms li{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:.2rem 1.25rem;
-  padding:.85rem .9rem;border-bottom:1px solid var(--hair);border-left:4px solid transparent;background:var(--plate)}
-.forms li[data-file="Participant"]{border-left-color:var(--k-participant)}
-.forms li[data-file="Worker"]{border-left-color:var(--k-worker)}
-.forms li[data-file="Organisation"]{border-left-color:var(--k-organisation)}
-.forms a.t{font-weight:600;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent);width:fit-content}
-.forms a.t:hover{border-bottom-color:var(--accent)}
-.forms .t{font-size:1rem}
-.act{font-size:.875rem;font-weight:600;letter-spacing:.02em;color:var(--forest)}
-.act.bad{color:var(--warn)}
-.when{grid-column:1 / -1;font-size:.875rem;color:var(--muted)}
-@media(max-width:44rem){.forms li{grid-template-columns:1fr}}
-
-details.more{margin-top:.8rem}
-details.more>summary{cursor:pointer;font-size:.8125rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
-  padding:.5rem 0;width:fit-content}
-.items{list-style:none;margin:.4rem 0 0;padding:0;border-top:1px solid var(--rule)}
-.items li{padding:.7rem 0;border-bottom:1px solid var(--hair)}
-.items b{font-weight:600}
-.items span{display:block;font-size:.875rem;color:var(--muted)}
-.items .head{padding-top:1.1rem;font-family:var(--cond);font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--forest)}
-
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;margin-top:1rem;
-  background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
-.stat{background:var(--plate);padding:1rem 1.1rem;text-decoration:none;color:inherit}
-.stat b{display:block;font-size:2rem;font-weight:700;line-height:1}
-.stat span{display:block;margin-top:.35rem;font-size:.9375rem;color:var(--muted)}
-.stat.bad b{color:var(--warn)}
-.btns{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
-.btn{display:inline-block;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;padding:.9rem 1.3rem;border-radius:3px;
-  border:1.5px solid var(--forest);background:var(--forest);color:var(--paper);text-decoration:none}
-.btn:hover{background:var(--ink);border-color:var(--ink)}
-.btn.ghost{background:transparent;color:var(--forest)}
-.btn.ghost:hover{background:var(--forest);color:var(--paper)}
-.plan{list-style:none;margin:.8rem 0 0;padding:0;border-top:1px solid var(--rule)}
-.plan li{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--hair);font-size:.9375rem}
-.plan .due{font-size:.8125rem;letter-spacing:.06em;color:var(--forest);font-weight:600}
-.plan .past .due{color:var(--warn)}
-@media(max-width:44rem){.plan li{grid-template-columns:1fr;gap:.1rem}}
-.links{list-style:none;margin:.8rem 0 0;padding:0;border-top:1px solid var(--rule)}
-.links li{padding:.8rem 0;border-bottom:1px solid var(--hair)}
-.links a{font-weight:600}
-.links span{display:block;font-size:.875rem;color:var(--muted)}
-.empty{margin-top:2rem;color:var(--muted)}
-
-.end-art{overflow:clip;border-top:1px solid var(--rule);background:var(--cream)}
-.end-art img{display:block;width:100%;height:clamp(13rem,30vw,24rem);object-fit:cover;object-position:center 34%}
-.foot{border-top:1px solid var(--rule);background:var(--plate);padding-block:clamp(2.5rem,5vw,4rem) 3rem}
-.foot-in{max-width:66rem;margin:0 auto;padding-inline:clamp(1.25rem,4vw,3rem)}
-.foot-in .wm-link img{width:6rem}
-.foot-in .wm .a,.foot-in .wm .b{font-size:2rem}
-.ack{max-width:66rem;margin:clamp(2rem,4vw,3rem) auto 0;padding:1.5rem clamp(1.25rem,4vw,3rem) 0;
-  border-top:1px solid var(--hair);font-size:.8125rem;line-height:1.6;color:var(--muted)}
-.ack b{color:var(--ink);font-weight:600}
-.fine{margin-top:1.25rem;font-size:.75rem}
-.quiet{color:var(--muted);text-decoration:none;border-bottom:1px solid transparent}
-.quiet:hover{color:var(--ink);border-bottom-color:var(--accent)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style>
+<link rel="stylesheet" href="site/team.css">
 </head>
 <body>
 <a class="skip" href="#hub">Skip to the hub</a>
 
 <nav class="nav">
-  <a class="wm-link" href="site/">
-    <img src="site/img/emblem.png" alt="">
-    <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
-      <span class="s">SUPPORT SERVICES</span></span>
-  </a>
-  <a class="l" href="#shift">On shift</a>
-  <a class="l" href="#start">Starting</a>
-  <a class="l" href="#participants">Participants</a>
-  <a class="l" href="#office">Office</a>
-  <a class="l" href="#links">Links</a>
+  <a class="home" href="/"><img src="site/img/hc-lockup.png" alt="Harmony Care Support Services, team hub"></a>
+  <a class="l" href="site/checklist/">Checklist</a>
+  <a class="l" href="site/">Website</a>
+  <span class="doc-type">Team hub</span>
 </nav>
 
 <header class="wrap intro">
-  <span class="lbl">Harmony Care team hub</span>
-  <h1>Everything for work, in one place</h1>
-  <p class="lede">The forms you fill in on shift, what you need before your first shift, the paperwork for each
+  <h1>Harmony Care team hub</h1>
+  <p class="lede">The forms you fill in on shift, what to bring before your first shift, the paperwork for each
     participant, and the checklist that keeps Harmony in date. Every link opens Harmony's own file.</p>
   <nav class="jump" aria-label="Sections">
-    <a class="chip" href="#shift">On shift</a>
-    <a class="chip" href="#start">Starting and leaving</a>
-    <a class="chip" href="#training">Training</a>
-    <a class="chip" href="#participants">Participants</a>
-    <a class="chip" href="#sil">SIL houses</a>
-    <a class="chip" href="#office">For the office</a>
-    <a class="chip" href="#links">Useful links</a>
+    <a href="#shift">On shift</a>
+    <a href="#start">Starting and leaving</a>
+    <a href="#training">Training</a>
+    <a href="#participants">Participants</a>
+    <a href="#sil">SIL houses</a>
+    <a href="#office">For the office</a>
+    <a href="#links">Useful links</a>
   </nav>
 </header>
 
@@ -164,69 +37,70 @@ details.more>summary{cursor:pointer;font-size:.8125rem;letter-spacing:.14em;text
   <section class="sec" id="shift">
     <h2>On shift</h2>
     <p class="say">The forms you fill in while you work. Most of them stay in the participant's file.</p>
-    <div data-pack="Send to workers" data-groups="On every shift|When something happens"></div>
+    <div class="packs" data-pack="Send to workers" data-groups="On every shift|When something happens"></div>
   </section>
 
   <section class="sec" id="start">
     <h2>Starting and leaving</h2>
     <p class="say">What to sign before your first shift, what your staff file needs, and the policies to read at induction.</p>
-    <div data-pack="Send to workers" data-groups="Before they start"></div>
-    <div class="grp">
+    <div class="packs" data-pack="Send to workers" data-groups="Before they start"></div>
+    <div class="grp plain">
       <h3>What your staff file needs</h3>
       <p class="say">Bring these to the office before your first shift. Some renew, so keep them current.</p>
       <details class="more"><summary>Show all items</summary><ul class="items" id="staff"></ul></details>
     </div>
-    <div class="grp">
+    <div class="grp plain">
       <h3>Policies to read at induction</h3>
       <p class="say">Every worker reads these and confirms it on the Staff Induction Checklist.</p>
-      <details class="more"><summary>Show the policies</summary><ul class="forms" id="policies"></ul></details>
+      <details class="more"><summary>Show the policies</summary><ul class="forms policies" id="policies"></ul></details>
     </div>
-    <div data-pack="Send to workers" data-groups="When they leave"></div>
+    <div class="packs" data-pack="Send to workers" data-groups="When they leave"></div>
   </section>
 
   <section class="sec" id="training">
     <h2>Training and supervision</h2>
-    <div data-pack="Send to workers" data-groups="Training and supervision"></div>
+    <div class="packs" data-pack="Send to workers" data-groups="Training and supervision"></div>
   </section>
 
   <section class="sec" id="participants">
     <h2>Supporting a participant</h2>
-    <div data-pack="Send to workers" data-groups="For each participant they support"></div>
-    <div class="grp">
+    <div class="packs" data-pack="Send to workers" data-groups="For each participant they support"></div>
+    <div class="grp plain">
       <h3>Forms for a new participant</h3>
       <p class="say">For whoever does the intake: what the participant, or their guardian or representative,
         fills in or signs. A Harmony staff member explains each form.</p>
     </div>
-    <div data-pack="Send to participants" data-groups="*"></div>
+    <div class="packs" data-pack="Send to participants" data-groups="*"></div>
   </section>
 
   <section class="sec" id="sil">
     <h2>SIL houses</h2>
-    <div data-pack="Send to workers" data-groups="Working in a SIL house"></div>
+    <div class="packs" data-pack="Send to workers" data-groups="Working in a SIL house"></div>
   </section>
 
   <section class="sec" id="office">
     <h2>For the office</h2>
     <p class="say">What is due, the master checklist, and Harmony's folders and registers.</p>
-    <div class="grp">
+    <div class="grp plain">
       <h3>Due now</h3>
       <div class="stats" id="stats"></div>
       <ul class="forms" id="missing"></ul>
     </div>
-    <div class="grp">
+    <div class="grp plain">
       <h3>The checklist</h3>
       <p class="say">Every document Harmony was audited on, by Practice Standard: when it is needed, who fills it in, and when it is next due.</p>
       <div class="btns">
         <a class="btn" href="site/checklist/">Open the checklist</a>
+        <a class="btn ghost" href="site/checklist/#where">Send forms by email</a>
         <a class="btn ghost" href="https://drive.usercontent.google.com/download?id=1eSLKHwDn0XjPRwktHgbnpYybKfWtMCXj&amp;export=download">Download the spreadsheet (Excel)</a>
         <a class="btn ghost" href="https://drive.usercontent.google.com/download?id=19PzVb-DEfYMRz-11Ub-ZMBAtosJHc75l&amp;export=download">Download the PDF</a>
       </div>
     </div>
-    <div class="grp">
+    <div class="grp plain">
       <h3>The year ahead</h3>
       <ul class="plan" id="planner"></ul>
     </div>
-    <div class="grp">
+    <div class="grp plain">
       <h3>Harmony's folders</h3>
       <ul class="links">
         <li><a href="https://drive.google.com/drive/folders/1BiXeIiMjgsz60yvTX5196YtPX8X5sBNq" target="_blank" rel="noopener">Core Module and Module 2A</a>
@@ -235,11 +109,11 @@ details.more>summary{cursor:pointer;font-size:.8125rem;letter-spacing:.14em;text
           <span>As audited on 6 October 2026</span></li>
       </ul>
     </div>
-    <div class="grp">
+    <div class="grp plain">
       <h3>Registers</h3>
       <ul class="forms" id="registers"></ul>
     </div>
-    <div data-pack="Send to practitioners" data-groups="*" data-title="Forms for practitioners and partners"></div>
+    <div class="packs" data-pack="Send to practitioners" data-groups="*" data-title="Forms for practitioners and partners"></div>
   </section>
 
   <section class="sec" id="links">
@@ -261,24 +135,15 @@ details.more>summary{cursor:pointer;font-size:.8125rem;letter-spacing:.14em;text
   <p class="empty" id="err" hidden>The hub could not load its lists. Refresh the page to try again.</p>
 </main>
 
-<div class="end-art" aria-hidden="true"><img src="site/img/making.jpg" alt=""></div>
-
 <footer class="foot">
-  <div class="foot-in">
-    <a class="wm-link" href="site/">
-      <img src="site/img/emblem.png" alt="">
-      <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
-        <span class="s">SUPPORT SERVICES</span></span>
-    </a>
-  </div>
-  <div class="ack">
-    <b>Always was, always will be.</b> Harmony Care Support Services acknowledges
-    Aboriginal and Torres Strait Islander people as the traditional custodians of
-    this land. We pay our respects to the Kabi Kabi / Gubbi Gubbi people, on whose
-    country we live, work and provide support, and to elders past, present and emerging.
-    <p class="fine"><a class="quiet" href="site/">Harmony Care website</a>
-      &middot; <a class="quiet" href="audit-room/">Audit room (August 2026)</a></p>
-  </div>
+  <a class="home" href="/"><img src="site/img/hc-lockup.png" alt="Harmony Care Support Services"></a>
+  <p class="co"><b>Harmony Care Support Services Pty Ltd</b><br>ABN 99 691 543 834 &middot; ACN 691 543 834<br>
+    38 Nash Street, Gympie QLD 4570<br>
+    <a href="mailto:victoria@harmonycaresupportservices.com.au">victoria@harmonycaresupportservices.com.au</a> &middot; 0434 721 051</p>
+  <p class="ack">Harmony Care Support Services acknowledges Aboriginal and Torres Strait Islander people as the
+    traditional custodians of this land, and pays respect to the Kabi Kabi / Gubbi Gubbi people, on whose country
+    we live, work and provide support, and to elders past, present and emerging.
+    <a href="audit-room/">Audit room (August 2026)</a></p>
 </footer>
 
 <script src="site/checklist/status.js"></script>
@@ -314,7 +179,7 @@ details.more>summary{cursor:pointer;font-size:.8125rem;letter-spacing:.14em;text
         var g = p.groups.filter(function(x){ return x.name === n; })[0];
         if(!g) throw new Error('no group ' + n); return g;
       });
-      if(host.dataset.title){ var h = el('div', 'grp'); h.appendChild(el('h3', null, host.dataset.title));
+      if(host.dataset.title){ var h = el('div', 'grp plain'); h.appendChild(el('h3', null, host.dataset.title));
         h.appendChild(el('p', 'say', p.intro)); host.appendChild(h); }
       groups.forEach(function(g){
         var box = el('div', 'grp');

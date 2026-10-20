@@ -21,6 +21,7 @@ from pathlib import Path
 import openpyxl
 from openpyxl.drawing.image import Image as XLImage
 from openpyxl.formatting.rule import FormulaRule
+from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
@@ -29,7 +30,7 @@ from send_lists import SEND_TABS
 HERE = Path(__file__).parent
 STANDARDS = json.loads((HERE / "standards.json").read_text())
 # The lockup cropped, unchanged, from the letterhead band the branded set is printed on.
-LOGO = HERE / "hc-lockup.png"
+LOGO = HERE.parents[1] / "site" / "img" / "hc-lockup.png"  # one copy, shared with the website
 LETTERHEAD_CREAM = "FDFBF6"
 
 # Harmony Care Palette 01 (site/index.html tokens).
@@ -789,6 +790,64 @@ def write_send_tabs(wb, docs, at):
     print(f"  Harmony fills in: {sum(len(g[1]) for g in groups)} rows")
 
 
+# One row per form sent to one person. The website's "Copy rows for the tracker" button gives
+# rows in exactly these first six columns, so they paste straight in. The same fields are what
+# Rise will hold for each send, so the rows can be imported when Harmony moves to it.
+TRACKER_COLS = [("Date sent", 13), ("Sent to", 24), ("Who they are", 20), ("Email", 30), ("Form", 44),
+                ("They need to", 34), ("Returned on", 13), ("Approved by", 20), ("Approved on", 13),
+                ("Status", 30), ("Notes", 40)]
+TRACKER_ROWS = 400
+ROLES = ["Participant", "Worker", "Practitioner or partner"]
+
+
+def write_tracker(wb, at):
+    ws = wb.create_sheet("Sent and returned", at)
+    ws.sheet_properties.tabColor = FOREST
+    for i, (_, w) in enumerate(TRACKER_COLS, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    add_logo(ws, len(TRACKER_COLS))
+    ws["A2"] = "Sent and returned"
+    ws["A2"].font = F(bold=True, size=14, color=FOREST)
+    ws["A3"] = ("One row for each form sent to each person. Paste the rows the website's 'Copy rows for the "
+                "tracker' button gives you, or type them. When the form comes back, type the date in "
+                "'Returned on'; when it is checked, type who approved it and when. Status ticks itself.")
+    ws["A3"].font = F(color=MUTED)
+    head = 5
+    for i, (name, _) in enumerate(TRACKER_COLS, 1):
+        c = ws.cell(head, i, name)
+        c.font = F(bold=True, color="FFFFFF")
+        c.fill = fill(FOREST)
+        c.alignment = Alignment(wrap_text=True, vertical="center")
+    ws.row_dimensions[head].height = 24
+    first, last = head + 1, head + TRACKER_ROWS
+    typed = fill("FFF6DD")  # the staff file tab's colour for cells someone types in
+    for r in range(first, last + 1):
+        for col in range(1, len(TRACKER_COLS) + 1):
+            c = ws.cell(r, col)
+            c.font, c.border, c.alignment = F(), BORDER, Alignment(wrap_text=True, vertical="top")
+            if col != 10:
+                c.fill = typed
+        for col in (1, 7, 9):
+            ws.cell(r, col).number_format = "d mmm yyyy"
+        ws.cell(r, 10).value = (f'=IF(E{r}="","",IF(I{r}<>"","\u2713 Done and approved",IF(G{r}<>"",'
+                                f'"Returned: check and approve",IF(AND(ISNUMBER(A{r}),A{r}<TODAY()-14),'
+                                f'"Chase up: sent over 2 weeks ago","Waiting for it to come back"))))')
+        ws.cell(r, 10).font = F(bold=True)
+    dv = DataValidation(type="list", formula1='"' + ",".join(ROLES) + '"', allow_blank=True)
+    ws.add_data_validation(dv)
+    dv.add(f"C{first}:C{last}")
+    rng = f"J{first}:J{last}"
+    for text, colour in (("Done", "D7EBD5"), ("Returned", "FCE8B2"), ("Chase", "F4C7C3")):
+        ws.conditional_formatting.add(rng, FormulaRule(formula=[f'ISNUMBER(SEARCH("{text}",J{first}))'],
+                                                       fill=fill(colour)))
+    ws.freeze_panes = f"A{first}"
+    ws.auto_filter.ref = f"A{head}:{get_column_letter(len(TRACKER_COLS))}{last}"
+    ws.page_setup.orientation = "landscape"
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth, ws.page_setup.fitToHeight = 1, 0
+    ws.print_title_rows = f"{head}:{head}"
+
+
 def fix_start_here(wb, end):
     ws = wb["Start here"]
     ws["A1"] = None  # the lockup says the name
@@ -808,7 +867,8 @@ def fix_start_here(wb, end):
                     "participant's file, green for each worker's file, cream for the organisation's records. "
                     "Click a title to open the file. Filter by 'Filled in for' or 'Status'. The 'Send to' tabs "
                     "list what goes out to participants, workers and practitioners, and what each has to do; "
-                    "'Harmony fills in' lists the forms that never leave the office.")
+                    "'Harmony fills in' lists the forms that never leave the office. 'Sent and returned' "
+                    "tracks each form sent out until it is back and approved.")
             elif isinstance(c.value, str) and c.value.startswith("After a review"):
                 ws.cell(c.row, c.column + 1).value = (
                     "Type into the green-grey columns: the date in 'Last reviewed', and the version, approver and "
@@ -908,6 +968,7 @@ def main(base, out):
     del wb["All documents"]
     _, end = write_checklist(wb, order, at)
     write_send_tabs(wb, docs, at + 1)
+    write_tracker(wb, at + 1 + len(SEND_TABS) + 1)
     fix_start_here(wb, end)
     add_staff_items(wb, docs)
     forest_not_plum(wb)

@@ -6,224 +6,19 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Harmony Care documents and forms</title>
 <meta name="description" content="Every document and form Harmony Care holds, by NDIS Practice Standard: when each is needed, who fills it in and whether it is in date.">
-<style>
-:root{
-  --paper:#FBF7EF;--plate:#FFFDF9;--ink:#2E2A26;--muted:#5F564C;
-  --rule:#DFD5C4;--hair:#E7DFD1;--accent:#38553E;--forest:#38553E;
-  --sage:#9EAE8F;--cream:#F3E3CA;--rose:#F17990;--warn:#8A4B2A;
-  --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
-  --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
-  --gut:clamp(1.25rem,4vw,3rem);
-  --gx:clamp(1.25rem,4vw,3rem);  /* one gutter: the logo, the bar and every row line up */
-  /* whose file a form belongs in */
-  --t-participant:color-mix(in srgb,var(--rose) 16%,var(--plate));
-  --t-worker:color-mix(in srgb,var(--sage) 26%,var(--plate));
-  --t-organisation:color-mix(in srgb,var(--cream) 70%,var(--plate));
-  --k-participant:var(--rose);--k-worker:var(--sage);--k-organisation:var(--muted);
-  --soon:color-mix(in srgb,var(--cream) 90%,var(--plate));
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#141712;--plate:#1B1F19;--ink:#EFE8DB;--muted:#B3AA9C;
-  --rule:#333A30;--hair:#272C24;--accent:#A7C08F;--forest:#A7C08F;--cream:#242820;--warn:#E0A87F;
-  --rose:#F38FA4;--sage:#8FA37F;
-  --t-participant:color-mix(in srgb,var(--rose) 14%,var(--plate));
-  --t-worker:color-mix(in srgb,var(--sage) 18%,var(--plate));
-  --t-organisation:color-mix(in srgb,var(--muted) 16%,var(--plate));
-  --soon:color-mix(in srgb,var(--muted) 34%,var(--plate));}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);
-  font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.lbl,.btn,.wm,.chip,.pill,.stat b,.th,.no,.cite,summary,.ctl label{font-family:var(--cond)}
-h1,h2,h3{margin:0;line-height:1.05;letter-spacing:-.015em;text-wrap:balance}
-p{margin:0}
-a{color:var(--accent)}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-html{font-size:clamp(100%,.25vw + 85%,118.75%)}  /* type grows on big screens instead of shrinking into the middle */
-.wrap{padding:0 var(--gx)}
-
-.skip{position:absolute;left:-9999px;top:0;background:var(--forest);color:var(--paper);
-  padding:.85rem 1.2rem;z-index:99;font-family:var(--cond);letter-spacing:.1em;text-transform:uppercase;font-size:.8125rem}
-.skip:focus{left:0}
-.nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:1.5rem;
-  padding:1.1rem clamp(1.25rem,4vw,3rem);background:color-mix(in srgb,var(--paper) 92%,transparent);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
-.wm-link{display:flex;align-items:center;gap:.85rem;text-decoration:none;color:var(--ink);margin-right:auto}
-.wm-link img{width:4.2rem;height:auto}
-.nav .l{font-family:var(--cond);font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;
-  text-decoration:none;color:var(--ink);opacity:.72}
-.nav .l:hover{opacity:1}
-@media(max-width:64rem){.nav .l{display:none}}
-.wm{line-height:1}
-.wm .a{font-size:1.45rem;font-weight:700}
-.wm .b{font-size:1.45rem;font-weight:200}
-.wm .s{display:block;font-size:.5rem;letter-spacing:.32em;color:var(--muted);margin-top:.22rem;
-  border-top:1px solid var(--rule);padding-top:.22rem}
-
-.intro{padding-block:clamp(2.5rem,6vw,4.5rem) 1.75rem}
-.lbl{font-size:.6875rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.8rem}
-h1{font-size:clamp(2rem,5.2vw,3.4rem);font-weight:700;max-width:22ch}
-.intro .lede{margin-top:1.2rem;font-size:1.125rem;color:var(--muted);max-width:44rem}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:1px;margin-top:2rem;
-  background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
-.stat{background:var(--plate);padding:1rem 1.1rem;text-align:left;font:inherit;color:inherit;border:0;cursor:pointer}
-.stat:hover{background:color-mix(in srgb,var(--sage) 10%,var(--plate))}
-.stat[aria-pressed="true"]{box-shadow:inset 0 -3px 0 var(--forest)}
-.stat b{display:block;font-size:2rem;font-weight:700;line-height:1}
-.stat span{display:block;margin-top:.35rem;font-size:.9375rem;color:var(--muted)}
-.stat.overdue b{color:var(--warn)}
-.asof{margin-top:.9rem;font-size:.9375rem;color:var(--muted)}
-.btn{display:inline-block;margin-top:1.5rem;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;
-  padding:.9rem 1.3rem;border-radius:3px;border:1.5px solid var(--forest);background:var(--forest);color:var(--paper);text-decoration:none}
-.btn:hover{background:var(--ink);border-color:var(--ink)}
-.btns{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem}.btns .btn{margin-top:0}
-.btn.ghost{background:transparent;color:var(--forest)}.btn.ghost:hover{background:var(--forest);color:var(--paper)}
-.btn-note{display:block;margin-top:.5rem;font-size:.875rem;color:var(--muted)}
-.legend{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;margin-top:1.5rem;font-size:.9375rem;color:var(--muted)}
-.legend i{display:inline-block;width:1.1rem;height:1.1rem;border-radius:2px;vertical-align:-.15rem;margin-right:.45rem;border-left:4px solid}
-
-.bar{position:sticky;top:var(--navh,5.6rem);z-index:20;background:color-mix(in srgb,var(--paper) 94%,transparent);
-  backdrop-filter:blur(10px);border-block:1px solid var(--rule);padding:.85rem 0}
-.bar .wrap{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center}
-.chips{display:flex;flex-wrap:wrap;gap:.4rem}
-.chip{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;padding:.55rem .8rem;border-radius:3px;
-  border:1.5px solid var(--rule);background:var(--plate);color:var(--ink);cursor:pointer}
-.chip:hover{border-color:var(--sage)}
-.chip[aria-pressed="true"]{background:var(--forest);border-color:var(--forest);color:var(--paper)}
-.chip .dot{display:inline-block;width:.6rem;height:.6rem;border-radius:50%;margin-right:.45rem;vertical-align:.05rem}
-.ctl{display:flex;align-items:center;gap:.5rem;margin-left:auto}
-.ctl label{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-.ctl input{font:inherit;font-size:1rem;color:var(--ink);background:var(--plate);border:1.5px solid var(--rule);
-  border-radius:3px;height:2.6rem;padding:0 .75rem;width:min(16rem,60vw)}
-.ctl input:focus{border-color:var(--accent);outline:none}
-.showing{font-size:.9375rem;color:var(--muted);width:100%}
-@media(max-width:48rem){.bar{position:static}.ctl{margin-left:0;width:100%}.ctl input{flex:1;width:auto}}
-
-.also-links{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-top:1.25rem;font-family:var(--cond);
-  font-size:.75rem;letter-spacing:.16em;text-transform:uppercase}
-.also-links a{text-decoration:none;color:var(--ink);border-bottom:1px solid var(--rule)}
-.also-links a:hover{border-bottom-color:var(--accent)}
-.where{margin-top:clamp(2.5rem,5vw,4rem);margin-bottom:clamp(2rem,4vw,3rem);scroll-margin-top:calc(var(--navh,5.6rem) + 1rem)}
-.where>h2{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:700;padding-bottom:.7rem;border-bottom:2px solid var(--forest)}
-.where>.say{margin-top:.8rem;color:var(--muted);max-width:44rem}
-details.destn{margin-top:1.75rem;border-left:4px solid var(--rule);padding-left:1.1rem}
-details.destn[data-key="Send to participants"]{border-left-color:var(--k-participant)}
-details.destn[data-key="Send to workers"]{border-left-color:var(--k-worker)}
-details.destn>summary{cursor:pointer;font-family:var(--cond);font-size:1.25rem;font-weight:700;color:var(--forest);list-style-position:outside}
-details.destn>summary span{font-weight:400;color:var(--muted);font-size:1rem;margin-left:.5rem}
-details.destn>.say{margin-top:.35rem;color:var(--muted);font-size:.9375rem;max-width:52rem}
-.dgroups{columns:20rem;column-gap:2.75rem;margin-top:1rem}
-.dgroup{break-inside:avoid;margin-bottom:1.4rem}
-.dgroup h3{font-size:.8125rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;
-  padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
-.dgroup ul{list-style:none;margin:0;padding:0}
-.dgroup li{padding:.55rem 0;border-bottom:1px solid var(--hair);break-inside:avoid}
-.dgroup li a,.dgroup li .nolink{font-weight:600;text-decoration:none}
-.dgroup li a{border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
-.dgroup .do{display:block;font-family:var(--cond);font-size:.875rem;font-weight:600;color:var(--forest);margin-top:.15rem}
-.dgroup .kept{display:block;font-size:.8125rem;color:var(--muted)}
-.toc{display:flex;flex-wrap:wrap;gap:.35rem 1.5rem;padding:1.5rem 0 0;font-family:var(--cond);
-  font-size:.75rem;letter-spacing:.16em;text-transform:uppercase}
-.toc a{text-decoration:none;color:var(--ink);border-bottom:1px solid var(--rule)}
-.toc a:hover{border-bottom-color:var(--accent)}
-
-main{padding-bottom:clamp(3.5rem,8vw,6rem);scroll-margin-top:calc(var(--navh,5.6rem) + var(--barh,6rem))}
-.module{margin-top:clamp(2.5rem,5vw,4rem);scroll-margin-top:calc(var(--navh,5.6rem) + 7rem)}
-.module>h2{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:700;padding-bottom:.7rem;border-bottom:2px solid var(--forest)}
-.std{margin-top:2.25rem;scroll-margin-top:calc(var(--navh,5.6rem) + 7rem)}
-/* Wide screens: the standard on the left, staying in view while its documents scroll past on the right. */
-@media(min-width:80rem){
-  .std{display:grid;grid-template-columns:clamp(18rem,22vw,30rem) minmax(0,1fr);gap:0 clamp(2rem,3vw,4rem);align-items:start}
-  .std-head{position:sticky;top:calc(var(--navh,5.6rem) + var(--barh,6rem) + 1.25rem);
-    max-height:calc(100vh - var(--navh,5.6rem) - var(--barh,6rem) - 2.5rem);overflow-y:auto;padding-right:.5rem}
-  .std .docs{margin-top:0}
-}
-.std h3{font-size:1.3rem;font-weight:700;color:var(--forest)}
-.cite{display:block;margin-top:.3rem;font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.outcome{margin-top:.7rem;max-width:52rem;font-style:italic}
-details.ind{margin-top:.6rem;max-width:52rem}
-details.ind summary{cursor:pointer;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);width:fit-content;padding:.2rem 0}
-details.ind ol{margin:.6rem 0 0;padding-left:0;list-style:none;font-size:.9375rem;color:var(--muted)}
-details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre-line}
-.also{margin-top:.6rem;font-size:.9375rem;color:var(--muted)}
-
-.docs{margin-top:1rem;border-top:1px solid var(--rule);container-type:inline-size}
-/* Rows lay out by the width the table gets, not the window: beside a standard on a wide
-   screen, full width on a laptop, stacked on a phone. */
-.th,.doc{display:grid;gap:.35rem .75rem;align-items:start;
-  grid-template-columns:2rem minmax(0,1fr) auto;
-  grid-template-areas:"no title title" ". who who" ". when when" ". cb cb" ". sb sb" ". ds ds"}
-.th{display:none;font-size:.625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:.6rem .9rem}
-.doc{padding:.9rem .9rem;border-bottom:1px solid var(--hair);border-left:4px solid transparent;font-size:.9375rem}
-.doc[data-file="Participant"]{background:var(--t-participant);border-left-color:var(--k-participant)}
-.doc[data-file="Worker"]{background:var(--t-worker);border-left-color:var(--k-worker)}
-.doc[data-file="Organisation"]{background:var(--t-organisation);border-left-color:var(--k-organisation)}
-.no{grid-area:no}.title{grid-area:title}.who{grid-area:who}.when{grid-area:when}
-.cb{grid-area:cb}.sb{grid-area:sb}.ds,.th .due{grid-area:ds}
-.ds{display:flex;justify-content:space-between;align-items:center;gap:.75rem}  /* next due and status travel together */
-.no{font-size:.8125rem;color:var(--muted);padding-top:.15rem}
-.title a{font-weight:600;font-size:1rem;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
-.title a:hover{border-bottom-color:var(--accent)}
-.title .type{display:block;color:var(--muted);font-size:.875rem;margin-top:.15rem}
-.who{font-family:var(--cond);font-size:.8125rem;font-weight:600;letter-spacing:.02em}
-.who.none{font-weight:400;color:var(--muted)}
-.cb,.sb{font-size:.875rem;color:var(--muted);line-height:1.5}
-.cb:empty,.sb:empty{display:none}
-.th>span{font:inherit;color:inherit;letter-spacing:inherit;line-height:1.3;padding:0}  /* headings share area names with the cells, not their looks */
-.k,.k2{color:var(--muted);font-family:var(--cond);font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;margin-right:.45rem}
-.due{font-variant-numeric:tabular-nums}
-.pill{display:inline-block;font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .55rem;
-  border-radius:2px;line-height:1.25;background:var(--hair);color:var(--ink)}
-.pill.overdue,.pill.missing{background:color-mix(in srgb,var(--warn) 22%,var(--plate))}
-.pill.soon{background:var(--soon)}
-.pill.ok{background:color-mix(in srgb,var(--sage) 34%,var(--plate))}
-@container (min-width:46rem){
-  /* next due and status share a column, so the document and its timing get the room */
-  .th,.doc{gap:.3rem 1.1rem;grid-template-columns:2.2rem minmax(0,1.2fr) 7.5rem minmax(0,1.7fr) 8.5rem;
-    grid-template-areas:"no title who when ds" ". . . cb ." ". . . sb ."}
-  .th{display:grid}.th .cb,.th .sb,.th .st{display:none}
-  .k{display:none}.ds{flex-direction:column;align-items:flex-start;gap:.55rem}
-}
-@container (min-width:76rem){
-  .th,.doc{grid-template-columns:2.2rem minmax(0,1.2fr) 8.5rem minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr) 6.5rem 9.5rem;
-    grid-template-areas:"no title who when cb sb due st"}
-  .ds{display:contents}.doc .due,.th .due{grid-area:due}.doc .st,.th .st{grid-area:st}
-  .th .cb,.th .sb,.th .st{display:block}
-  .k2{display:none}
-  .doc .cb,.doc .sb{font-size:.9375rem;color:var(--ink)}
-}
-.empty{padding:2rem 0;color:var(--muted)}
-[hidden]{display:none!important}
-
-.end-art{overflow:clip;border-top:1px solid var(--rule);background:var(--cream)}
-.end-art img{display:block;width:100%;height:clamp(13rem,30vw,24rem);object-fit:cover;object-position:center 34%}
-.foot{border-top:1px solid var(--rule);background:var(--plate);padding-block:clamp(2.5rem,5vw,4rem) 3rem}
-.foot-in{padding-inline:var(--gx)}
-.foot-in .wm-link img{width:6rem}
-.foot-in .wm .a,.foot-in .wm .b{font-size:2rem}
-.ack{margin:clamp(2rem,4vw,3rem) var(--gx) 0;padding:1.5rem 0 0;max-width:60rem;
-  border-top:1px solid var(--hair);font-size:.8125rem;line-height:1.6;color:var(--muted)}
-.ack b{color:var(--ink);font-weight:600}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style>
+<link rel="stylesheet" href="../team.css">
 </head>
 <body>
 <a class="skip" href="#list">Skip to the documents</a>
 
 <nav class="nav">
-  <a class="wm-link" href="../">
-    <img src="../img/emblem.png" alt="">
-    <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
-      <span class="s">SUPPORT SERVICES</span></span>
-  </a>
+  <a class="home" href="/"><img src="../img/hc-lockup.png" alt="Harmony Care Support Services, team hub"></a>
   <a class="l" href="/">Team hub</a>
-  <a class="l" href="../#work">What we do</a>
-  <a class="l" href="../#services">Services</a>
-  <a class="l" href="../#story">Our story</a>
-  <a class="l" href="../#who">Who we are</a>
+  <a class="l" href="../">Website</a>
+  <span class="doc-type">Checklist</span>
 </nav>
 
 <header class="wrap intro">
-  <span class="lbl">For the Harmony Care team</span>
   <h1>Every document and form, by Practice Standard</h1>
   <p class="lede">Everything Harmony was audited on, set out under the NDIS Practice Standard it meets:
     what each standard asks for, when each document is needed, who fills it in, and whether it is due for review.</p>
@@ -259,9 +54,9 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
   <div class="wrap">
     <div class="chips" id="who" role="group" aria-label="Show">
       <button class="chip" data-who="" aria-pressed="true">Everything</button>
-      <button class="chip" data-who="Participant" aria-pressed="false"><span class="dot" style="background:var(--k-participant)"></span>Participant forms</button>
-      <button class="chip" data-who="Worker" aria-pressed="false"><span class="dot" style="background:var(--k-worker)"></span>Worker forms</button>
-      <button class="chip" data-who="Organisation" aria-pressed="false"><span class="dot" style="background:var(--k-organisation)"></span>Organisation forms</button>
+      <button class="chip" data-who="Participant" aria-pressed="false"><span class="dot" style="background:var(--t-participant)"></span>Participant forms</button>
+      <button class="chip" data-who="Worker" aria-pressed="false"><span class="dot" style="background:var(--t-worker)"></span>Worker forms</button>
+      <button class="chip" data-who="Organisation" aria-pressed="false"><span class="dot" style="background:var(--t-organisation)"></span>Organisation forms</button>
       <button class="chip" data-who="none" aria-pressed="false">Policies and guides</button>
     </div>
     <div class="ctl"><label for="q">Find</label><input id="q" type="search" placeholder="A document or form" autocomplete="off"></div>
@@ -275,22 +70,14 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
   <p class="empty" id="empty" hidden>Nothing matches. Clear the search or choose Everything.</p>
 </main>
 
-<div class="end-art" aria-hidden="true"><img src="../img/making.jpg" alt=""></div>
-
 <footer class="foot">
-  <div class="foot-in">
-    <a class="wm-link" href="../">
-      <img src="../img/emblem.png" alt="">
-      <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
-        <span class="s">SUPPORT SERVICES</span></span>
-    </a>
-  </div>
-  <div class="ack">
-    <b>Always was, always will be.</b> Harmony Care Support Services acknowledges
-    Aboriginal and Torres Strait Islander people as the traditional custodians of
-    this land. We pay our respects to the Kabi Kabi / Gubbi Gubbi people, on whose
-    country we live, work and provide support, and to elders past, present and emerging.
-  </div>
+  <a class="home" href="/"><img src="../img/hc-lockup.png" alt="Harmony Care Support Services"></a>
+  <p class="co"><b>Harmony Care Support Services Pty Ltd</b><br>ABN 99 691 543 834 &middot; ACN 691 543 834<br>
+    38 Nash Street, Gympie QLD 4570<br>
+    <a href="mailto:victoria@harmonycaresupportservices.com.au">victoria@harmonycaresupportservices.com.au</a> &middot; 0434 721 051</p>
+  <p class="ack">Harmony Care Support Services acknowledges Aboriginal and Torres Strait Islander people as the
+    traditional custodians of this land, and pays respect to the Kabi Kabi / Gubbi Gubbi people, on whose country
+    we live, work and provide support, and to elders past, present and emerging.</p>
 </footer>
 
 <script src="status.js"></script>
@@ -343,7 +130,7 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
         head.appendChild(el('p','outcome', s.outcome));
         if(s.indicators.length){
           var det = el('details','ind');
-          det.appendChild(el('summary', null, 'Indicators to be demonstrated (' + s.indicators.length + ')'));
+          det.appendChild(el('summary', null, 'Show the ' + s.indicators.length + ' indicators to be demonstrated'));
           var ol = el('ol'); s.indicators.forEach(function(t){ ol.appendChild(el('li', null, t)); });
           det.appendChild(ol); head.appendChild(det);
         }
@@ -429,6 +216,81 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
 
   var KEPT = {Participant:"Kept in the participant's file", Worker:"Kept in the worker's staff file",
               Organisation:"Kept in the office records"};
+  // Sending a pack: nothing typed here is stored or sent anywhere; it only fills in an email.
+  var ROLE = {'Send to participants':'Participant', 'Send to workers':'Worker', 'Send to practitioners':'Practitioner or partner'};
+  var OPENING = {
+    'Send to participants': "Here are the forms for your supports with Harmony Care. We will go through each one with you, so please ask if anything is unclear. When you have filled them in and signed where it asks, reply to this email with them attached, or bring them to us.",
+    'Send to workers': "Here are the forms you need to complete for Harmony Care. Open each link, fill it in and sign where it asks, then reply to this email with them attached.",
+    'Send to practitioners': "Here are the documents we need your help with, and what we need you to do with each. Please reply to this email with them attached when they are done."
+  };
+  function isoDay(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function composer(p, picks){
+    var box = el('div','compose');
+    box.appendChild(el('h3', null, 'Send these by email'));
+    var cnt = el('p','cnt'); box.appendChild(cnt);
+    var nameL = el('label', null, 'Their name'), name = el('input'); name.type = 'text'; name.autocomplete = 'off'; nameL.appendChild(name);
+    var mailL = el('label', null, 'Their email'), mail = el('input'); mail.type = 'email'; mail.autocomplete = 'off'; mailL.appendChild(mail);
+    box.appendChild(nameL); box.appendChild(mailL);
+    var acts = el('div','acts');
+    var all = el('button', null, 'Tick all'), gm = el('button','go', 'Open in Gmail'), mt = el('button', null, 'Open in your email app'),
+        cp = el('button', null, 'Copy the email'), tr = el('button', null, 'Copy rows for the tracker');
+    [all, gm, mt, cp, tr].forEach(function(b){ b.type = 'button'; acts.appendChild(b); });
+    box.appendChild(acts);
+    var said = el('p','said'); said.setAttribute('role','status'); box.appendChild(said);
+    box.appendChild(el('p','fine', "Nothing you type here is saved or sent anywhere: it only fills in the email. Then paste the tracker rows into the 'Sent and returned' tab of the spreadsheet."));
+
+    function chosen(){ return picks.filter(function(x){ return x.box.checked; }); }
+    function refresh(){
+      var n = chosen().length;
+      cnt.textContent = n ? n + (n === 1 ? ' form ticked.' : ' forms ticked.') : 'Tick the forms to send, above.';
+      [gm, mt, cp, tr].forEach(function(b){ b.disabled = !n; });
+      all.textContent = n === picks.length ? 'Untick all' : 'Tick all';
+    }
+    picks.forEach(function(x){ x.box.addEventListener('change', function(){ said.textContent = ''; refresh(); }); });
+    all.addEventListener('click', function(){
+      var on = chosen().length !== picks.length;
+      picks.forEach(function(x){ x.box.checked = on; }); refresh();
+    });
+    function email(){
+      var who = name.value.trim(), lines = ['Hi ' + (who || 'there') + ',', '', OPENING[p.key], ''], group = null;
+      chosen().forEach(function(x){
+        if(x.group !== group){ group = x.group; lines.push(group); }
+        lines.push('- ' + x.d.title + ': ' + x.action);
+        if(x.d.url) lines.push('  ' + x.d.url);
+      });
+      lines.push('', 'Thank you,', 'Harmony Care Support Services', '0434 721 051');
+      return {to: mail.value.trim(), subject: 'Forms from Harmony Care Support Services', body: lines.join('\n')};
+    }
+    function copy(text, done){
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+        .then(function(){ said.textContent = done; })
+        .catch(function(){ said.textContent = 'Your browser would not copy. Select the text and copy it yourself.'; });
+    }
+    gm.addEventListener('click', function(){
+      var e = email();
+      window.open('https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(e.to) + '&su=' +
+        encodeURIComponent(e.subject) + '&body=' + encodeURIComponent(e.body), '_blank', 'noopener');
+      said.textContent = 'Gmail opened in a new tab. Check it, then press Send.';
+    });
+    mt.addEventListener('click', function(){
+      var e = email(), url = 'mailto:' + encodeURIComponent(e.to) + '?subject=' + encodeURIComponent(e.subject) +
+        '&body=' + encodeURIComponent(e.body).replace(/%0A/g, '%0D%0A');
+      if(url.length > 1900) said.textContent = 'This email is long. If it does not open complete, use Copy the email instead.';
+      else said.textContent = 'Your email app should open with the email ready. Check it, then press Send.';
+      location.href = url;
+    });
+    cp.addEventListener('click', function(){
+      var e = email(); copy('To: ' + e.to + '\nSubject: ' + e.subject + '\n\n' + e.body, 'Email copied. Paste it into a new email.');
+    });
+    tr.addEventListener('click', function(){
+      var day = isoDay(new Date()), who = name.value.trim(), to = mail.value.trim();
+      var rows = chosen().map(function(x){ return [day, who, ROLE[p.key], to, x.d.title, x.action].join('\t'); });
+      copy(rows.join('\n'), rows.length + ' rows copied. Paste them into the first empty row of Sent and returned.');
+    });
+    refresh();
+    return box;
+  }
+
   function buildWhere(hub, data){
     var byNo = {}; data.docs.forEach(function(d){ byNo[d.no] = d; });
     var host = document.getElementById('dest'), narrow = innerWidth < 768;
@@ -437,22 +299,30 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
       var det = el('details','destn'); det.dataset.key = p.key; if(!narrow) det.open = true;
       var sum = el('summary', null, p.title); sum.appendChild(el('span', null, n + ' forms')); det.appendChild(sum);
       det.appendChild(el('p','say', p.intro));
-      var cols = el('div','dgroups');
+      var cols = el('div','dgroups'), sendable = !!ROLE[p.key], picks = [];
       p.groups.forEach(function(g){
         if(!g.items.length) return;
         var box = el('div','dgroup'); box.appendChild(el('h3', null, g.name));
         var ul = el('ul');
         g.items.forEach(function(it){
-          var d = byNo[it.no], li = el('li');
-          if(d.url){ var a = el('a', null, d.title); a.href = d.url; a.target = '_blank'; a.rel = 'noopener'; li.appendChild(a); }
-          else li.appendChild(el('span','nolink', d.title));
-          li.appendChild(el('span','do', it.action));
-          if(d.file) li.appendChild(el('span','kept', KEPT[d.file]));
+          var d = byNo[it.no], li = el('li'), body = li;
+          if(sendable){
+            li.className = 'pick'; body = el('div');
+            var box = el('input'); box.type = 'checkbox'; box.setAttribute('aria-label', 'Send ' + d.title);
+            li.appendChild(box); li.appendChild(body);
+            picks.push({box: box, d: d, action: it.action, group: g.name});
+          }
+          if(d.url){ var a = el('a', null, d.title); a.href = d.url; a.target = '_blank'; a.rel = 'noopener'; body.appendChild(a); }
+          else body.appendChild(el('span','nolink', d.title));
+          body.appendChild(el('span','do', it.action));
+          if(d.file) body.appendChild(el('span','kept', KEPT[d.file]));
           ul.appendChild(li);
         });
         box.appendChild(ul); cols.appendChild(box);
       });
-      det.appendChild(cols); host.appendChild(det);
+      det.appendChild(cols);
+      if(sendable) det.appendChild(composer(p, picks));
+      host.appendChild(det);
     });
   }
 
