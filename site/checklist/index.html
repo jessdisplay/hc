@@ -131,7 +131,7 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
 .due{font-variant-numeric:tabular-nums}
 .pill{display:inline-block;font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .55rem;
   border-radius:2px;line-height:1.25;background:var(--hair);color:var(--ink)}
-.pill.overdue{background:color-mix(in srgb,var(--warn) 22%,var(--plate))}
+.pill.overdue,.pill.missing{background:color-mix(in srgb,var(--warn) 22%,var(--plate))}
 .pill.soon{background:var(--soon)}
 .pill.ok{background:color-mix(in srgb,var(--sage) 34%,var(--plate))}
 .k{display:none}
@@ -245,7 +245,7 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
   var today = new Date(); var TODAY = iso(today);
   var soon = new Date(today); soon.setDate(soon.getDate()+30); var SOON = iso(soon);
   function statusOf(d){
-    if(d.fixed_status) return {key:'fixed', label:d.fixed_status};
+    if(d.fixed_status) return {key: d.fixed_status === 'Missing' ? 'missing' : 'fixed', label:d.fixed_status};
     if(!d.next_due) return {key:'none', label:STATUS.none};
     if(d.next_due < TODAY) return {key:'overdue', label:STATUS.overdue};
     if(d.next_due < SOON) return {key:'soon', label:STATUS.soon};

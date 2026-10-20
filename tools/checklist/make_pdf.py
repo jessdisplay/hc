@@ -60,6 +60,8 @@ def main(xlsx, renderer, out):
         return f'<link href="{esc(d["url"])}" color="#{rail}"><u>{title}</u></link>'
 
     def status(d):
+        if d["fixed_status"] == "Missing":
+            return "Missing", HexColor("#8A4B2A")
         if d["fixed_status"]:
             return d["fixed_status"], GREY
         due = d["next_due"]

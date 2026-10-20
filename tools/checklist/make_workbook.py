@@ -12,6 +12,7 @@ is the master, and export_web.py reads it for the website page.
 
     python3 make_workbook.py BASE.xlsx OUT.xlsx
 """
+import datetime
 import json
 import re
 import sys
@@ -120,6 +121,7 @@ TITLE_OVERRIDE = {
     "WorkCover Queensland certificate of currency": "12",
     "Internal Audit Schedule (Module 2A)": "13",  # 13(2): the internal audit program
     "Subject to a Significant Risk Factor Register": "20",  # 20(2A): reliance on the provider
+    "Statement of support for the reduction and elimination of the use of restrictive practice": "47",  # 47(3)
     # both training records serve every Module 1 support ('wound' in the new titles must not file them under 35)
     "High Intensity Worker Training Plan and Competency Record (with wound care)": "M1-ALL",
     "High Intensity Worker Training Plan and Competency Record (without wound care)": "M1-ALL",
@@ -185,6 +187,118 @@ HARMONY_NOTES = {
     "Wound Observation and Dressing Chart": WOUND, "Complex Wound Management (Easy Read)": WOUND,
 }
 VERSIONS = json.loads((HERE / "versions.json").read_text())  # from read_versions.py
+# Harmony's Document Register as audited (Brittany's Documents folder): every row is version 1,
+# approved by Victoria J Scilipote in October 2023, next review October 2025. It fills only what a
+# document's own approval block and the 16 Oct calendar left empty. (The Rise version's copy of the
+# register reads October 2026; the audited copy is the record, so it is the one used.)
+DOCUMENT_REGISTER = {  # register entry -> the checklist titles it covers
+    'Administering Medication Checklist & Medication Chart': ['Administering Medication Checklist and Medication Chart'],
+    'Advocacy of Support Person Request Form': ['Advocacy or Support Person Request Form'],
+    'Business Plan': ['Business Plan'],
+    'Business Continuity and Disaster Management Plan': ['Business Continuity, Emergency and Disaster Preparedness Management Plan'],
+    'Change of Supports': ['Change to Supports Agreement'],
+    'Client Cash Reconciliation': ['Client Cash Reconciliation'],
+    'Client Emergency Plan': ['Client Emergency Plan'],
+    'Client Information Booklet': ['Client Information Booklet'],
+    'Client Information Booklet (Easy Read)': ['Client Information Booklet (Easy Read)'],
+    'Client Induction Checklist': ['Client Induction Checklist'],
+    'Client Intake Form': ['Client Intake Form'],
+    'Client Support Plan': ['Client Support Plan'],
+    'Client Survey': ['Client Survey'],
+    'Collection & Storage of Medicine Register': ['Collection and Storage of Medicine Register'],
+    'Complaints Register': ['Complaints Register'],
+    'Conflict of Interest Declaration': ['Conflict of Interest Declaration (support coordination)'],
+    'Conflict of Interest Register': ['Conflict of Interest Register'],
+    'Continuous Improvement Register': ['Continuous Improvement Register'],
+    'Delegation of Authority': ['Delegation of Authority'],
+    'Emergency Waste Management Plan': ['Emergency Waste Management Plan'],
+    'Emergency Test Register': ['Emergency Test Register'],
+    'Exit and Transition Form': ['Exit and Transition Form'],
+    'Exit Interview Form': ['Exit Interview Form'],
+    'Feedback and Complaints Assessment, Investigation and Resolution Considerations': ['Feedback and Complaints Assessment, Investigation and Resolution Considerations'],
+    'Feedback and Complaints Criteria for Complaint Manager or Incident Manager': ['Criteria for Complaint Manager or Incident Manager'],
+    'Feedback and Complaints Form': ['Feedback and Complaints Form'],
+    'Feedback and Complaints Procedural Fairness Considerations': ['Feedback and Complaints Procedural Fairness Considerations'],
+    'Feedback and Complaints Summary': ['Feedback and Complaints Summary'],
+    'Feedback and Compliments Register': ['Feedback and Compliments Register'],
+    'HR Performance Appraisal': ['HR Performance Appraisal'],
+    'Incident Management Register': ['Incident Management Register'],
+    'Incident Report Form': ['Incident Report Form'],
+    'Internal Audit Schedule': ['Internal Audit Schedule (Core)'],
+    'Interview Report Pro Forma': ['Interview Report Pro Forma (Recruitment and Selection Report)'],
+    'Legislation Register': ['Legislation Register'],
+    'Management Meeting Agenda': ['Management Meeting Agenda and Minutes'],
+    'Managing and Reducing Known Risks Matrix': ['Managing and Reducing Known Risks Matrix'],
+    'Mealtime Management Care Plan': ['Mealtime Management Plan'],
+    'Money and Property Consent Form': ['Money and Property Consent Form'],
+    'My NDIS Support Record': ['Worker Timesheets (NDIS Support Record)'],
+    'Policy Register': ['Policy Register'],
+    'Position Descriptions': ['Position Description: Principal', 'Position Description: Disability Support Worker', 'Position Description: Disability Support Worker (Employment Consultant)', 'Position Description: Disability Support Worker (second version)', 'Position Description: Disability Support Worker (Travel and Transport)', 'Position Description: Support Coordinator'],
+    'Potential Staff Reference Check Form': ['Potential Staff Reference Check Form'],
+    'Pre Employment Collection Form': ['Pre Employment Collection Form'],
+    'Privacy Consent Form': ['Privacy Consent Form'],
+    'Progress Notes Template': ['Progress Notes Template'],
+    'Risk Assessment Form': ['Risk Assessment Form'],
+    'Risk Assessed Role Register': ['Risk Assessed Role Register (Human Resources Risk Assessed Role Register)'],
+    'Risk Taking Form': ['Risk Taking Form'],
+    'Risk Register': ['Risk Register'],
+    'SDA and SIL Collaboration Agreement': ['SDA and SIL Collaboration Agreement'],
+    'Service Schedule': ['Services and Supports Schedule'],
+    'Services Agreement': ['Services Agreement'],
+    'SIL Services Agreement': ['Services Agreement (SIL)'],
+    'Support Coordination Services Agreement': ['Support Coordination Services Agreement'],
+    'Services Medication and Participant Details': ['Services Medication and Participant Details'],
+    'Staff Exit Checklist': ['Staff Exit Checklist'],
+    'Staff File Checklist': ['Staff File Checklist'],
+    'Staff Induction Checklist': ['Staff Induction Checklist'],
+    'Staff Performance Improvement Plan': ['Staff Performance Improvement Plan'],
+    'Subject to a Significant Risk Factor': ['Subject to a Significant Risk Factor Register'],
+    'Training and Development Register': ['Training and Development Register'],
+    'Training Feedback Form': ['Training Feedback Form'],
+    'Waste Management Plan': ['Waste Management Plan'],
+    'Waste Management Report': ['Waste Management Report'],
+    'Waste Removal Records Register': ['Waste Removal Records Register'],
+    'WHS Walk-Around Risk Assessment Checklist': ['Work Health and Home Safety Risk Assessment Checklist'],
+    'Worker Declarations': ['Worker Declarations'],
+    'Worker Supervision Record': ['Worker Supervision Record'],
+    'ABC Data Form': ['ABC Data Form'],
+    'Behaviour Support Plan': ['Behaviour Support Plan (Comprehensive)'],
+    'Coaching Form for PBSP': ['Coaching Form for Positive Behaviour Support Plan'],
+    'Disability Support Worker Position Description (IBS)': ['Position Description: Disability Support Worker (Implementing Behaviour Supports)'],
+    'Interim Behaviour Support Plan': ['Behaviour Support Plan (Interim)'],
+    'Register for PBSP that contain a regulated restrictive practice': ['Restrictive Practices Register (plans with a regulated restrictive practice)'],
+    'Review Register for PBSP that contain a regulated restrictive practice': ['Review Register for Behaviour Support Plans with a Regulated Restrictive Practice'],
+    'Statement of support for the reduction and elimination of the use of restrictive practice': ['Statement of support for the reduction and elimination of the use of restrictive practice'],
+    'Template Letter to SBSP': ['Template Letter to PBSP (behaviour support practitioner)'],
+}
+REGISTER_ROW = {"version": "1", "approved_by": "Victoria J Scilipote", "approval_date": "October 2023"}
+REGISTER_REVIEW = datetime.datetime(2025, 10, 31)
+
+# Documents Harmony should hold that no audited folder has. Shown with the status 'Missing'.
+MISSING_DOCS = [
+    {"title": "Statement of support for the reduction and elimination of the use of restrictive practice",
+     "area": "Module 2A: Implementing behaviour support plans", "type": "Statement", "for": "Organisation",
+     "when": "In force at all times: Harmony's stated commitment to reducing and eliminating restrictive "
+             "practices (indicator 47(3)).",
+     "how_often": "Review by the date in the Document Register (October 2025).",
+     "completed_by": "Principal", "signed_by": "Principal", "kept_where": "No file found",
+     "next_review": REGISTER_REVIEW, "review_months": 24,
+     "rule": "Document Register: version 1, approved October 2023, next review October 2025",
+     "notes": "Listed in Harmony's Document Register, but no file was found in the audited folders or the Rise "
+              "version. Find it, or write it before the next audit."},
+    {"title": "NDIS certificate of registration", "area": "Business and registration",
+     "type": "Business paper", "for": "Organisation",
+     "when": "Held at all times. Shows Harmony's registration groups and the date registration ends.",
+     "how_often": "Renew before the end date on the certificate (see 'Rules and sources', item 13).",
+     "completed_by": "Issued by the NDIS Quality and Safeguards Commission", "signed_by": "Not signed",
+     "kept_where": "No file found", "next_review": None, "review_months": None,
+     "rule": "'Rules and sources', item 13",
+     "notes": "Not in the audited folders: the 'RegistrationCertificate.pdf' there is a Queensland vehicle "
+              "registration. File the Commission's certificate here so the registration end date can be tracked."},
+]
+for _d in MISSING_DOCS:
+    _d.update(id=None, url=None, last_reviewed=None, fixed_status="Missing")
+
 
 FILLED_IN = {"Form", "Register", "Plan", "Record", "Checklist", "Chart", "Agreement", "Template"}
 FILE_OF = {"Each client": "Participant", "Each behaviour support plan": "Participant",
@@ -340,6 +454,19 @@ def enrich(docs):
             d["approved_by"] = "Victoria J Scilipote"
         if own.get("approval_date"):
             d["approval_date"] = own["approval_date"]
+    for entry, titles in DOCUMENT_REGISTER.items():
+        for title in titles:
+            matches = [d for d in docs if d["title"] == title]
+            if not matches:
+                raise SystemExit(f"Document Register entry {entry!r} names no document {title!r}")
+            for d in matches:
+                for key, value in REGISTER_ROW.items():
+                    if not d.get(key):
+                        d[key] = value
+                if not d["next_review"]:
+                    d["next_review"] = REGISTER_REVIEW
+                    d["notes"] = _add(d["notes"], f"Review date from Harmony's Document Register "
+                                                  f"('{entry}': October 2025).")
     for title, (field, value, why) in CORRECTIONS.items():
         d = by_title[title]
         d[field] = value
@@ -540,7 +667,8 @@ def write_checklist(wb, order, at):
     red, amber, green, grey = fill("F4C7C3"), fill("FCE8B2"), fill("D7EBD5"), fill("E8E4E0")
     rng = f"{st}{HEADER_ROW + 1}:{st}{end}"
     for value, f_ in (("Overdue", red), ("Due within 30 days", amber), ("No review date on record", amber),
-                      ("In date", green), ("Superseded", grey), ("Working copy", grey), ("Draft", grey)):
+                      ("In date", green), ("Superseded", grey), ("Working copy", grey), ("Draft", grey),
+                      ("Missing", red)):
         ws.conditional_formatting.add(rng, FormulaRule(formula=[f'{st}{HEADER_ROW + 1}="{value}"'], fill=f_))
     rng = f"{due}{HEADER_ROW + 1}:{due}{end}"
     ws.conditional_formatting.add(rng, FormulaRule(
@@ -562,7 +690,7 @@ def write_checklist(wb, order, at):
 
 SEND_COLS = [("No.", 6), ("Form (opens the file)", 46), ("They need to", 30), ("When it is needed", 44),
              ("Who fills it in", 32), ("Who signs", 32), ("Practice Standard", 30)]
-NOT_SENT = ("Superseded", "Working copy", "Draft")
+NOT_SENT = ("Superseded", "Working copy", "Draft", "Missing")
 
 
 def _send_sheet(wb, at, name, title, intro, tint, tab_colour, groups):
@@ -653,6 +781,7 @@ def fix_start_here(wb, end):
     ws = wb["Start here"]
     ws["A1"] = None  # the lockup says the name
     add_logo(ws, 2)
+    rv_row = None
     ws["A2"] = "Documents, forms and compliance calendar"
     st = get_column_letter(COL["Status"])
     for row in ws.iter_rows():
@@ -672,10 +801,78 @@ def fix_start_here(wb, end):
                 ws.cell(c.row, c.column + 1).value = (
                     "Type into the green-grey columns: the date in 'Last reviewed', and the version, approver and "
                     "approval date. Next due and Status update by themselves.")
+            elif c.value == "Module 1 and SIL":
+                rv_row = c.row + 1
             elif isinstance(c.value, str) and c.value.startswith("Built 16 October 2026"):
                 c.value = c.value.replace("Built 16 October 2026",
                                           "Built 16 October 2026, set out by Practice Standard 19 October 2026,")
+    # Two lines the 16 Oct sheet had no room for, written into its blank spacer rows.
+    from copy import copy
+    if rv_row is None or ws.cell(rv_row, 1).value is not None or ws.cell(27, 1).value is not None:
+        raise SystemExit("Start here has changed; the spacer rows are no longer blank")
+    for row, label, text in (
+            (27, "Missing from the folders",
+             "Two documents Harmony should hold are not in any folder: the 'Statement of support for the "
+             "reduction and elimination of the use of restrictive practice' (listed in the Document Register) "
+             "and the NDIS certificate of registration. Both are on the Checklist tab as 'Missing'."),
+            (rv_row, "Rise version",
+             "The same documents, with each policy split into a Policy and a separate Procedure (26 "
+             "procedures). The checklist lists the audited document, which holds both.")):
+        for col, v in ((1, label), (2, text)):
+            # labels take the style of the section they join; the text is plain wrapped prose
+            src = ws.cell(rv_row - 1 if (row == rv_row and col == 1) else 26, col)
+            dst = ws.cell(row, col)
+            dst.value = v
+            dst.font, dst.fill = copy(src.font), copy(src.fill)
+            dst.alignment = Alignment(wrap_text=True, vertical="top")
     ws.title = "Start here"
+
+
+# On Harmony's own Staff File Checklist but not yet on the staff file tab. Appended below its last
+# row: Team at a glance finds items by name, so the rows above keep their places.
+STAFF_FILE_ADDITIONS = [  # (item, who needs it, what to keep, renew, applies)
+    ("Letter of offer", "All workers", "Signed letter of offer", "Once", '="Yes"'),
+    ("Salary sacrifice arrangement", "Workers who salary sacrifice", "Signed arrangement", "Once", "No"),
+    ("Private motor vehicle use agreement", "Drivers", "Signed agreement to use their own car for work, with "
+     "the vehicle details", "Once, and when the car changes", '=IF($B$9="Yes","Yes","No")'),
+    ("User account", "All workers", "Account set up; removed when they leave", "Removed when they leave", '="Yes"'),
+    ("Mobile phone issued", "Workers given a phone", "What was issued and when; returned when they leave",
+     "Returned when they leave", "No"),
+    ("Credit card issued", "Workers given a card", "Card issued and its limit; returned when they leave",
+     "Returned when they leave", "No"),
+    ("Office key issued", "Workers given a key", "Key issued; returned when they leave",
+     "Returned when they leave", "No"),
+]
+
+
+def add_staff_items(wb, docs):
+    from copy import copy
+    ws = wb["Staff file (copy per worker)"]
+    form_url = next(d["url"] for d in docs if d["title"] == "Staff File Checklist")
+    last = ws.max_row
+    if ws.cell(last, 2).value != "Unlinked in the NDIS Commission Portal; file kept 7 years":
+        raise SystemExit("the staff file tab has changed; check where its rows end before appending")
+    cf = next(c for c in ws.conditional_formatting if str(c.sqref) == f"I22:I{last}")
+    for n, (item, who, keep, renew, applies) in enumerate(STAFF_FILE_ADDITIONS, last + 1):
+        for col in range(1, 12):
+            src, dst = ws.cell(last, col), ws.cell(n, col)
+            dst.font, dst.fill, dst.border = copy(src.font), copy(src.fill), copy(src.border)
+            dst.alignment, dst.number_format = copy(src.alignment), src.number_format
+        values = ["Also on Harmony's Staff File Checklist", item, who, keep, "Staff File Checklist", renew, None,
+                  None, f'=IF(K{n}="No","Not needed",IF(AND(G{n}="",H{n}=""),"Missing",IF(H{n}="","Held",'
+                        f'IF(H{n}<TODAY(),"Expired",IF(H{n}<TODAY()+60,"Renew soon","In date")))))',
+                  "Harmony Staff File Checklist." + ("" if applies.startswith("=") else
+                                                     " Type Yes in Applies if this worker has one."), applies]
+        for col, v in enumerate(values, 1):
+            ws.cell(n, col).value = v
+        ws.cell(n, 5).hyperlink = form_url
+        if not applies.startswith("="):
+            ws.cell(n, 11).fill = copy(ws.cell(last, 7).fill)  # the input colour: someone types here
+    end = last + len(STAFF_FILE_ADDITIONS)
+    for rule in cf.rules:
+        new = copy(rule)
+        new.formula = [f.replace(f"I22", f"I{last + 1}") for f in rule.formula]
+        ws.conditional_formatting.add(f"I{last + 1}:I{end}", new)
 
 
 def forest_not_plum(wb):
@@ -692,6 +889,7 @@ def forest_not_plum(wb):
 
 def main(base, out):
     wb, docs = read_base(base)
+    docs += [dict(d) for d in MISSING_DOCS]
     enrich(docs)
     order = groups(docs)
     at = wb.sheetnames.index("All documents")
@@ -699,6 +897,7 @@ def main(base, out):
     _, end = write_checklist(wb, order, at)
     write_send_tabs(wb, docs, at + 1)
     fix_start_here(wb, end)
+    add_staff_items(wb, docs)
     forest_not_plum(wb)
     wb.active = 0
     wb.save(out)
