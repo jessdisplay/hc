@@ -897,6 +897,15 @@ def fix_start_here(wb, end):
             dst.value = v
             dst.font, dst.fill = copy(src.font), copy(src.fill)
             dst.alignment = Alignment(wrap_text=True, vertical="top")
+    # Rows whose text was lengthened here keep the 16 Oct sheet's one-line height unless told otherwise.
+    width = ws.column_dimensions["B"].width or 90
+    for row in ws.iter_rows(min_row=4, max_col=2):
+        text = row[1].value
+        if isinstance(text, str) and len(text) > width:
+            lines = sum(max(1, -(-len(part) // int(width * 1.15))) for part in text.split("\n"))
+            ws.row_dimensions[row[1].row].height = lines * 15 + 4
+            for c in row:  # the label sits beside the first line of its text, not under the last
+                c.alignment = Alignment(wrap_text=True, vertical="top")
     ws.title = "Start here"
 
 

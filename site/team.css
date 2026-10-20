@@ -67,9 +67,12 @@ h1{font-size:clamp(1.75rem,3.2vw,2.3rem)}
 .legend i{display:inline-block;width:.9rem;height:.9rem;vertical-align:-.12rem;margin-right:.4rem;border:1px solid var(--rule)}
 
 /* Section headings, as the PDF sets them. */
-.module,.where,.sec{margin-top:clamp(2rem,4vw,3rem);scroll-margin-top:calc(var(--barh,0px) + 1rem)}
-.module>h2,.where>h2,.sec>h2{font-size:1.5rem;color:var(--forest);padding-bottom:.4rem;border-bottom:1px solid var(--forest)}
+.module,.where,.sec,.sheet{margin-top:clamp(2rem,4vw,3rem);scroll-margin-top:calc(var(--barh,0px) + 1rem)}
+.module>h2,.where>h2,.sec>h2,.sheet>h2{font-size:1.5rem;color:var(--forest);padding-bottom:.4rem;border-bottom:1px solid var(--forest)}
 .say{margin-top:.5rem;color:var(--mid);max-width:50rem}
+
+/* The spreadsheet itself, in Drive's own viewer: always the current file, never a copy. */
+.sheet iframe{display:block;width:100%;height:min(85vh,62rem);margin-top:.9rem;border:1px solid var(--rule);background:var(--plate)}
 
 /* Filter line, sticky while reading. */
 .bar{position:sticky;top:0;z-index:20;background:var(--paper);border-block:1px solid var(--hair);padding:.6rem 0}
