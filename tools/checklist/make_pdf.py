@@ -158,27 +158,12 @@ def main(xlsx, renderer, out):
                                           [.04, .25, .11, .1, .3, .08, .12], tints)]
 
     # Parts 2 onwards: who each form goes to
-    by_title = {}
-    for d in docs:
-        if d["fixed_status"] not in mw.NOT_SENT:
-            by_title.setdefault(d["title"], []).append(d)
-    sent = set()
-    tabs = []
-    for t in SEND_TABS:
-        groups = [(g, [(d, act) for title, act in entries for d in by_title[title]]) for g, entries in t["groups"]]
-        sent |= {title for _, entries in t["groups"] for title, _ in entries}
-        tint = mw.TINT.get(t["colour"]) if t["colour"] != "Organisation" else None
-        tabs.append((t["title"], t["intro"], tint, groups))
-    kept = {"Participant": [], "Worker": [], "Organisation": []}
-    for d in docs:
-        if d["file"] and d["title"] not in sent and d["fixed_status"] not in mw.NOT_SENT:
-            kept[d["file"]].append((d, "Harmony fills it in"))
+    sent, kept = mw.destinations(docs)
+    tabs = [(t["title"], t["intro"], mw.TINT.get(t["colour"]) if t["colour"] != "Organisation" else None, groups)
+            for t, groups in sent]
     tabs.append(("Forms Harmony fills in itself (not sent out)",
                  "Registers, records and plans the Principal, Director or Key Management Personnel complete "
-                 "and keep.", mw.TINT["Organisation"],
-                 [("Kept in each participant's file", kept["Participant"]),
-                  ("Kept in each worker's file", kept["Worker"]),
-                  ("The organisation's own records", kept["Organisation"])]))
+                 "and keep.", mw.TINT["Organisation"], kept))
     for i, (title, intro, tint, groups) in enumerate(tabs, 2):
         story += [PageBreak(), Paragraph(f"PART {i}. {esc(title).upper()}", st["h1"]),
                   Paragraph(esc(intro), st["covers"])]

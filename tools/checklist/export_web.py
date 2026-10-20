@@ -17,7 +17,6 @@ from pathlib import Path
 import openpyxl
 
 import make_workbook as mw
-from send_lists import SEND_TABS
 
 OUT = Path(__file__).resolve().parents[2] / "site" / "checklist" / "checklist.json"
 HUB = OUT.with_name("hub.json")
@@ -77,18 +76,16 @@ def structure(docs):
 
 
 def hub(path, docs):
-    """The send-out packs as document numbers, plus the staff file and year planner tabs."""
-    numbers = {}
-    for d in docs:
-        if d["fixed_status"] not in mw.NOT_SENT:
-            numbers.setdefault(d["title"], []).append(d["no"])
-    packs = []
-    for t in SEND_TABS:
-        groups = []
-        for name, entries in t["groups"]:
-            items = [{"no": n, "action": action} for title, action in entries for n in numbers[title]]
-            groups.append({"name": name, "items": items})
-        packs.append({"key": t["tab"], "title": t["title"], "intro": t["intro"], "groups": groups})
+    """Where every form goes (as document numbers), plus the staff file and year planner tabs."""
+    sent, kept = mw.destinations(docs)
+    as_groups = lambda groups: [{"name": name, "items": [{"no": d["no"], "action": a} for d, a in rows]}
+                                for name, rows in groups]
+    packs = [{"key": t["tab"], "title": t["title"], "intro": t["intro"], "groups": as_groups(groups)}
+             for t, groups in sent]
+    packs.append({"key": "Harmony fills in", "title": "Harmony fills these in itself",
+                  "intro": "Registers, records and plans the Principal, Director or Key Management Personnel "
+                           "complete and keep. Nobody outside Harmony needs to be sent these.",
+                  "groups": as_groups(kept)})
     wb = openpyxl.load_workbook(path)
     ws = wb["Staff file (copy per worker)"]
     head = [c.value for c in ws[21]]

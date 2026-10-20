@@ -743,14 +743,21 @@ def _send_sheet(wb, at, name, title, intro, tint, tab_colour, groups):
     ws.print_title_rows = f"{HEADER_ROW}:{HEADER_ROW}"
 
 
-def write_send_tabs(wb, docs, at):
-    """The 'Send to' tabs, then 'Harmony fills in' for every form on none of them."""
+KEPT_GROUPS = (("Participant", "Kept in each participant's file"), ("Worker", "Kept in each worker's file"),
+               ("Organisation", "The organisation's own records"))
+
+
+def destinations(docs):
+    """Where every form goes. The Excel tabs, the PDF and the website all read this one answer.
+
+    Returns ([(send tab, [(group, [(doc, action)])])], [(group, [(doc, action)])]): each 'Send to'
+    list resolved to documents, then the forms on none of them, which Harmony fills in itself."""
     by_title = {}
     for d in docs:
         if d["fixed_status"] not in NOT_SENT:
             by_title.setdefault(d["title"], []).append(d)
-    sent = set()
-    for i, tab in enumerate(SEND_TABS):
+    sent, out = set(), []
+    for tab in SEND_TABS:
         groups = []
         for group, entries in tab["groups"]:
             rows = []
@@ -760,17 +767,22 @@ def write_send_tabs(wb, docs, at):
                 rows += [(d, action) for d in by_title[title]]
                 sent.add(title)
             groups.append((group, rows))
+        out.append((tab, groups))
+    kept = [(label, [(d, "Harmony fills it in") for d in docs
+                     if d["file"] == f and d["title"] not in sent and d["fixed_status"] not in NOT_SENT])
+            for f, label in KEPT_GROUPS]
+    return out, kept
+
+
+def write_send_tabs(wb, docs, at):
+    """The 'Send to' tabs, then 'Harmony fills in' for every form on none of them."""
+    sent, kept = destinations(docs)
+    for i, (tab, groups) in enumerate(sent):
         tint = TINT.get(tab["colour"]) if tab["colour"] != "Organisation" else None
         _send_sheet(wb, at + i, tab["tab"], tab["title"], tab["intro"], tint,
                         {"Participant": ROSE, "Worker": SAGE}.get(tab["colour"], FOREST), groups)
         print(f"  {tab['tab']}: {sum(len(g[1]) for g in groups)} rows")
-    kept = {"Participant": [], "Worker": [], "Organisation": []}
-    for d in docs:
-        if d["file"] and d["title"] not in sent and d["fixed_status"] not in NOT_SENT:
-            kept[d["file"]].append((d, "Harmony fills it in"))
-    groups = [("Kept in each participant's file", kept["Participant"]),
-              ("Kept in each worker's file", kept["Worker"]),
-              ("The organisation's own records", kept["Organisation"])]
+    groups = kept
     _send_sheet(wb, at + len(SEND_TABS), "Harmony fills in", "Harmony fills these in itself (not sent out)",
                 "Registers, records and plans the Principal, Director or Key Management Personnel complete and "
                 "keep. Nobody outside Harmony needs to be sent these.", TINT["Organisation"], CREAM, groups)

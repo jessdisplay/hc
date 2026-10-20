@@ -14,6 +14,7 @@
   --serif:Palatino,"Palatino Linotype","Book Antiqua",Georgia,serif;
   --cond:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif;
   --gut:clamp(1.25rem,4vw,3rem);
+  --gx:clamp(1.25rem,4vw,3rem);  /* one gutter: the logo, the bar and every row line up */
   /* whose file a form belongs in */
   --t-participant:color-mix(in srgb,var(--rose) 16%,var(--plate));
   --t-worker:color-mix(in srgb,var(--sage) 26%,var(--plate));
@@ -37,7 +38,8 @@ h1,h2,h3{margin:0;line-height:1.05;letter-spacing:-.015em;text-wrap:balance}
 p{margin:0}
 a{color:var(--accent)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.wrap{max-width:76rem;margin:0 auto;padding:0 var(--gut)}
+html{font-size:clamp(100%,.25vw + 85%,118.75%)}  /* type grows on big screens instead of shrinking into the middle */
+.wrap{padding:0 var(--gx)}
 
 .skip{position:absolute;left:-9999px;top:0;background:var(--forest);color:var(--paper);
   padding:.85rem 1.2rem;z-index:99;font-family:var(--cond);letter-spacing:.1em;text-transform:uppercase;font-size:.8125rem}
@@ -96,15 +98,45 @@ h1{font-size:clamp(2rem,5.2vw,3.4rem);font-weight:700;max-width:22ch}
 .showing{font-size:.9375rem;color:var(--muted);width:100%}
 @media(max-width:48rem){.bar{position:static}.ctl{margin-left:0;width:100%}.ctl input{flex:1;width:auto}}
 
+.also-links{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-top:1.25rem;font-family:var(--cond);
+  font-size:.75rem;letter-spacing:.16em;text-transform:uppercase}
+.also-links a{text-decoration:none;color:var(--ink);border-bottom:1px solid var(--rule)}
+.also-links a:hover{border-bottom-color:var(--accent)}
+.where{margin-top:clamp(2.5rem,5vw,4rem);margin-bottom:clamp(2rem,4vw,3rem);scroll-margin-top:calc(var(--navh,5.6rem) + 1rem)}
+.where>h2{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:700;padding-bottom:.7rem;border-bottom:2px solid var(--forest)}
+.where>.say{margin-top:.8rem;color:var(--muted);max-width:44rem}
+details.destn{margin-top:1.75rem;border-left:4px solid var(--rule);padding-left:1.1rem}
+details.destn[data-key="Send to participants"]{border-left-color:var(--k-participant)}
+details.destn[data-key="Send to workers"]{border-left-color:var(--k-worker)}
+details.destn>summary{cursor:pointer;font-family:var(--cond);font-size:1.25rem;font-weight:700;color:var(--forest);list-style-position:outside}
+details.destn>summary span{font-weight:400;color:var(--muted);font-size:1rem;margin-left:.5rem}
+details.destn>.say{margin-top:.35rem;color:var(--muted);font-size:.9375rem;max-width:52rem}
+.dgroups{columns:20rem;column-gap:2.75rem;margin-top:1rem}
+.dgroup{break-inside:avoid;margin-bottom:1.4rem}
+.dgroup h3{font-size:.8125rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;
+  padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
+.dgroup ul{list-style:none;margin:0;padding:0}
+.dgroup li{padding:.55rem 0;border-bottom:1px solid var(--hair);break-inside:avoid}
+.dgroup li a,.dgroup li .nolink{font-weight:600;text-decoration:none}
+.dgroup li a{border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+.dgroup .do{display:block;font-family:var(--cond);font-size:.875rem;font-weight:600;color:var(--forest);margin-top:.15rem}
+.dgroup .kept{display:block;font-size:.8125rem;color:var(--muted)}
 .toc{display:flex;flex-wrap:wrap;gap:.35rem 1.5rem;padding:1.5rem 0 0;font-family:var(--cond);
   font-size:.75rem;letter-spacing:.16em;text-transform:uppercase}
 .toc a{text-decoration:none;color:var(--ink);border-bottom:1px solid var(--rule)}
 .toc a:hover{border-bottom-color:var(--accent)}
 
-main{padding-bottom:clamp(3.5rem,8vw,6rem)}
+main{padding-bottom:clamp(3.5rem,8vw,6rem);scroll-margin-top:calc(var(--navh,5.6rem) + var(--barh,6rem))}
 .module{margin-top:clamp(2.5rem,5vw,4rem);scroll-margin-top:calc(var(--navh,5.6rem) + 7rem)}
 .module>h2{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:700;padding-bottom:.7rem;border-bottom:2px solid var(--forest)}
 .std{margin-top:2.25rem;scroll-margin-top:calc(var(--navh,5.6rem) + 7rem)}
+/* Wide screens: the standard on the left, staying in view while its documents scroll past on the right. */
+@media(min-width:80rem){
+  .std{display:grid;grid-template-columns:clamp(18rem,22vw,30rem) minmax(0,1fr);gap:0 clamp(2rem,3vw,4rem);align-items:start}
+  .std-head{position:sticky;top:calc(var(--navh,5.6rem) + var(--barh,6rem) + 1.25rem);
+    max-height:calc(100vh - var(--navh,5.6rem) - var(--barh,6rem) - 2.5rem);overflow-y:auto;padding-right:.5rem}
+  .std .docs{margin-top:0}
+}
 .std h3{font-size:1.3rem;font-weight:700;color:var(--forest)}
 .cite{display:block;margin-top:.3rem;font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .outcome{margin-top:.7rem;max-width:52rem;font-style:italic}
@@ -114,32 +146,50 @@ details.ind ol{margin:.6rem 0 0;padding-left:0;list-style:none;font-size:.9375re
 details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre-line}
 .also{margin-top:.6rem;font-size:.9375rem;color:var(--muted)}
 
-.docs{margin-top:1rem;border-top:1px solid var(--rule)}
-.th,.doc{display:grid;grid-template-columns:2.4rem minmax(0,1.5fr) 8.5rem minmax(0,1.35fr) 6.5rem 9.5rem;gap:0 1rem;align-items:start}
-.th{font-size:.625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:.6rem .9rem}
-.doc{padding:.85rem .9rem;border-bottom:1px solid var(--hair);border-left:4px solid transparent;font-size:.9375rem}
+.docs{margin-top:1rem;border-top:1px solid var(--rule);container-type:inline-size}
+/* Rows lay out by the width the table gets, not the window: beside a standard on a wide
+   screen, full width on a laptop, stacked on a phone. */
+.th,.doc{display:grid;gap:.35rem .75rem;align-items:start;
+  grid-template-columns:2rem minmax(0,1fr) auto;
+  grid-template-areas:"no title title" ". who who" ". when when" ". cb cb" ". sb sb" ". ds ds"}
+.th{display:none;font-size:.625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:.6rem .9rem}
+.doc{padding:.9rem .9rem;border-bottom:1px solid var(--hair);border-left:4px solid transparent;font-size:.9375rem}
 .doc[data-file="Participant"]{background:var(--t-participant);border-left-color:var(--k-participant)}
 .doc[data-file="Worker"]{background:var(--t-worker);border-left-color:var(--k-worker)}
 .doc[data-file="Organisation"]{background:var(--t-organisation);border-left-color:var(--k-organisation)}
+.no{grid-area:no}.title{grid-area:title}.who{grid-area:who}.when{grid-area:when}
+.cb{grid-area:cb}.sb{grid-area:sb}.ds,.th .due{grid-area:ds}
+.ds{display:flex;justify-content:space-between;align-items:center;gap:.75rem}  /* next due and status travel together */
 .no{font-size:.8125rem;color:var(--muted);padding-top:.15rem}
 .title a{font-weight:600;font-size:1rem;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
 .title a:hover{border-bottom-color:var(--accent)}
 .title .type{display:block;color:var(--muted);font-size:.875rem;margin-top:.15rem}
 .who{font-family:var(--cond);font-size:.8125rem;font-weight:600;letter-spacing:.02em}
 .who.none{font-weight:400;color:var(--muted)}
-.when small{display:block;margin-top:.3rem;color:var(--muted);font-size:.8125rem;line-height:1.45}
+.cb,.sb{font-size:.875rem;color:var(--muted);line-height:1.5}
+.cb:empty,.sb:empty{display:none}
+.th>span{font:inherit;color:inherit;letter-spacing:inherit;line-height:1.3;padding:0}  /* headings share area names with the cells, not their looks */
+.k,.k2{color:var(--muted);font-family:var(--cond);font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;margin-right:.45rem}
 .due{font-variant-numeric:tabular-nums}
 .pill{display:inline-block;font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .55rem;
   border-radius:2px;line-height:1.25;background:var(--hair);color:var(--ink)}
 .pill.overdue,.pill.missing{background:color-mix(in srgb,var(--warn) 22%,var(--plate))}
 .pill.soon{background:var(--soon)}
 .pill.ok{background:color-mix(in srgb,var(--sage) 34%,var(--plate))}
-.k{display:none}
-@media(max-width:64rem){
-  .th{display:none}
-  .doc{grid-template-columns:2rem minmax(0,1fr) auto;grid-template-areas:"no title title" ". who who" ". when when" ". due st";gap:.4rem .75rem}
-  .no{grid-area:no}.title{grid-area:title}.who{grid-area:who}.when{grid-area:when}.due{grid-area:due}.st{grid-area:st;justify-self:end}
-  .k{display:inline;color:var(--muted);font-family:var(--cond);font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;margin-right:.4rem}
+@container (min-width:46rem){
+  /* next due and status share a column, so the document and its timing get the room */
+  .th,.doc{gap:.3rem 1.1rem;grid-template-columns:2.2rem minmax(0,1.2fr) 7.5rem minmax(0,1.7fr) 8.5rem;
+    grid-template-areas:"no title who when ds" ". . . cb ." ". . . sb ."}
+  .th{display:grid}.th .cb,.th .sb,.th .st{display:none}
+  .k{display:none}.ds{flex-direction:column;align-items:flex-start;gap:.55rem}
+}
+@container (min-width:76rem){
+  .th,.doc{grid-template-columns:2.2rem minmax(0,1.2fr) 8.5rem minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr) 6.5rem 9.5rem;
+    grid-template-areas:"no title who when cb sb due st"}
+  .ds{display:contents}.doc .due,.th .due{grid-area:due}.doc .st,.th .st{grid-area:st}
+  .th .cb,.th .sb,.th .st{display:block}
+  .k2{display:none}
+  .doc .cb,.doc .sb{font-size:.9375rem;color:var(--ink)}
 }
 .empty{padding:2rem 0;color:var(--muted)}
 [hidden]{display:none!important}
@@ -147,10 +197,10 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
 .end-art{overflow:clip;border-top:1px solid var(--rule);background:var(--cream)}
 .end-art img{display:block;width:100%;height:clamp(13rem,30vw,24rem);object-fit:cover;object-position:center 34%}
 .foot{border-top:1px solid var(--rule);background:var(--plate);padding-block:clamp(2.5rem,5vw,4rem) 3rem}
-.foot-in{max-width:66rem;margin:0 auto;padding-inline:clamp(1.25rem,4vw,3rem)}
+.foot-in{padding-inline:var(--gx)}
 .foot-in .wm-link img{width:6rem}
 .foot-in .wm .a,.foot-in .wm .b{font-size:2rem}
-.ack{max-width:66rem;margin:clamp(2rem,4vw,3rem) auto 0;padding:1.5rem clamp(1.25rem,4vw,3rem) 0;
+.ack{margin:clamp(2rem,4vw,3rem) var(--gx) 0;padding:1.5rem 0 0;max-width:60rem;
   border-top:1px solid var(--hair);font-size:.8125rem;line-height:1.6;color:var(--muted)}
 .ack b{color:var(--ink);font-weight:600}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -182,6 +232,13 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
     <a class="btn ghost" href="https://drive.usercontent.google.com/download?id=19PzVb-DEfYMRz-11Ub-ZMBAtosJHc75l&amp;export=download">Download the printable version (PDF)</a>
   </div>
   <span class="btn-note">For the Harmony team. The spreadsheet is the working copy: type review dates into it, and use its tabs for what to send to participants, workers and practitioners. The PDF is the same on Harmony's letterhead.</span>
+  <nav class="also-links" aria-label="Everything else">
+    <a href="#where">Where everything goes</a>
+    <a href="#list">By Practice Standard</a>
+    <a href="/">Team hub</a>
+    <a href="https://drive.google.com/drive/folders/1BiXeIiMjgsz60yvTX5196YtPX8X5sBNq" target="_blank" rel="noopener">Core and Module 2A folder</a>
+    <a href="https://drive.google.com/drive/folders/1sIpuaDt5noTvW1NxFLeoO42yh7X_HE8I" target="_blank" rel="noopener">Module 1 and SIL folder</a>
+  </nav>
   <div class="stats" id="stats" aria-label="Review status"></div>
   <p class="asof" id="asof"></p>
   <p class="legend">
@@ -191,6 +248,12 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
     <span><i style="background:var(--plate);border-color:var(--rule)"></i>Policies and guides: read, not filled in</span>
   </p>
 </header>
+
+<section class="wrap where" id="where" aria-labelledby="where-h">
+  <h2 id="where-h">Where everything goes</h2>
+  <p class="say">Every form, by who it goes to and what they do with it. Each one says whose file it ends up in.</p>
+  <div id="dest"></div>
+</section>
 
 <div class="bar">
   <div class="wrap">
@@ -251,16 +314,16 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
     t.appendChild(el('span','type', d.type + (d.version ? ', version ' + d.version : '')));
     r.appendChild(t);
     r.appendChild(el('div', 'who' + (d.file ? '' : ' none'), d.file ? WHO[d.file] : 'Read, not filled in'));
-    var wh = el('div','when', d.when || '');
-    var bits = [];
-    if(d.completed_by) bits.push('Completed by: ' + d.completed_by);
-    if(d.signed_by) bits.push('Signed by: ' + d.signed_by);
-    if(bits.length) wh.appendChild(el('small', null, bits.join('. ')));
-    r.appendChild(wh);
-    var due = el('div','due'); due.appendChild(el('span','k','Next due'));
+    r.appendChild(el('div','when', d.when || ''));
+    [['cb','Completed by',d.completed_by], ['sb','Signed by',d.signed_by]].forEach(function(x){
+      var c = el('div', x[0]);
+      if(x[2]){ c.appendChild(el('span','k2', x[1])); c.appendChild(document.createTextNode(x[2])); }
+      r.appendChild(c);
+    });
+    var ds = el('div','ds'), due = el('div','due'); due.appendChild(el('span','k','Next due'));
     due.appendChild(document.createTextNode(pretty(d.next_due) || 'Not set'));
-    r.appendChild(due);
-    var s = el('div','st'); s.appendChild(el('span','pill ' + st.key, st.label)); r.appendChild(s);
+    var s = el('div','st'); s.appendChild(el('span','pill ' + st.key, st.label));
+    ds.appendChild(due); ds.appendChild(s); r.appendChild(ds);
     return {el:r, d:d, st:st.key, text:(d.title + ' ' + d.type + ' ' + (d.when||'')).toLowerCase()};
   }
 
@@ -274,25 +337,27 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
       var a = el('a', null, m.label.split(':')[0]); a.href = '#m' + i; toc.appendChild(a);
       m.standards.forEach(function(s){
         var box = el('section','std'); box.id = 's-' + s.key;
-        box.appendChild(el('h3', null, s.heading));
-        if(s.cite) box.appendChild(el('span','cite', s.cite));
-        box.appendChild(el('p','outcome', s.outcome));
+        var head = el('div','std-head'); box.appendChild(head);
+        head.appendChild(el('h3', null, s.heading));
+        if(s.cite) head.appendChild(el('span','cite', s.cite));
+        head.appendChild(el('p','outcome', s.outcome));
         if(s.indicators.length){
           var det = el('details','ind');
           det.appendChild(el('summary', null, 'Indicators to be demonstrated (' + s.indicators.length + ')'));
           var ol = el('ol'); s.indicators.forEach(function(t){ ol.appendChild(el('li', null, t)); });
-          det.appendChild(ol); box.appendChild(det);
+          det.appendChild(ol); head.appendChild(det);
         }
         s.also.forEach(function(n){
           var d = byNo[n], p = el('p','also');
           p.appendChild(el('span', null, 'Also meets this standard: No. ' + n + ', '));
           var a = el('a', null, d.title); a.href = d.url; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a);
           p.appendChild(el('span', null, ' (filed under ' + home[n] + ')'));
-          box.appendChild(p);
+          head.appendChild(p);
         });
         var list = el('div','docs');
         var th = el('div','th');
-        ['No.','Document','Filled in for','When it is needed','Next due','Status'].forEach(function(h){ th.appendChild(el('span', null, h)); });
+        [['no','No.'],['title','Document'],['who','Filled in for'],['when','When it is needed'],['cb','Completed by'],
+         ['sb','Signed by'],['due','Next due'],['st','Status']].forEach(function(h){ th.appendChild(el('span', h[0], h[1])); });
         list.appendChild(th);
         box._rows = s.docs.map(function(n){ var r = docRow(byNo[n]); list.appendChild(r.el); rows.push(r); return r; });
         box._also = s.also.length > 0;
@@ -355,12 +420,45 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
 
   // The filter bar sticks just under the nav, whatever height the nav wraps to.
   var nav = document.querySelector('.nav');
-  function navh(){ document.documentElement.style.setProperty('--navh', nav.offsetHeight + 'px'); }
-  navh(); if(window.ResizeObserver) new ResizeObserver(navh).observe(nav); else addEventListener('resize', navh);
+  var bar = document.querySelector('.bar');
+  function navh(){
+    document.documentElement.style.setProperty('--navh', nav.offsetHeight + 'px');
+    document.documentElement.style.setProperty('--barh', bar.offsetHeight + 'px');
+  }
+  navh(); if(window.ResizeObserver){ var ro = new ResizeObserver(navh); ro.observe(nav); ro.observe(bar); } else addEventListener('resize', navh);
 
-  fetch('checklist.json', {cache:'no-cache'})
-    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-    .then(function(data){ build(data); apply(); })
+  var KEPT = {Participant:"Kept in the participant's file", Worker:"Kept in the worker's staff file",
+              Organisation:"Kept in the office records"};
+  function buildWhere(hub, data){
+    var byNo = {}; data.docs.forEach(function(d){ byNo[d.no] = d; });
+    var host = document.getElementById('dest'), narrow = innerWidth < 768;
+    hub.packs.forEach(function(p){
+      var n = p.groups.reduce(function(a, g){ return a + g.items.length; }, 0);
+      var det = el('details','destn'); det.dataset.key = p.key; if(!narrow) det.open = true;
+      var sum = el('summary', null, p.title); sum.appendChild(el('span', null, n + ' forms')); det.appendChild(sum);
+      det.appendChild(el('p','say', p.intro));
+      var cols = el('div','dgroups');
+      p.groups.forEach(function(g){
+        if(!g.items.length) return;
+        var box = el('div','dgroup'); box.appendChild(el('h3', null, g.name));
+        var ul = el('ul');
+        g.items.forEach(function(it){
+          var d = byNo[it.no], li = el('li');
+          if(d.url){ var a = el('a', null, d.title); a.href = d.url; a.target = '_blank'; a.rel = 'noopener'; li.appendChild(a); }
+          else li.appendChild(el('span','nolink', d.title));
+          li.appendChild(el('span','do', it.action));
+          if(d.file) li.appendChild(el('span','kept', KEPT[d.file]));
+          ul.appendChild(li);
+        });
+        box.appendChild(ul); cols.appendChild(box);
+      });
+      det.appendChild(cols); host.appendChild(det);
+    });
+  }
+
+  Promise.all(['checklist.json', 'hub.json'].map(function(u){
+    return fetch(u, {cache:'no-cache'}).then(function(r){ if(!r.ok) throw new Error(u + ' ' + r.status); return r.json(); });
+  })).then(function(x){ build(x[0]); buildWhere(x[1], x[0]); apply(); })
     .catch(function(){
       var e = document.getElementById('empty'); e.hidden = false;
       e.textContent = 'The checklist could not load. Refresh the page to try again.';
