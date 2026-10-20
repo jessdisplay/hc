@@ -1,4 +1,6 @@
 /* Harmony Care team pages (the checklist and the team hub).
+   Pages link this as team.css?v=N: GitHub Pages lets browsers keep it for 10 minutes, so bump N in
+   both pages (index.html and site/checklist/index.html) whenever this file changes.
    Dressed like Harmony's own paperwork: the branded document set and its PDF renderer
    (harmony-care-docs/hcpdf.py) give the cream page, sage rules, forest labels, Georgia text,
    tinted table headers and the participant / worker / organisation row tints. */
