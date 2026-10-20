@@ -1,4 +1,7 @@
-"""Export the checklist workbook to site/checklist/checklist.json for the website page.
+"""Export the checklist workbook to site/checklist/ for the checklist page and the team hub.
+
+checklist.json holds every document by Practice Standard; hub.json holds what the hub
+adds: the send-out packs, the staff file items and the year planner.
 
 The workbook (made by make_workbook.py, then kept up to date by Harmony) is the
 master. This repo is public, so only what the page shows leaves the workbook:
@@ -14,8 +17,10 @@ from pathlib import Path
 import openpyxl
 
 import make_workbook as mw
+from send_lists import SEND_TABS
 
 OUT = Path(__file__).resolve().parents[2] / "site" / "checklist" / "checklist.json"
+HUB = OUT.with_name("hub.json")
 FIELDS = ["no", "title", "url", "type", "file", "when", "how_often", "completed_by", "signed_by",
           "version", "approved_by", "approval_date", "next_review", "review_months", "last_reviewed"]
 
@@ -71,6 +76,34 @@ def structure(docs):
     return modules
 
 
+def hub(path, docs):
+    """The send-out packs as document numbers, plus the staff file and year planner tabs."""
+    numbers = {}
+    for d in docs:
+        if d["fixed_status"] not in mw.NOT_SENT:
+            numbers.setdefault(d["title"], []).append(d["no"])
+    packs = []
+    for t in SEND_TABS:
+        groups = []
+        for name, entries in t["groups"]:
+            items = [{"no": n, "action": action} for title, action in entries for n in numbers[title]]
+            groups.append({"name": name, "items": items})
+        packs.append({"key": t["tab"], "title": t["title"], "intro": t["intro"], "groups": groups})
+    wb = openpyxl.load_workbook(path)
+    ws = wb["Staff file (copy per worker)"]
+    head = [c.value for c in ws[21]]
+    if head[:6] != ["Group", "Item", "Who needs it", "What to keep in the file", "Harmony form", "Renew"]:
+        raise SystemExit("the staff file tab's columns have moved")
+    staff = [dict(zip(("group", "item", "who", "keep", "form", "renew"), (c.value for c in row[:6])))
+             for row in ws.iter_rows(min_row=22) if row[1].value]
+    ws = wb["Year planner"]
+    if [c.value for c in ws[3]][:2] != ["Due", "What"]:
+        raise SystemExit("the year planner tab's columns have moved")
+    planner = [{"due": iso(row[0].value), "what": row[1].value}
+               for row in ws.iter_rows(min_row=4) if row[1].value]
+    return {"packs": packs, "staff": staff, "planner": planner}
+
+
 def main(path):
     docs = read(path)
     modules = structure([dict(d) for d in docs])
@@ -82,6 +115,10 @@ def main(path):
     }
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
     print(f"{len(docs)} documents, {sum(len(m['standards']) for m in modules)} groups -> {OUT}")
+    h = hub(path, docs)
+    HUB.write_text(json.dumps(h, ensure_ascii=False, separators=(",", ":")))
+    print(f"{sum(len(g['items']) for p in h['packs'] for g in p['groups'])} pack items, "
+          f"{len(h['staff'])} staff file items, {len(h['planner'])} planner rows -> {HUB}")
 
 
 if __name__ == "__main__":

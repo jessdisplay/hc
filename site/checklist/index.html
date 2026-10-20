@@ -165,6 +165,7 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
     <span class="wm"><span class="a">HARMONY</span><span class="b">CARE</span>
       <span class="s">SUPPORT SERVICES</span></span>
   </a>
+  <a class="l" href="/">Team hub</a>
   <a class="l" href="../#work">What we do</a>
   <a class="l" href="../#services">Services</a>
   <a class="l" href="../#story">Our story</a>
@@ -229,28 +230,16 @@ details.ind li{padding:.45rem 0;border-top:1px solid var(--hair);white-space:pre
   </div>
 </footer>
 
+<script src="status.js"></script>
 <script>
 (function(){
-  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var WHO = {Participant:'Each participant', Worker:'Each worker', Organisation:'Organisation'};
   var SHOWN = {Participant:'participant forms', Worker:'worker forms', Organisation:'organisation forms', none:'policies and guides'};
-  var STATUS = {overdue:'Overdue', soon:'Due within 30 days', none:'No review date on record', ok:'In date'};
+  var STATUS = HCStatus.LABEL, pretty = HCStatus.pretty, statusOf = HCStatus.of, TODAY = HCStatus.today;
   var state = {who:'', status:'', q:''};
   var rows = [];
 
-  function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-  function pretty(s){ if(!s) return ''; var p = s.split('-'); return (+p[2])+' '+MONTHS[+p[1]-1]+' '+p[0]; }
   function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
-
-  var today = new Date(); var TODAY = iso(today);
-  var soon = new Date(today); soon.setDate(soon.getDate()+30); var SOON = iso(soon);
-  function statusOf(d){
-    if(d.fixed_status) return {key: d.fixed_status === 'Missing' ? 'missing' : 'fixed', label:d.fixed_status};
-    if(!d.next_due) return {key:'none', label:STATUS.none};
-    if(d.next_due < TODAY) return {key:'overdue', label:STATUS.overdue};
-    if(d.next_due < SOON) return {key:'soon', label:STATUS.soon};
-    return {key:'ok', label:STATUS.ok};
-  }
 
   function docRow(d){
     var st = statusOf(d);

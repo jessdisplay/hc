@@ -24,7 +24,7 @@ from PIL import Image
 HERE = Path(__file__).parent
 ASSETS = HERE / "assets"
 TEMPLATE = HERE / "guide.template.html"
-OUT = HERE / "index.html"
+OUT = HERE / "audit-room" / "index.html"  # the root is the team hub since 20 Oct 2026
 
 # Palette 01 warm cream. The illustrations are painted on paper, so flattening
 # their alpha onto anything else puts a grey halo around the deckled edge.
