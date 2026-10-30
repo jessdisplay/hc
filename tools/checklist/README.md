@@ -34,7 +34,8 @@ from the band the branded set is printed on; the Excel and the team pages share 
 `everything.py` writes the workbook's 'Everything' tab and the PDF's Part 1: every document, staff
 file item and year planner job under its Practice Standard. It reads dates from the other tabs, so
 they are typed once. `make_pdf.py` needs Georgia, Harmony's document face, which ships with macOS; build
-the PDF on a Mac.
+the PDF on a Mac. `everything_alone.py BUILT.xlsx OUT.xlsx` saves that tab as a file on its own, every
+link kept, its dates and statuses fixed at the day it runs (it needs LibreOffice to work them out).
 
 Run with `/usr/bin/python3` (it has openpyxl). Re-running `make_workbook.py`
 starts again from the 16 Oct file and drops anything typed since, so after the
