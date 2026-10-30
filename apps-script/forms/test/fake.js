@@ -43,7 +43,7 @@ class Blob {
 class Drive {
   constructor(clock) { this.items = new Map(); this.clock = clock; }
   folder(name, parent) {
-    const f = { kind: 'folder', id: id('fo'), name, parent, drive: this };
+    const f = { kind: 'folder', id: id('fo'), name, parent, drive: this, owner: this.owner && this.owner() };
     this.items.set(f.id, f);
     return new Folder(f);
   }
@@ -66,6 +66,9 @@ class Folder {
   getUrl() { return 'https://drive.google.com/drive/folders/' + this.f.id; }
   createFolder(n) { return this.f.drive.folder(n, this.f.id); }
   createFile(blob) { return this.f.drive.file(blob.name, blob.type, this.f.id, { bytes: blob.bytes }); }
+  getEditors() { return (this.f.editors || []).map((e) => ({ getEmail: () => e })); }
+  getOwner() { return { getEmail: () => this.f.owner || 'nobody' }; }
+  addEditor(e) { (this.f.editors = this.f.editors || []).push(e); return this; }
   getFilesByType(mime) {
     return iter([...this.f.drive.items.values()]
       .filter((x) => x.kind === 'file' && x.parent === this.f.id && x.mime === mime).map((x) => new File(x)));
@@ -178,6 +181,7 @@ class Spreadsheet {
   }
   setSpreadsheetTimeZone(tz) { this.tz = tz; }
   getUrl() { return 'https://docs.google.com/spreadsheets/d/SHEET/edit'; }
+  getEditors() { return (this.editors || []).map((e) => ({ getEmail: () => e })); }
   toast(msg) { this.toasts.push(msg); }
   select(sheet, r, nr) { this.active = sheet; this.selection = sheet.getRange(r, 1, nr || 1, 1); }
 }
@@ -185,7 +189,7 @@ class Spreadsheet {
 // ---------------------------------------------------------------- Gmail and Mail
 class Gmail {
   constructor(me, clock) { this.me = me; this.clock = clock; this.sent = []; this.threads = new Map(); this.labels = {}; this.drafts = []; }
-  sendEmail(to, subject, body, opts) { this.sent.push({ to, subject, body, opts: opts || {} }); }
+  sendEmail(to, subject, body, opts) { this.sent.push({ to, subject, body, opts: opts || {}, from: this.who() }); }
   createDraft(to, subject, body, opts) {
     const gm = this;
     return {
@@ -193,7 +197,7 @@ class Gmail {
         const t = new Thread(gm);
         gm.threads.set(t.id, t);
         const m = t.add(gm.me, to, subject, body, (opts && opts.attachments) || []);
-        gm.sent.push({ to, subject, body, opts: opts || {}, thread: t.id });
+        gm.sent.push({ to, subject, body, opts: opts || {}, thread: t.id, from: gm.who() });
         return m;
       }
     };
@@ -233,11 +237,16 @@ function google(opts) {
   const alerts = [];
   const triggers = [];
   const fetches = [];
-  const user = { active: me };  // who is pressing the button; the timers always run as `me`
+  // who is pressing the button (active) and whose rights the code runs with (effective): the same
+  // person for a menu click; the timer's creator when a timer fires (see fire below)
+  const user = { active: me, effective: me };
+  gmail.who = () => user.effective;
+  drive.owner = () => user.effective;  // a folder belongs to whoever made it
   const userProps = {};
   let fetchFails = null;  // a function(url) -> status code, to make Drive's API refuse
+  let triggerIds = 0;
   const trigger = (handler) => {
-    const b = { handler };
+    const b = { handler, owner: user.effective, id: 'trigger' + ++triggerIds };
     const chain = new Proxy({}, { get: (_, k) => (k === 'create' ? () => { triggers.push(b); return b; } : (...a) => { b[k] = a; return chain; }) });
     return chain;
   };
@@ -275,12 +284,15 @@ function google(opts) {
     },
     ScriptApp: {
       getOAuthToken: () => 'token',
-      getProjectTriggers: () => triggers.map((t) => ({ getHandlerFunction: () => t.handler, t })),
+      // like Google: an account sees and deletes only the timers it created
+      getProjectTriggers: () => triggers.filter((t) => t.owner === user.effective)
+        .map((t) => ({ getHandlerFunction: () => t.handler, t })),
       deleteTrigger: (x) => triggers.splice(triggers.indexOf(x.t), 1),
       newTrigger: trigger,
       WeekDay: { MONDAY: 'MONDAY' }
     },
-    Session: { getEffectiveUser: () => ({ getEmail: () => me }), getActiveUser: () => ({ getEmail: () => user.active }) },
+    Session: { getEffectiveUser: () => ({ getEmail: () => user.effective }),
+               getActiveUser: () => ({ getEmail: () => user.active }) },
     PropertiesService: {
       getUserProperties: () => {
         const mine = (userProps[user.active] = userProps[user.active] || {});
@@ -289,7 +301,7 @@ function google(opts) {
     },
     Utilities: { formatDate },
     GmailApp: gmail,
-    MailApp: { sendEmail: (m) => mail.push(m) },
+    MailApp: { sendEmail: (m) => mail.push(Object.assign({ from: user.effective }, m)) },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },
     HtmlService: { createHtmlOutput: (h) => ({ html: h, setTitle(t) { this.title = t; return this; } }) },
     console

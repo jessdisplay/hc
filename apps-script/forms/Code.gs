@@ -76,6 +76,7 @@ var SETTINGS = [
 ];
 
 var TIME_BUDGET_MS = 4.5 * 60 * 1000;  // Apps Script stops a run at 6 minutes
+var TIMERS = ['sendQueued', 'checkReturns', 'dailyChase', 'mondayDigest'];
 
 
 /* ------------------------------------------------------------------ menu and set up */
@@ -108,6 +109,7 @@ function setup() {
   SETTINGS.forEach(function (row) {
     if (labels.indexOf(row[0]) === -1) settings.appendRow(row);
   });
+  var before = String(setting_('Emails go out from') || '');
   putSetting_('Emails go out from', me);
   if (!setting_('Test copies go to')) putSetting_('Test copies go to', me);
   if (!setting_('Tell these people when a form comes back')) {
@@ -120,6 +122,7 @@ function setup() {
   if (!folderId_(setting_('Signing templates folder'))) {
     putSetting_('Signing templates folder', DriveApp.createFolder('Harmony Care - signing templates').getUrl());
   }
+  var shared = shareFolders_(ss);
 
   var people = ensureTab_(ss, TABS.people, 'People',
     'Everyone Harmony sends forms to: staff, participants, practitioners. Type a name, email and role, ' +
@@ -152,7 +155,7 @@ function setup() {
     .setFontWeight('bold').setFontColor('#FFFFFF').setBackground('#38553E').setWrap(true);
 
   ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (['sendQueued', 'checkReturns', 'dailyChase', 'mondayDigest'].indexOf(t.getHandlerFunction()) !== -1) {
+    if (TIMERS.indexOf(t.getHandlerFunction()) !== -1) {
       ScriptApp.deleteTrigger(t);
     }
   });
@@ -162,8 +165,13 @@ function setup() {
   ScriptApp.newTrigger('mondayDigest').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8)
     .inTimezone(TZ).create();
 
-  log_('Set up', 'Tabs, folders and timers ready.');
-  ui_('Set up is done. Next: type people into the People tab, then Harmony forms > Make signing templates.');
+  var moved = before && before.toLowerCase() !== me.toLowerCase();
+  log_('Set up', 'Tabs, folders and timers ready. Emails go out from ' + me +
+       (moved ? '; ' + before + "'s timers stop at their next run." : '.'));
+  ui_('Set up is done. Emails now go out from ' + me + '.' +
+      (moved ? ' ' + before + ' no longer sends anything.' : '') +
+      (shared.length ? '\n\nThe two forms folders are now shared with: ' + shared.join(', ') + '.' : '') +
+      '\n\nNext: type people into the People tab, then Harmony forms > Make signing templates.');
 }
 
 
@@ -388,7 +396,8 @@ function sendSelectedRows() {
  * Every minute, as the account that ran Set up: sends queued test copies, then queued emails. A failure
  * stays on its row as 'Not sent: why' and is told to Settings' people; nothing is retried blindly.
  */
-function sendQueued() {
+function sendQueued(e) {
+  if (!timerOwner_(e)) return;
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(10000)) return;
   try {
@@ -432,6 +441,49 @@ function sendQueued() {
   }
 }
 
+/**
+ * The timers run as one account only: the one in Settings' 'Emails go out from', which ran Set up
+ * last. Any other account's timer, left over from an earlier Set up, removes itself instead of
+ * sending from the wrong address or reading the wrong inbox. 'e' is the timer's event; a menu click
+ * has none.
+ */
+function timerOwner_(e) {
+  var owner = String(setting_('Emails go out from') || '').trim().toLowerCase();
+  var me = Session.getEffectiveUser().getEmail().toLowerCase();
+  if (!owner || owner === me) return true;
+  if (e && e.triggerUid) {
+    ScriptApp.getProjectTriggers().forEach(function (t) {
+      if (TIMERS.indexOf(t.getHandlerFunction()) !== -1) ScriptApp.deleteTrigger(t);
+    });
+    log_('Timers stopped', me + ' no longer sends; ' + owner + ' does.');
+  }
+  return false;
+}
+
+/**
+ * Everyone who can edit the sheet can send forms, so each needs the two folders the copies go in.
+ * Run Set up again after adding someone to the sheet. Returns who was newly added.
+ */
+function shareFolders_(ss) {
+  var editors = ss.getEditors().map(function (u) { return u.getEmail(); }).filter(isEmail_);
+  var added = [];
+  ["Folder for each person's files", 'Signing templates folder'].forEach(function (label) {
+    var folder = DriveApp.getFolderById(requireFolder_(label));
+    var has = folder.getEditors().map(function (u) { return u.getEmail().toLowerCase(); });
+    has.push(folder.getOwner().getEmail().toLowerCase());
+    editors.forEach(function (email) {
+      if (has.indexOf(email.toLowerCase()) !== -1) return;
+      try {
+        folder.addEditor(email);
+        if (added.indexOf(email) === -1) added.push(email);
+      } catch (err) {
+        log_('Folder not shared', label + ' with ' + email + ': ' + err.message);
+      }
+    });
+  });
+  return added;
+}
+
 /** The test address to offer: the last one this person used, else their own, else Settings'. */
 function testTo_() {
   return PropertiesService.getUserProperties().getProperty('TEST_TO') ||
@@ -466,7 +518,12 @@ function email_(person, form, copyId) {
 /* ------------------------------------------------------------------ coming back */
 
 /** Hourly: files each signed copy that came back, marks its row, and tells Settings' people. */
-function checkReturns() {
+function checkReturns(e) {
+  if (!timerOwner_(e)) {
+    if (!e) ui_('Returned forms are checked from ' + setting_('Emails go out from') +
+                "'s account, where the replies arrive. It happens every hour by itself.");
+    return;
+  }
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(10000)) return;  // the last run is still going
   try {
@@ -602,7 +659,8 @@ function returned_(tracker, r, v, url, note) {
  * Daily: a form out longer than 'Chase after (days)' gets a reminder drafted in its Gmail thread (never
  * sent by the script), at most once a week, and one email lists them all.
  */
-function dailyChase() {
+function dailyChase(e) {
+  if (!timerOwner_(e)) return;
   var tracker = tab_(TABS.tracker);
   var last = Math.max(tracker.getLastRow(), TRACKER_FIRST);
   var rows = tracker.getRange(TRACKER_FIRST, 1, last - TRACKER_FIRST + 1, TRACKER.length).getValues();
@@ -643,7 +701,8 @@ function dailyChase() {
 }
 
 /** Monday 8 am, or from the menu: what is overdue or due soon on the Everything tab, and forms out. */
-function mondayDigest() {
+function mondayDigest(e) {
+  if (e && !timerOwner_(e)) return;  // from the menu anyone may ask for it
   var sheet = tab_(TABS.everything);
   var head = 5;
   var values = sheet.getRange(head, 1, Math.max(sheet.getLastRow() - head + 1, 1), 12).getDisplayValues();

@@ -33,9 +33,12 @@ forms from and sees them come back. It adds a **Harmony forms** menu to the shee
 5. Choose Harmony forms > Make signing templates. For each form that should go by eSignature, open
    its template, place the Signature, Name and Date fields (Tools > eSignature), and tick column D.
 
-Emails go out from, and replies are read in, the Google account that runs Set up. Share the sheet
-and the two Drive folders it makes with the Harmony staff who use it; each of them is asked once,
-the first time they use the menu, to allow the script.
+Emails go out from, and replies are read in, the Google account that runs Set up, and its timers run
+as that account. Harmony's own account should run it, so the mail comes from Harmony and the signed
+forms live in Harmony's Drive. If another account runs Set up later, it takes over: the earlier
+account's timers stop themselves at their next run. Set up shares its two folders with everyone who
+can edit the sheet; run it again after adding someone. Each person is asked once, the first time they
+use the menu, to allow the script.
 
 ## Tests
 

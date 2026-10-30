@@ -80,6 +80,15 @@ const row = (w, r) => w.tracker.getRange(r, 1, 1, 18).getValues()[0];
 const day = (d) => (d instanceof Date ? d.toISOString() : String(d));
 const asDay = (w, d) => w.ctx.day_(d);
 const plain = (x) => JSON.parse(JSON.stringify(x));  // values made inside the sandbox
+/** every timer for this handler fires once, each as the account that created it, as Google does */
+function fire(w, handler) {
+  const was = w.user.effective;
+  for (const t of w.triggers.filter((x) => x.handler === handler)) {
+    w.user.effective = t.owner;
+    w.ctx[handler]({ triggerUid: t.id });
+  }
+  w.user.effective = was;
+}
 /** what pressing Send does, end to end: the timer sends the test, Send queues, the timer sends it */
 function deliver(w, rows) {
   w.ctx.sendQueued();
@@ -477,6 +486,54 @@ test('the menu item sends selected rows when the panel was closed', () => {
   assert.match(w.alerts[0], /^1 on the way/);
   w.ctx.sendQueued();
   assert.strictEqual(w.gmail.sent[1].to, 'ana@example.com');
+});
+
+test("Brittany runs Set up: emails go from her, and Jesse's leftover timers stop themselves", () => {
+  const w = ready();  // Jesse ran Set up first
+  w.user.active = w.user.effective = 'brittany@harmony.example';
+  w.alerts.length = 0;
+  w.ctx.setup();
+  assert.match(w.alerts[0], /Emails now go out from brittany@harmony\.example\. jesse@riseos\.care no longer sends/);
+  assert.strictEqual(w.ctx.setting_('Emails go out from'), 'brittany@harmony.example');
+  assert.strictEqual(w.triggers.filter((t) => t.owner === 'jesse@riseos.care').length, 4, 'still there until they fire');
+  const [it] = w.ctx.prepare(5, [w.forms.decl.getId()], 'brittany@harmony.example');
+  fire(w, 'sendQueued');
+  assert.strictEqual(w.triggers.filter((t) => t.owner === 'jesse@riseos.care').length, 0, "Jesse's timers removed");
+  assert.strictEqual(w.triggers.filter((t) => t.owner === 'brittany@harmony.example').length, 4);
+  assert.deepStrictEqual(plain(w.gmail.sent.map((m) => [m.to, m.from])),
+    [['brittany@harmony.example', 'brittany@harmony.example']], 'the test went once, from Brittany');
+  w.ctx.sendNow([it.trackerRow]);
+  fire(w, 'sendQueued');
+  assert.deepStrictEqual(plain(w.gmail.sent[1].from), 'brittany@harmony.example');
+  assert.strictEqual(w.gmail.sent[1].to, 'ana@example.com');
+  fire(w, 'checkReturns');
+  fire(w, 'dailyChase');
+  fire(w, 'mondayDigest');
+  assert.ok(w.mail.every((m) => m.from === 'brittany@harmony.example'), 'nothing from Jesse after the move');
+});
+
+test('anyone who is not the sending account gets a plain answer from Check for returned forms', () => {
+  const w = ready();
+  w.user.active = w.user.effective = 'victoria@harmony.example';
+  w.alerts.length = 0;
+  w.ctx.checkReturns();
+  assert.match(w.alerts[0], /checked from jesse@riseos\.care's account/);
+  assert.strictEqual(w.triggers.length, 4, "a menu click removes nobody's timers");
+});
+
+test("Set up shares the two folders with everyone who can edit the sheet, once, and says so", () => {
+  const w = world();
+  w.ss.editors = ['brittany@harmony.example', 'victoria@harmony.example', 'jesse@riseos.care'];
+  w.user.active = w.user.effective = 'brittany@harmony.example';
+  w.ctx.setup();
+  assert.match(w.alerts[0], /shared with: victoria@harmony\.example, jesse@riseos\.care\./);
+  const folder = w.drive.get(w.ctx.folderId_(w.ctx.setting_("Folder for each person's files")), 'folder');
+  assert.strictEqual(folder.owner, 'brittany@harmony.example', "in Brittany's Drive");
+  assert.deepStrictEqual(plain(folder.editors), ['victoria@harmony.example', 'jesse@riseos.care']);
+  w.alerts.length = 0;
+  w.ctx.setup();
+  assert.ok(!/shared with/.test(w.alerts[0]), 'nobody added twice');
+  assert.deepStrictEqual(plain(folder.editors), ['victoria@harmony.example', 'jesse@riseos.care']);
 });
 
 let failed = 0;
