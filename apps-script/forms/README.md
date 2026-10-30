@@ -18,6 +18,9 @@ forms from and sees them come back. It adds a **Harmony forms** menu to the shee
   'Sent and returned', and emails the people named in Settings.
 - Every day it drafts a reminder (in Gmail drafts, never sent by the script) for any form out longer
   than 14 days. Every Monday it emails what is overdue or due soon on the Everything tab.
+- **Bring the checklist up to date** makes an older copy of the checklist current from its own
+  tabs: it adds the Everything tab and corrects three wordings. Set up runs it too. It sends nothing,
+  and running it twice changes nothing the second time.
 - **Mark reviewed today** stamps today's date as 'Last reviewed' for the document on the selected
   row; Next due and Status follow.
 

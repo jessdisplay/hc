@@ -92,6 +92,7 @@ function onOpen() {
     .addItem('Email me what is due', 'mondayDigest')
     .addSeparator()
     .addItem('Make signing templates', 'makeTemplates')
+    .addItem('Bring the checklist up to date', 'upgradeWorkbook')
     .addItem('Set up', 'setup')
     .addToUi();
 }
@@ -99,6 +100,7 @@ function onOpen() {
 function setup() {
   var ss = SpreadsheetApp.getActive();
   ss.setSpreadsheetTimeZone(TZ);
+  upgrade_(ss);
   var me = Session.getEffectiveUser().getEmail();
 
   var settings = ensureTab_(ss, TABS.settings, 'Settings',
@@ -758,6 +760,291 @@ function markReviewedToday() {
   log_('Reviewed', 'No. ' + no + ', ' + title);
   SpreadsheetApp.getActive().toast('No. ' + no + ' marked reviewed today. Next due and Status update by themselves.',
                                    'Harmony forms');
+}
+
+
+/* ------------------------------------------------------------------ bringing the checklist up to date */
+
+// An older copy of the checklist has no Everything tab and three wordings since corrected. Rather
+// than swap the sheet for a new file, upgrade_ makes any copy current from its own tabs. Each part
+// looks before it changes anything, so running it twice changes nothing the second time.
+
+var WORDING = [  // [tab, old text, new text]
+  ['Start here', 'Laid out like the Avaana checklist: module, Practice Standard, its outcome and indicators, ' +
+   'then every document for it.', 'The documents on their own, by module and Practice Standard with its ' +
+   "outcome and indicators, and each document's version, approval and review dates."],
+  ['Staff file (copy per worker)', ' Avaana checklist: auditors expect a formal agreement for each worker.', ''],
+  ['Staff file (copy per worker)', 'Avaana registration checklist (key management personnel). ', '']
+];
+var EVERYTHING_LINE = ['Everything', 'One list for every area: under each Practice Standard, every document, ' +
+  "every item each worker's file must hold, and every dated job, with when it is needed, how often, the next " +
+  'due date and whether it is in date. It reads its dates from the tabs below, so a date is only ever typed once.'];
+var EV_COLS = [['No.', 6], ['Module', 13], ['Practice Standard', 24], ['What (opens the file)', 46], ['Kind', 15],
+               ['For', 20], ['When it is needed', 40], ['Details', 44], ['How often', 24], ['Next due', 13],
+               ['Status', 22], ['Type dates in', 20]];
+// A staff file item sits under the standard whose indicator asks for it; the rest under Human Resource
+// Management (17). The same rules as the workbook builder (tools/checklist/everything.py).
+var STAFF_PLACE = [
+  [/^Medication training/, '26'], [/^Mealtime support training/, '26A'],
+  [/^Emergency and disaster preparedness training/, '18A'], [/^High intensity competency/, 'M1-ALL'],
+  [/^Behaviour support plan training/, '50'], [/^Restrictive practices training/, '50'],
+  [/^(SIL Worker Training Plan|Induction to each SIL house)/, '72D'],
+  [/^(SIL Worker Competency|Positive behaviour support|Cultural safety)/, '72D'],
+  [/^Key personnel suitability/, '11']
+];
+var WHEN_OF_GROUP = { "Also on Harmony's Staff File Checklist": "When it applies (Harmony's Staff File Checklist)" };
+var REPEATS = { 'Every month': 'EDATE(%,1)', 'Every fortnight': '(%+14)' };
+var TINTS = { 'Each participant': '#FBE0E6', 'Each worker': '#DCE7D5', 'Organisation': '#F3E3CA' };
+
+/** The menu item. Anyone who can edit the sheet may run it; it sends nothing. */
+function upgradeWorkbook() {
+  var done = upgrade_(SpreadsheetApp.getActive());
+  ui_(done.length ? 'Brought up to date:\n- ' + done.join('\n- ') : 'The checklist was already up to date.');
+}
+
+function upgrade_(ss) {
+  var done = [];
+  WORDING.forEach(function (w) {
+    var n = tab_(w[0]).createTextFinder(w[1]).replaceAllWith(w[2]);
+    if (n) done.push(w[0] + ': ' + (w[2] ? 'reworded' : 'removed') + ' "' + w[1].trim().slice(0, 40) + '..."');
+  });
+  // A blank staff file row was labelled Missing; nobody has looked in the worker's file, so it is
+  // only not recorded yet.
+  var staff = tab_(TABS.staff), team = tab_(TABS.team);
+  var n = staff.createTextFinder('"Missing"').matchFormulaText(true).replaceAllWith('"Not recorded yet"');
+  n += team.createTextFinder('"Missing"').matchFormulaText(true).replaceAllWith('"Not recorded yet"');
+  if (team.getRange('B4').getValue() === 'Missing or expired') team.getRange('B4').setValue('Not recorded or expired');
+  var rules = staff.getConditionalFormatRules(), changed = false;
+  rules = rules.map(function (rule) {
+    var c = rule.getBooleanCondition();
+    var f = c && c.getCriteriaValues()[0];
+    if (typeof f !== 'string' || !/="Missing"$/.test(f)) return rule;
+    changed = true;
+    return SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied(f.replace('"Missing"', '"Not recorded yet"'))
+      .setBackground('#FCE8B2').setRanges(rule.getRanges()).build();
+  });
+  if (changed) staff.setConditionalFormatRules(rules);
+  if (n || changed) done.push("Staff file: 'Missing' is now 'Not recorded yet'");
+  if (!ss.getSheetByName(TABS.everything)) {
+    var rows = buildEverything_(ss);
+    done.push('Everything tab added (' + rows + ' rows)');
+  }
+  var start = tab_('Start here');
+  var labels = start.getRange(1, 1, start.getLastRow(), 1).getValues().map(function (r) { return r[0]; });
+  if (labels.indexOf(EVERYTHING_LINE[0]) === -1 && labels.indexOf('Checklist') !== -1) {
+    var at = labels.indexOf('Checklist') + 1;
+    start.insertRowBefore(at);
+    start.getRange(at + 1, 1, 1, 2).copyTo(start.getRange(at, 1, 1, 2), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
+    start.getRange(at, 1, 1, 2).setValues([EVERYTHING_LINE]);
+    done.push('Start here: a line for the Everything tab');
+  }
+  var left = ss.createTextFinder('avaana').findAll().length + ss.createTextFinder('havana').findAll().length;
+  if (left) log_('Still named', left + ' cell(s) still name the 2023 consultancy');
+  if (done.length) log_('Brought up to date', done.join('; '));
+  return done;
+}
+
+/** The Checklist tab as groups: module, standard, outcome, indicators, 'also meets' lines, documents. */
+function readChecklist_(ss) {
+  var sh = tab_(TABS.checklist);
+  var last = sh.getLastRow(), width = Math.max(sh.getLastColumn(), 22);
+  var range = sh.getRange(1, 1, last, width);
+  var v = range.getValues(), rich = range.getRichTextValues();
+  var col = index_(v[4].map(String));
+  ['No.', 'Module', 'Practice Standard', 'Document (opens the file)', 'Type', 'Filled in for', 'When it is needed',
+   'Completed by', 'Signed by', 'Next due', 'Status', 'Last reviewed (type the date)', 'How often', 'Section']
+    .forEach(function (h) { if (!(h in col)) throw new Error("The Checklist tab has changed: no '" + h + "' column."); });
+  var link = function (i, c) { var t = rich[i][c]; return t && t.getLinkUrl ? t.getLinkUrl() : null; };
+  var groups = [], band = '', g = null;
+  for (var i = 5; i < last; i++) {
+    var row = v[i], a = row[0], std = String(row[col['Practice Standard']] || ''),
+        text = String(row[col['Document (opens the file)']] || '');
+    if (typeof a === 'number') {
+      g.docs.push({ row: i + 1, no: a, short: row[col['Module']], title: text, url: link(i, col['Document (opens the file)']),
+                    type: row[col['Type']], file: row[col['Filled in for']], when: row[col['When it is needed']],
+                    completedBy: row[col['Completed by']], signedBy: row[col['Signed by']],
+                    howOften: row[col['How often']], section: String(row[col['Section']]) });
+    } else if (a && !std) {
+      band = String(a);
+    } else if (std === 'Also meets this standard') {
+      g.also.push({ text: text, url: link(i, col['Document (opens the file)']) });
+    } else if (std && text.indexOf('Outcome: ') === 0) {
+      g = { band: band, heading: std, outcome: text, indicators: [], also: [], docs: [], staff: [], jobs: [] };
+      groups.push(g);
+    } else if (text) {
+      g.indicators.push(text);
+    }
+  }
+  return { groups: groups, col: col };
+}
+
+function buildEverything_(ss) {
+  var read = readChecklist_(ss), groups = read.groups;
+  var letter = function (h) { return columnLetter_(read.col[h] + 1); };
+  var ckDue = letter('Next due'), ckStatus = letter('Status'), ckLast = letter('Last reviewed (type the date)');
+  var bySection = {}, byFile = {};
+  groups.forEach(function (g) {
+    g.docs.forEach(function (d) { byFile[fileId_(d.url)] = d; });
+    if (g.docs.length && !bySection[g.docs[0].section]) bySection[g.docs[0].section] = g;
+  });
+  // the staff file's items, and which Team at a glance column tracks each
+  var staff = tab_(TABS.staff), team = tab_(TABS.team);
+  var tracked = {};
+  team.getRange(4, 3, 1, team.getLastColumn() - 2).getValues()[0].forEach(function (h, i) {
+    if (h) tracked[h] = columnLetter_(i + 3);
+  });
+  var sv = staff.getRange(22, 1, staff.getLastRow() - 21, 6), sVals = sv.getValues(), sRich = sv.getRichTextValues();
+  sVals.forEach(function (r, i) {
+    if (!r[1]) return;
+    var key = '17';
+    STAFF_PLACE.forEach(function (p) { if (key === '17' && p[0].test(r[1])) key = p[1]; });
+    if (!bySection[key]) throw new Error('Staff file item ' + r[1] + ' belongs under section ' + key + ', not on the Checklist.');
+    var form = ['', 'None', 'None in the set'].indexOf(String(r[4] || '')) === -1 ? r[4] : '';
+    bySection[key].staff.push({ group: r[0], item: r[1], who: r[2], keep: r[3], form: form, renew: r[5],
+                                url: sRich[i][4] && sRich[i][4].getLinkUrl(), col: tracked[r[1]] });
+  });
+  var planner = tab_('Year planner');
+  var pv = planner.getRange(4, 1, planner.getLastRow() - 3, 4), pVals = pv.getValues(), pRich = pv.getRichTextValues();
+  pVals.forEach(function (r, i) {
+    if (!r[1]) return;
+    var url = pRich[i][2] && pRich[i][2].getLinkUrl(), d = byFile[fileId_(url)];
+    if (!d) throw new Error('Year planner row ' + (i + 4) + ' opens ' + r[2] + ', which is not on the Checklist.');
+    if (!(r[0] instanceof Date) && !REPEATS[r[0]]) throw new Error('Year planner row ' + (i + 4) + ': due "' + r[0] + '"');
+    bySection[d.section].jobs.push({ row: i + 4, due: r[0], what: r[1], why: r[3], url: url });
+  });
+
+  var names = "'Team at a glance'!$A$5:$A$19";
+  var grid = [], kinds = [], links = [], jumps = [], tints = [];
+  var push = function (kind, values, link, jump, tint) {
+    while (values.length < 12) values.push('');
+    grid.push(values); kinds.push(kind); links.push(link || null); jumps.push(jump || null); tints.push(tint || null);
+  };
+  var band = null;
+  groups.forEach(function (g) {
+    if (g.band !== band) { band = g.band; push('band', [band]); }
+    push('standard', ['', '', g.heading, g.outcome]);
+    g.indicators.forEach(function (line, n) {
+      push('indicator', ['', '', n ? '' : 'Indicators to be demonstrated', line]);
+    });
+    g.also.forEach(function (a) { push('also', ['', '', 'Also meets this standard', a.text], a.url); });
+    var short = g.docs.length ? g.docs[0].short : '';
+    g.docs.forEach(function (d) {
+      var filled = d.file && d.file !== 'Not filled in';
+      var details = filled && d.completedBy
+        ? ('Filled in by: ' + d.completedBy + '. Signed by: ' + d.signedBy).replace(/\.+$/, '') + '.' : '';
+      push('doc', [d.no, short, g.heading, d.title, d.type, d.file, d.when, details, d.howOften,
+                   '=IF(Checklist!' + ckDue + d.row + '="","",Checklist!' + ckDue + d.row + ')',
+                   '=Checklist!' + ckStatus + d.row, 'Checklist, No. ' + d.no],
+           d.url, ['Checklist', ckLast + d.row], filled ? TINTS[d.file] : null);
+    });
+    g.staff.forEach(function (s) {
+      var due = '', status = 'Per worker';
+      if (s.col) {
+        var rng = "'Team at a glance'!" + s.col + '5:' + s.col + '19';
+        due = '=IF(COUNT(' + rng + ')=0,"",MIN(' + rng + '))';
+        status = '=IF(COUNTA(' + names + ')=0,"Add workers on Team at a glance",IF(COUNT(' + rng + ')=0,"No dates entered",' +
+                 'IF(MIN(' + rng + ')<TODAY(),"Expired for "&COUNTIF(' + rng + ',"<"&TODAY())&" of "&COUNTA(' + names + '),' +
+                 'IF(MIN(' + rng + ')<TODAY()+60,"Renew within 60 days","In date"))))';
+      }
+      push('staff', ['', short, g.heading, s.item, "Worker's file", s.who, WHEN_OF_GROUP[s.group] || s.group,
+                     s.keep + (s.form ? ' Harmony form: ' + s.form + '.' : ''), s.renew, due, status,
+                     s.col ? 'Team at a glance' : "Each worker's own tab"],
+           s.url, s.col ? [TABS.team, s.col + '4'] : null, TINTS['Each worker']);
+    });
+    g.jobs.forEach(function (j) {
+      var done = "'Year planner'!E" + j.row, due, status, kind, when = '';
+      if (REPEATS[j.due]) {
+        var nxt = REPEATS[j.due].replace('%', done);
+        due = '=IF(' + done + '="","",' + nxt + ')';
+        status = '=IF(' + done + '="","No record yet",IF(' + nxt + '<TODAY(),"Overdue","In date"))';
+        kind = 'Regular job'; when = j.due;
+      } else {
+        var at = "'Year planner'!A" + j.row;
+        due = '=' + at;
+        status = '=IF(' + done + '<>"","Done",IF(' + at + '<TODAY(),"Overdue",IF(' + at + '<TODAY()+30,"Due within 30 days","Not due yet")))';
+        kind = 'Dated job';
+      }
+      push('job', ['', short, g.heading, j.what, kind, 'The organisation', when, j.why, '', due, status, 'Year planner'],
+           j.url, ['Year planner', 'E' + j.row], TINTS['Organisation']);
+    });
+  });
+
+  var sh = ss.insertSheet(TABS.everything, tab_('Start here').getIndex());
+  sh.setTabColor('#38553E');
+  EV_COLS.forEach(function (c, i) { sh.setColumnWidth(i + 1, c[1] * 7); });
+  sh.getRange('A2').setValue('Everything in one list, by Practice Standard').setFontSize(14).setFontWeight('bold')
+    .setFontColor('#38553E');
+  sh.getRange('A3').setValue("Under each Practice Standard: every document, every item each worker's file must hold, " +
+    'and every dated job, with when it is needed, the next due date and whether it is in date. Dates are typed in one ' +
+    "place only (documents on 'Checklist', workers on their own staff file tab, jobs on 'Year planner'); this list " +
+    'reads them. The + and - beside the row numbers show and hide the indicators.').setFontColor('#5F564C');
+  sh.getRange('A4').setValue("Highlighted rows go in someone's file:").setFontColor('#5F564C');
+  sh.getRange('E4:H4').setValues([['Each participant', 'Each worker', 'The organisation',
+                                   'No colour: policies and guides, read but not filled in']])
+    .setBackgrounds([['#FBE0E6', '#DCE7D5', '#F3E3CA', null]]);
+  sh.getRange(5, 1, 1, 12).setValues([EV_COLS.map(function (c) { return c[0]; })])
+    .setFontWeight('bold').setFontColor('#FFFFFF').setBackground('#38553E').setWrap(true);
+
+  var top = 6, n = grid.length, body = sh.getRange(top, 1, n, 12);
+  body.setValues(grid).setWrap(true).setVerticalAlignment('top');
+  var ids = { 'Checklist': tab_(TABS.checklist).getSheetId(), 'Team at a glance': team.getSheetId(),
+              'Year planner': planner.getSheetId() };
+  sh.getRange(top, 4, n, 1).setRichTextValues(grid.map(function (r, i) {
+    var t = SpreadsheetApp.newRichTextValue().setText(String(r[3]));
+    return [(links[i] ? t.setLinkUrl(links[i]) : t).build()];
+  }));
+  sh.getRange(top, 12, n, 1).setRichTextValues(grid.map(function (r, i) {
+    var t = SpreadsheetApp.newRichTextValue().setText(String(r[11]));
+    return [(jumps[i] ? t.setLinkUrl('#gid=' + ids[jumps[i][0]] + '&range=' + jumps[i][1]) : t).build()];
+  }));
+  body.setBackgrounds(kinds.map(function (k, i) {
+    var c = k === 'band' ? '#38553E' : tints[i];
+    return [c, c, c, c, c, c, c, c, c, c, c, c];
+  }));
+  sh.getRange(top, 10, n, 1).setNumberFormat('d mmm yyyy');
+  sh.getRange(top, 11, n, 1).setFontWeight('bold');
+  var groupStart = null;
+  kinds.forEach(function (k, i) {
+    var r = top + i;
+    if (k === 'band') sh.getRange(r, 1, 1, 12).merge().setFontWeight('bold').setFontColor('#FFFFFF').setFontSize(12);
+    if (k === 'standard' || k === 'indicator' || k === 'also') sh.getRange(r, 4, 1, 6).merge();
+    if (k === 'standard') sh.getRange(r, 3).setFontWeight('bold').setFontColor('#38553E');
+    if (k === 'standard' || k === 'indicator') sh.getRange(r, 4).setFontStyle(k === 'standard' ? 'italic' : 'normal');
+    if (k === 'indicator') sh.getRange(r, 3, 1, 2).setFontColor('#5F564C').setFontSize(9);
+    if (k === 'indicator' && groupStart === null) groupStart = r;
+    if (k !== 'indicator' && groupStart !== null) {
+      sh.getRange(groupStart, 1, r - groupStart, 1).shiftRowGroupDepth(1);
+      groupStart = null;
+    }
+  });
+  if (groupStart !== null) sh.getRange(groupStart, 1, top + n - groupStart, 1).shiftRowGroupDepth(1);
+  sh.setRowGroupControlPosition(SpreadsheetApp.GroupControlTogglePosition.BEFORE);
+  sh.collapseAllRowGroups();
+  var K = 'K' + top, J = 'J' + top, rule = function (f, colour, range) {
+    return SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied(f).setBackground(colour)
+      .setRanges([sh.getRange(range)]).build();
+  };
+  var is = function (vals) { return 'OR(' + vals.map(function (v) { return K + '="' + v + '"'; }).join(',') + ')'; };
+  var ks = 'K' + top + ':K' + (top + n - 1), js = 'J' + top + ':J' + (top + n - 1);
+  sh.setConditionalFormatRules([
+    rule('=OR(' + is(['Overdue', 'Missing']) + ',LEFT(' + K + ',7)="Expired")', '#F4C7C3', ks),
+    rule('=' + is(['Due within 30 days', 'No review date on record', 'No record yet', 'Renew within 60 days',
+                   'No dates entered', 'Add workers on Team at a glance']), '#FCE8B2', ks),
+    rule('=' + is(['In date', 'Done', 'Not due yet']), '#D7EBD5', ks),
+    rule('=' + is(['Superseded', 'Working copy', 'Draft', 'Per worker']), '#E8E4E0', ks),
+    rule('=AND(ISNUMBER(' + J + '),' + J + '<TODAY())', '#F4C7C3', js),
+    rule('=AND(ISNUMBER(' + J + '),' + J + '<TODAY()+30)', '#FCE8B2', js)
+  ]);
+  sh.setFrozenRows(5);
+  sh.setFrozenColumns(4);
+  sh.getRange(5, 1, n + 1, 12).createFilter();
+  return n;
+}
+
+function columnLetter_(n) {
+  var s = '';
+  for (; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + (n - 1) % 26) + s;
+  return s;
 }
 
 

@@ -39,6 +39,41 @@ class Blob {
   copyBlob() { return new Blob(this.bytes, this.type, this.name); }
 }
 
+
+// Sheets' TextFinder: plain text, any case; with matchFormulaText, only inside formulas
+class Finder {
+  constructor(sheets, text) { this.sheets = sheets; this.text = text; this.formulas = false; }
+  matchFormulaText(b) { this.formulas = b; return this; }
+  hits() {
+    const out = [];
+    for (const s of this.sheets) {
+      for (const x of s.grid.values()) {
+        if (typeof x.v !== 'string' || x.v.startsWith('=') !== this.formulas) continue;
+        if (x.v.toLowerCase().includes(this.text.toLowerCase())) out.push(x);
+      }
+    }
+    return out;
+  }
+  findAll() { return this.hits(); }
+  replaceAllWith(t) {
+    const hits = this.hits();
+    for (const x of hits) x.v = x.v.split(this.text).join(t);
+    return hits.length;
+  }
+}
+
+class RuleBuilder {
+  constructor() { this.rule = {}; }
+  whenFormulaSatisfied(f) { this.rule.formula = f; return this; }
+  setBackground(b) { this.rule.background = b; return this; }
+  setRanges(r) { this.rule.ranges = r; return this; }
+  build() {
+    const r = this.rule;
+    return { formula: r.formula, background: r.background, getRanges: () => r.ranges,
+             getBooleanCondition: () => ({ getCriteriaValues: () => [r.formula] }) };
+  }
+}
+
 // ---------------------------------------------------------------- Drive
 class Drive {
   constructor(clock) { this.items = new Map(); this.clock = clock; }
@@ -120,15 +155,43 @@ class Range {
   }
   setValue(v) { this.sheet.put(this.r, this.c, v); return this; }
   insertCheckboxes() { this.cells((x) => { x.v = false; x.checkbox = true; }); return this; }
+  setRichTextValues(rows) {
+    rows.forEach((row, i) => row.forEach((t, j) => {
+      const x = this.sheet.cell(this.r + i, this.c + j);
+      x.v = t.text; x.link = t.link || undefined;
+    }));
+    return this;
+  }
+  setBackgrounds(rows) { rows.forEach((row, i) => row.forEach((b, j) => { this.sheet.cell(this.r + i, this.c + j).bg = b; })); return this; }
+  merge() { this.sheet.merges.push([this.r, this.c, this.nr, this.nc]); return this; }
+  shiftRowGroupDepth(d) { this.sheet.groups.push([this.r, this.nr, d]); return this; }
+  copyTo(dest) { return this; }
+  createFilter() { this.sheet.filter = [this.r, this.c, this.nr, this.nc]; return this; }
   getRow() { return this.r; } getNumRows() { return this.nr; }
 }
 for (const m of ['setNumberFormat', 'setFontSize', 'setFontWeight', 'setFontColor', 'setBackground',
-                 'setWrap', 'setDataValidation']) {
+                 'setWrap', 'setDataValidation', 'setVerticalAlignment', 'setFontStyle']) {
   Range.prototype[m] = function () { return this; };
 }
 
 class Sheet {
-  constructor(ss, name) { this.ss = ss; this.name = name; this.grid = new Map(); this.maxRows = 1000; }
+  constructor(ss, name) {
+    Object.assign(this, { ss, name, grid: new Map(), maxRows: 1000, merges: [], groups: [], cf: [], id: ++Sheet.ids });
+  }
+  getSheetId() { return this.id; }
+  getIndex() { return this.ss.sheets.indexOf(this) + 1; }
+  insertRowBefore(at) {  // like Sheets; references inside formulas are not adjusted here
+    const moved = new Map();
+    for (const [k, x] of this.grid) {
+      const [r, c] = k.split(',').map(Number);
+      moved.set((r >= at ? r + 1 : r) + ',' + c, x);
+    }
+    this.grid = moved;
+    return this;
+  }
+  createTextFinder(text) { return new Finder([this], text); }
+  getConditionalFormatRules() { return this.cf.slice(); }
+  setConditionalFormatRules(rules) { this.cf = rules.slice(); return this; }
   cell(r, c) {
     const k = r + ',' + c;
     if (!this.grid.has(k)) this.grid.set(k, {});
@@ -142,6 +205,15 @@ class Sheet {
   getName() { return this.name; }
   setName(n) { this.ss.rename(this, n); return this; }
   getRange(r, c, nr, nc) {
+    if (typeof r === 'string') {  // 'B4' or 'E4:H4', as Sheets accepts
+      const at = (a) => {
+        const m = a.match(/^([A-Z]+)(\d+)$/);
+        return [Number(m[2]), [...m[1]].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0)];
+      };
+      const [a, b] = r.split(':');
+      const [r1, c1] = at(a), [r2, c2] = b ? at(b) : [r1, c1];
+      return new Range(this, r1, c1, r2 - r1 + 1, c2 - c1 + 1);
+    }
     if (r < 1 || c < 1) throw new Error('Those rows are out of bounds.');
     return new Range(this, r, c, nr || 1, nc || 1);
   }
@@ -163,17 +235,25 @@ class Sheet {
     return s;
   }
   setFrozenRows() { return this; }
+  setFrozenColumns() { return this; }
+  setColumnWidth() { return this; }
+  setTabColor() { return this; }
+  setRowGroupControlPosition() { return this; }
+  collapseAllRowGroups() { this.collapsed = true; return this; }
   getActiveRange() { return this.ss.selection; }
 }
 
+Sheet.ids = 0;
+
 class Spreadsheet {
   constructor(clock) { this.clock = clock; this.sheets = []; this.toasts = []; this.tz = null; }
-  insertSheet(name) {
+  insertSheet(name, index) {
     if (this.getSheetByName(name)) throw new Error('A sheet with the name "' + name + '" already exists.');
     const s = new Sheet(this, name);
-    this.sheets.push(s);
+    if (index === undefined) this.sheets.push(s); else this.sheets.splice(index, 0, s);
     return s;
   }
+  createTextFinder(text) { return new Finder(this.sheets, text); }
   getSheetByName(n) { return this.sheets.find((s) => s.name === n) || null; }
   rename(sheet, n) {
     if (this.getSheetByName(n)) throw new Error('A sheet with the name "' + n + '" already exists.');
@@ -260,7 +340,15 @@ function google(opts) {
         showSidebar: (h) => alerts.push('sidebar:' + h.title),
         createMenu: () => { const m = { addItem: () => m, addSeparator: () => m, addToUi: () => m }; return m; }
       }),
-      newDataValidation: () => { const b = { requireValueInList: () => b, build: () => ({}) }; return b; }
+      newDataValidation: () => { const b = { requireValueInList: () => b, build: () => ({}) }; return b; },
+      newConditionalFormatRule: () => new RuleBuilder(),
+      newRichTextValue: () => {
+        const t = {};
+        const b = { setText: (x) => { t.text = x; return b; }, setLinkUrl: (u) => { t.link = u; return b; }, build: () => t };
+        return b;
+      },
+      CopyPasteType: { PASTE_FORMAT: 'format' },
+      GroupControlTogglePosition: { BEFORE: 'before' }
     },
     DriveApp: {
       createFolder: (n) => drive.folder(n, 'root'),

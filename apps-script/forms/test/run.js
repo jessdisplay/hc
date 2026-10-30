@@ -12,6 +12,11 @@ const CODE = fs.readFileSync(path.join(__dirname, '..', 'Code.gs'), 'utf8');
 const NOW = '2026-10-30T14:30:00Z';
 const TODAY = '2026-10-31';
 
+const CHECKLIST_HEAD = ['No.', 'Module', 'Practice Standard', 'Document (opens the file)', 'Type', 'Filled in for',
+  'When it is needed', 'Completed by', 'Signed by', 'Version', 'Approved by', 'Approval date', 'Next review on record',
+  'Review every (months)', 'Last reviewed (type the date)', 'Next due', 'Status', 'Notes for the next audit', 'How often',
+  'Kept where', "Harmony's rule (source)", 'Section'];
+
 function world(now) {
   const g = google({ now: now || NOW });
   const ctx = vm.createContext(Object.assign({}, g.globals));
@@ -45,13 +50,28 @@ function world(now) {
   const staff = ss.insertSheet('Staff file (copy per worker)');
   staff.getRange(1, 1).setValue('Staff file checklist');
   staff.getRange(3, 1, 3, 1).setValues([['Worker name'], ['Role'], ['Start date']]);
-  staff.getRange(22, 2).setValue('100 points of ID');
+  staff.getRange(21, 1, 1, 6).setValues([['Group', 'Item', 'Who needs it', 'What to keep in the file', 'Harmony form', 'Renew']]);
+  staff.getRange(22, 1, 1, 6).setValues([['Before first shift: identity and right to work', '100 points of ID',
+    'All workers', 'Copies of one primary and one secondary ID', 'Staff Induction Checklist', 'Once']]);
+  staff.getRange(22, 9).setValue('=IF(K22="No","Not needed",IF(AND(G22="",H22=""),"Missing","Held"))');
+  staff.getRange(23, 1, 1, 6).setValues([['Training: all workers', 'First aid (HLTAID011)', 'All workers',
+    'Statement of attainment', 'Training and Development Register', 'Every 3 years']]);
+  staff.getRange(23, 9).setValue('=IF(K23="No","Not needed",IF(AND(G23="",H23=""),"Missing","Held"))');
+  staff.getRange(37, 10).setValue('Harmony HR Management Policy s 4.3(a)(6). Avaana checklist: auditors expect a formal agreement for each worker.');
+  staff.setConditionalFormatRules([g.globals.SpreadsheetApp.newConditionalFormatRule()
+    .whenFormulaSatisfied('=I22="Missing"').setBackground('#F4C7C3').setRanges([staff.getRange('I22:I66')]).build()]);
   const team = ss.insertSheet('Team at a glance');
-  team.getRange(4, 1).setValue('Worker (tab name)');
+  team.getRange(4, 1, 1, 3).setValues([['Worker (tab name)', 'Missing or expired', 'First aid (HLTAID011)']]);
+  for (let r = 5; r <= 19; r++) {
+    team.getRange(r, 2).setValue('=IF($A' + r + '="","",COUNTIF(INDIRECT("\'"&$A' + r + '&"\'!I:I"),"Missing"))');
+  }
+  const start = ss.insertSheet('Start here');
+  start.getRange(5, 1).setValue('How to use it');
+  start.getRange(6, 1, 1, 2).setValues([['Checklist', 'Laid out like the Avaana checklist: module, Practice Standard, ' +
+    "its outcome and indicators, then every document for it. Highlighted rows are forms someone must fill in."]]);
+  start.getRange(7, 1).setValue('After a review');
   const checklist = ss.insertSheet('Checklist');
-  const head = Array.from({ length: 17 }, (_, i) => 'c' + (i + 1));
-  head[0] = 'No.'; head[3] = 'Document (opens the file)'; head[14] = 'Last reviewed (type the date)';
-  checklist.getRange(5, 1, 1, 17).setValues([head]);
+  checklist.getRange(5, 1, 1, 22).setValues([CHECKLIST_HEAD]);
   checklist.getRange(11, 1).setValue(1);
   checklist.getRange(11, 4).setValue('Promoting and Protecting Rights Policy');
   const every = ss.insertSheet('Everything');
@@ -548,6 +568,78 @@ test("Set up again after the folders move into Harmony's shared drive (no single
   w.alerts.length = 0;
   w.ctx.setup();
   assert.match(w.alerts[0], /shared with: locky@harmony\.example\./);
+});
+
+test('an older sheet is brought up to date: wording fixed, nothing named, and twice changes nothing', () => {
+  const w = world();
+  w.ctx.upgradeWorkbook();
+  const start = w.ss.getSheetByName('Start here');
+  assert.deepStrictEqual(plain(start.getRange(6, 1, 1, 2).getValues()[0].map((x) => String(x).slice(0, 30))),
+    ['Everything', 'One list for every area: under']);
+  assert.match(start.getRange(7, 2).getValue(), /^The documents on their own, by module and Practice Standard/);
+  const staff = w.ss.getSheetByName('Staff file (copy per worker)');
+  assert.strictEqual(staff.getRange(37, 10).getValue(), 'Harmony HR Management Policy s 4.3(a)(6).');
+  assert.match(staff.getRange(22, 9).getValue(), /"Not recorded yet"/);
+  assert.strictEqual(staff.getConditionalFormatRules()[0].formula, '=I22="Not recorded yet"');
+  assert.strictEqual(staff.getConditionalFormatRules()[0].background, '#FCE8B2');
+  assert.strictEqual(w.team.getRange(4, 2).getValue(), 'Not recorded or expired');
+  assert.match(w.team.getRange(5, 2).getValue(), /"Not recorded yet"/);
+  assert.strictEqual(w.ss.createTextFinder('avaana').findAll().length, 0);
+  w.alerts.length = 0;
+  w.ctx.upgradeWorkbook();
+  assert.strictEqual(w.alerts[0], 'The checklist was already up to date.');
+  assert.strictEqual(start.getRange(8, 1).getValue(), 'After a review', 'the Everything line went in once');
+});
+
+test('an older sheet without the Everything tab gets one, read from its own tabs', () => {
+  const w = world();
+  w.ss.sheets.splice(w.ss.sheets.indexOf(w.every), 1);
+  const ck = w.checklist, docx = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  const policy = w.drive.file('HR Policy.docx', docx, w.audited.getId());
+  const register = w.drive.file('Risk Register.docx', docx, w.audited.getId());
+  for (let r = 6; r <= 20; r++) for (let c = 1; c <= 22; c++) ck.put(r, c, undefined);
+  const rows = [
+    [6, ['CORE MODULE']],
+    [7, ['', '', 'Human Resource Management', 'Outcome: Workers are competent.']],
+    [8, ['', '', 'Indicators to be demonstrated', '1. Records of checks are kept.']],
+    [9, ['', '', '', '2. Induction is completed.']],
+    [10, [1, 'Core Module', 'Human Resource Management', 'HR Policy', 'Policy', 'Not filled in', 'Always', 'Principal', 'Not signed']],
+    [11, [2, 'Core Module', 'Human Resource Management', 'Worker Declarations', 'Form', 'Each worker', 'Before they start', 'Worker', 'Worker and supervisor']],
+    [12, ['', '', 'Risk Management', 'Outcome: Risks are managed.']],
+    [13, [3, 'Core Module', 'Risk Management', 'Risk Register', 'Register', 'Organisation', 'Kept current', 'Principal', 'Not signed']]
+  ];
+  for (const [r, vals] of rows) vals.forEach((v, j) => ck.put(r, j + 1, v));
+  for (const [r, sec, f] of [[10, '17', policy], [11, '17', w.forms.decl], [13, '12', register]]) {
+    ck.put(r, 22, sec); ck.put(r, 19, 'Yearly'); ck.cell(r, 4).link = f.getUrl();
+  }
+  const planner = w.ss.insertSheet('Year planner');
+  planner.getRange(3, 1, 1, 5).setValues([['Due', 'What', 'Open', 'Why (source)', 'Done on (type the date)']]);
+  planner.getRange(4, 1, 1, 4).setValues([['Every month', 'Review the risk register', 'Risk Register', 'Policy']]);
+  planner.cell(4, 3).link = register.getUrl();
+  planner.getRange(5, 1, 1, 4).setValues([['2026-11-30', 'Renew WorkCover', 'Risk Register', 'Certificate']]);
+  planner.cell(5, 3).link = register.getUrl();
+  w.ctx.upgradeWorkbook();
+  const ev = w.ss.getSheetByName('Everything');
+  assert.ok(ev, 'Everything tab made');
+  assert.strictEqual(w.ss.sheets.indexOf(ev), w.ss.sheets.indexOf(w.ss.getSheetByName('Start here')) + 1, 'right after Start here');
+  const col = (r, c) => ev.getRange(r, c).getValue();
+  const kinds = [];
+  for (let r = 6; r <= ev.getLastRow(); r++) kinds.push(col(r, 5) || col(r, 3) || col(r, 1));
+  assert.deepStrictEqual(plain(kinds), ['CORE MODULE', 'Human Resource Management', 'Indicators to be demonstrated',
+    '', 'Policy', 'Form', "Worker's file", "Worker's file", 'Risk Management', 'Register', 'Regular job', 'Dated job']);
+  assert.strictEqual(col(11, 4), 'Worker Declarations');
+  assert.strictEqual(ev.cell(11, 4).link, w.forms.decl.getUrl(), 'title opens the form');
+  assert.strictEqual(col(11, 8), 'Filled in by: Worker. Signed by: Worker and supervisor.');
+  assert.strictEqual(col(11, 10), '=IF(Checklist!P11="","",Checklist!P11)');
+  assert.strictEqual(col(11, 11), '=Checklist!Q11');
+  assert.strictEqual(ev.cell(11, 12).link, '#gid=' + w.checklist.getSheetId() + '&range=O11');
+  assert.strictEqual(col(13, 4), 'First aid (HLTAID011)');
+  assert.match(col(13, 11), /^=IF\(COUNTA\('Team at a glance'!\$A\$5:\$A\$19\)=0,"Add workers on Team at a glance"/);
+  assert.strictEqual(col(12, 11), 'Per worker', 'an item Team at a glance does not track');
+  assert.strictEqual(col(16, 10), "=IF('Year planner'!E4=\"\",\"\",EDATE('Year planner'!E4,1))");
+  assert.strictEqual(col(17, 10), "='Year planner'!A5");
+  assert.deepStrictEqual(plain(ev.groups), [[8, 2, 1]], 'the two indicator rows fold');
+  assert.ok(ev.collapsed);
 });
 
 let failed = 0;
