@@ -216,7 +216,8 @@ class Thread {
   getId() { return this.id; }
   addLabel(l) { this.labels.push(l.name); return this; }
   getMessages() {
-    return this.messages.map((m) => ({ getFrom: () => m.from, getDate: () => m.date, getAttachments: () => m.attachments }));
+    return this.messages.map((m) => ({ getFrom: () => m.from, getDate: () => m.date,
+                                       getAttachments: () => m.attachments, getPlainBody: () => m.body }));
   }
   createDraftReply(body) { this.gm.drafts.push({ thread: this.id, body }); }
 }
@@ -232,6 +233,8 @@ function google(opts) {
   const alerts = [];
   const triggers = [];
   const fetches = [];
+  const user = { active: me };  // who is pressing the button; the timers always run as `me`
+  const userProps = {};
   let fetchFails = null;  // a function(url) -> status code, to make Drive's API refuse
   const trigger = (handler) => {
     const b = { handler };
@@ -277,7 +280,13 @@ function google(opts) {
       newTrigger: trigger,
       WeekDay: { MONDAY: 'MONDAY' }
     },
-    Session: { getEffectiveUser: () => ({ getEmail: () => me }) },
+    Session: { getEffectiveUser: () => ({ getEmail: () => me }), getActiveUser: () => ({ getEmail: () => user.active }) },
+    PropertiesService: {
+      getUserProperties: () => {
+        const mine = (userProps[user.active] = userProps[user.active] || {});
+        return { getProperty: (k) => (k in mine ? mine[k] : null), setProperty: (k, v) => { mine[k] = v; } };
+      }
+    },
     Utilities: { formatDate },
     GmailApp: gmail,
     MailApp: { sendEmail: (m) => mail.push(m) },
@@ -285,7 +294,7 @@ function google(opts) {
     HtmlService: { createHtmlOutput: (h) => ({ html: h, setTitle(t) { this.title = t; return this; } }) },
     console
   };
-  return { globals, ss, drive, gmail, mail, alerts, triggers, fetches, clock, Blob,
+  return { globals, ss, drive, gmail, mail, alerts, triggers, fetches, clock, Blob, user,
            failFetch: (fn) => { fetchFails = fn; } };
 }
 

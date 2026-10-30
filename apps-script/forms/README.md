@@ -6,7 +6,11 @@ forms from and sees them come back. It adds a **Harmony forms** menu to the shee
 - **People** tab: everyone forms go to (staff, participants, practitioners), with their email. A
   participant who does not sign for themselves has a guardian or representative and their email.
 - **Send forms to someone**: pick the person, tick their forms (the list comes from their role's
-  'Send to' tab), and a test copy of every email reaches the test address first. Then send.
+  'Send to' tab), and a test copy of every email comes to the sender first. Then send.
+- Every email goes out from the account that ran Set up, whoever in Harmony pressed the button: Send
+  puts it on a queue that a one-minute timer empties. So every reply lands in the one inbox the hourly
+  check reads. If the Send panel was closed, select the rows on 'Sent and returned' and choose Send
+  the selected rows.
 - A form whose signing template has its fields placed goes by **Google eSignature**: the script
   makes the person's copy and you press Request signature in it. Every other form goes by **email**
   as a PDF and a Word file, for them to sign and reply with.
@@ -29,7 +33,9 @@ forms from and sees them come back. It adds a **Harmony forms** menu to the shee
 5. Choose Harmony forms > Make signing templates. For each form that should go by eSignature, open
    its template, place the Signature, Name and Date fields (Tools > eSignature), and tick column D.
 
-Emails go out from, and replies are read in, the Google account that runs Set up.
+Emails go out from, and replies are read in, the Google account that runs Set up. Share the sheet
+and the two Drive folders it makes with the Harmony staff who use it; each of them is asked once,
+the first time they use the menu, to allow the script.
 
 ## Tests
 

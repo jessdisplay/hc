@@ -76,10 +76,17 @@ function addPerson(w, row, values) {
 
 const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
-const row = (w, r) => w.tracker.getRange(r, 1, 1, 16).getValues()[0];
+const row = (w, r) => w.tracker.getRange(r, 1, 1, 18).getValues()[0];
 const day = (d) => (d instanceof Date ? d.toISOString() : String(d));
 const asDay = (w, d) => w.ctx.day_(d);
 const plain = (x) => JSON.parse(JSON.stringify(x));  // values made inside the sandbox
+/** what pressing Send does, end to end: the timer sends the test, Send queues, the timer sends it */
+function deliver(w, rows) {
+  w.ctx.sendQueued();
+  const res = w.ctx.sendNow(rows);
+  w.ctx.sendQueued();
+  return res;
+}
 
 /** set up, three people, ready to send */
 function ready(now) {
@@ -101,13 +108,14 @@ test('set up makes the tabs, folders and three timers, and running it twice chan
   assert.strictEqual(w.ss.tz, 'Australia/Brisbane');
   assert.strictEqual(w.ctx.setting_('Test copies go to'), 'jesse@riseos.care');
   assert.ok(w.ctx.folderId_(w.ctx.setting_("Folder for each person's files")));
-  assert.deepStrictEqual(w.triggers.map((t) => t.handler).sort(), ['checkReturns', 'dailyChase', 'mondayDigest']);
+  assert.deepStrictEqual(w.triggers.map((t) => t.handler).sort(), ['checkReturns', 'dailyChase', 'mondayDigest', 'sendQueued']);
   assert.strictEqual(w.tracker.getRange(5, 12).getValue(), 'Copy sent (opens it)');
   const folders = [...w.drive.items.values()].filter((x) => x.kind === 'folder').length;
   w.ctx.setup();
-  assert.strictEqual(w.triggers.length, 3, 'timers not doubled');
+  assert.strictEqual(w.triggers.length, 4, 'timers not doubled');
   assert.strictEqual([...w.drive.items.values()].filter((x) => x.kind === 'folder').length, folders, 'no new folders');
-  assert.strictEqual(w.ss.getSheetByName('Settings').getLastRow(), 9, 'settings not doubled');
+  assert.strictEqual(w.ss.getSheetByName('Settings').getLastRow(), 10, 'settings not doubled');
+  assert.strictEqual(w.ctx.setting_('Emails go out from'), 'jesse@riseos.care');
 });
 
 test("set up stops if 'Sent and returned' is not the workbook's", () => {
@@ -173,7 +181,11 @@ test('prepare copies the form into their folder, writes an undated row, and only
   assert.strictEqual(copy.mime, 'application/vnd.google-apps.document');
   assert.strictEqual(copy.name, "Worker Declarations - Ana O'Brien (31 Oct 2026)", 'Brisbane date, not UTC');
   assert.ok(w.ctx.folderId_(w.ss.getSheetByName('People').getRange(5, 8).getValue()), 'their folder link');
+  assert.strictEqual(w.gmail.sent.length, 0, 'nothing goes until the timer runs');
+  assert.deepStrictEqual(plain(v.slice(16, 18)), ['Test', 'jesse@riseos.care']);
+  w.ctx.sendQueued();
   assert.strictEqual(w.gmail.sent.length, 1, 'only the test copy');
+  assert.strictEqual(row(w, 6)[16], 'Test sent');
   const test = w.gmail.sent[0];
   assert.strictEqual(test.to, 'jesse@riseos.care');
   assert.match(test.subject, /^\[Test copy for Ana O'Brien\] Harmony Care: Worker Declarations$/);
@@ -186,8 +198,8 @@ test('prepare copies the form into their folder, writes an undated row, and only
 test('send goes once to the person, dates the row and keeps the thread; pressing again sends nothing', () => {
   const w = ready();
   const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
-  const res = w.ctx.sendNow([it.trackerRow]);
-  assert.deepStrictEqual(plain(res), [{ row: 6, sent: true }]);
+  const res = deliver(w, [it.trackerRow]);
+  assert.deepStrictEqual(plain(res), [{ row: 6, queued: true }]);
   const real = w.gmail.sent[1];
   assert.strictEqual(real.to, 'ana@example.com');
   assert.strictEqual(real.subject, 'Harmony Care: Worker Declarations');
@@ -195,7 +207,8 @@ test('send goes once to the person, dates the row and keeps the thread; pressing
   assert.strictEqual(asDay(w, v[0]), TODAY);
   assert.strictEqual(v[13], real.thread);
   assert.deepStrictEqual(plain(w.gmail.threads.get(real.thread).labels), ['Harmony forms']);
-  const again = w.ctx.sendNow([6]);
+  assert.strictEqual(v[16], 'Sent');
+  const again = deliver(w, [6]);
   assert.strictEqual(again[0].note, 'Already sent.');
   assert.strictEqual(w.gmail.sent.length, 2);
 });
@@ -203,7 +216,7 @@ test('send goes once to the person, dates the row and keeps the thread; pressing
 test('a participant with a guardian: the guardian gets it, greeted by name', () => {
   const w = ready();
   const [it] = w.ctx.prepare(6, [w.forms.consent.getId()]);
-  w.ctx.sendNow([it.trackerRow]);
+  deliver(w, [it.trackerRow]);
   const real = w.gmail.sent[w.gmail.sent.length - 1];
   assert.strictEqual(real.to, 'kim@example.com');
   assert.match(real.body, /^Hi Kim,/);
@@ -219,7 +232,7 @@ test('a bad address never gets a form', () => {
 test('the signed copy coming back by email is filed, dated and announced once', () => {
   const w = ready();
   const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
-  w.ctx.sendNow([it.trackerRow]);
+  deliver(w, [it.trackerRow]);
   const thread = w.gmail.threads.get(row(w, 6)[13]);
   thread.add('Ana <ana@example.com>', 'jesse@riseos.care', 'Re', 'Done',
              [new Blob('signed', 'application/pdf', 'scan.pdf')]);
@@ -239,7 +252,7 @@ test('the signed copy coming back by email is filed, dated and announced once', 
 test('a reply without the form is noted and announced once, and the row stays open', () => {
   const w = ready();
   const [it] = w.ctx.prepare(6, [w.forms.consent.getId()]);
-  w.ctx.sendNow([it.trackerRow]);
+  deliver(w, [it.trackerRow]);
   const thread = w.gmail.threads.get(row(w, it.trackerRow)[13]);
   thread.add('kim@example.com', 'jesse@riseos.care', 'Re', 'Will do it Monday', []);
   w.ctx.checkReturns();
@@ -254,7 +267,7 @@ test('a reply without the form is noted and announced once, and the row stays op
 test('our own sent email in the thread is never taken as the reply', () => {
   const w = ready();
   const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
-  w.ctx.sendNow([it.trackerRow]);
+  deliver(w, [it.trackerRow]);
   w.ctx.checkReturns();
   assert.strictEqual(row(w, it.trackerRow)[6], '');
   assert.strictEqual(w.mail.length, 0);
@@ -311,7 +324,7 @@ test("eSignature: one form waiting takes the folder's new PDF; an emailed signed
   const declRow = [5, 6, 7, 8].find((r) => t.getRange(r, 1).getValue() === 'Worker Declarations');
   t.getRange(declRow, 4).setValue(true);
   const [byEmail] = w.ctx.prepare(5, [w.forms.preEmp.getId()]);
-  w.ctx.sendNow([byEmail.trackerRow]);
+  deliver(w, [byEmail.trackerRow]);
   const [bySign] = w.ctx.prepare(5, [w.forms.decl.getId()]);
   w.ctx.markRequested(bySign.trackerRow);
   w.gmail.threads.get(row(w, byEmail.trackerRow)[13])
@@ -328,7 +341,7 @@ test("eSignature: one form waiting takes the folder's new PDF; an emailed signed
 test('chasing: a form out 14 days gets a Gmail draft (never sent) and one list, then waits a week', () => {
   const w = ready();
   const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
-  w.ctx.sendNow([it.trackerRow]);
+  deliver(w, [it.trackerRow]);
   w.tracker.getRange(it.trackerRow, 1).setValue('2026-10-16');
   w.ctx.dailyChase();
   assert.strictEqual(w.gmail.drafts.length, 1);
@@ -342,7 +355,7 @@ test('chasing: a form out 14 days gets a Gmail draft (never sent) and one list, 
 test('chasing leaves a form alone before its 14 days', () => {
   const w = ready();
   const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
-  w.ctx.sendNow([it.trackerRow]);
+  deliver(w, [it.trackerRow]);
   w.tracker.getRange(it.trackerRow, 1).setValue('2026-10-18');
   w.ctx.dailyChase();
   assert.strictEqual(w.gmail.drafts.length, 0);
@@ -364,7 +377,7 @@ test('mark reviewed today: from the Everything row to the Checklist cell, in Bri
 test('the Monday email counts what is overdue, due soon, out and waiting', () => {
   const w = ready();
   const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
-  w.ctx.sendNow([it.trackerRow]);
+  deliver(w, [it.trackerRow]);
   w.ctx.mondayDigest();
   const m = w.mail[0];
   assert.strictEqual(m.subject, 'Harmony Care this week: 1 overdue or missing, 1 due soon');
@@ -396,6 +409,74 @@ test('nothing breaks at the turn of the day: a date written is the date read', (
     w.ctx.date_(cell, new w.clock());
     assert.strictEqual(w.ctx.day_(cell.getValue()), today, at);
   }
+});
+
+test('Brittany sends: her test copy comes to her, the email goes from the Set up account, the reply is caught', () => {
+  const w = ready();
+  w.user.active = 'brittany@harmony.example';
+  const d = w.ctx.formsFor(5);
+  assert.strictEqual(d.testTo, 'brittany@harmony.example', 'her own address offered');
+  assert.strictEqual(d.from, 'jesse@riseos.care');
+  const [it] = w.ctx.prepare(5, [w.forms.decl.getId()], 'brittany@harmony.example');
+  w.ctx.sendQueued();
+  assert.strictEqual(w.gmail.sent[0].to, 'brittany@harmony.example');
+  w.ctx.sendNow([it.trackerRow]);
+  w.ctx.sendQueued();
+  const real = w.gmail.sent[1];
+  assert.strictEqual(real.to, 'ana@example.com');
+  w.gmail.threads.get(real.thread).add('ana@example.com', 'jesse@riseos.care', 'Re', 'Signed',
+                                       [new Blob('s', 'application/pdf', 'signed.pdf')]);
+  w.ctx.checkReturns();
+  assert.strictEqual(asDay(w, row(w, it.trackerRow)[6]), TODAY, 'caught although Brittany pressed Send');
+  assert.strictEqual(w.ctx.testTo_(), 'brittany@harmony.example', 'remembered for her');
+  w.user.active = 'jesse@riseos.care';
+  assert.strictEqual(w.ctx.testTo_(), 'jesse@riseos.care', 'not for anyone else');
+});
+
+test('Send before the test copy has gone is refused, and nothing reaches the person', () => {
+  const w = ready();
+  const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
+  const res = w.ctx.sendNow([it.trackerRow]);
+  assert.match(res[0].error, /test copy has not gone yet/);
+  w.ctx.sendQueued();
+  assert.deepStrictEqual(plain(w.gmail.sent.map((m) => m.to)), ['jesse@riseos.care'], 'only the test');
+  assert.strictEqual(row(w, it.trackerRow)[16], 'Test sent');
+});
+
+test('a send that fails in the queue says why on its row and tells Settings, once', () => {
+  const w = ready();
+  const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
+  w.ctx.sendQueued();
+  w.ss.getSheetByName('People').getRange(5, 2).setValue('ana at example');
+  w.ctx.sendNow([it.trackerRow]);
+  w.ctx.sendQueued();
+  w.ctx.sendQueued();
+  const v = row(w, it.trackerRow);
+  assert.match(v[16], /^Not sent: 'ana at example' for Ana O'Brien is not an email address/);
+  assert.strictEqual(v[0], '', 'not dated');
+  assert.strictEqual(w.gmail.sent.length, 1, 'only the test went');
+  assert.strictEqual(w.mail.filter((m) => /^Not sent/.test(m.subject)).length, 1);
+});
+
+test('a reply without the form tells Brittany what they wrote, since it landed in another inbox', () => {
+  const w = ready();
+  const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
+  deliver(w, [it.trackerRow]);
+  w.gmail.threads.get(row(w, it.trackerRow)[13]).add('ana@example.com', 'me', 'Re', 'Which page do I sign?', []);
+  w.ctx.checkReturns();
+  assert.match(w.mail[0].body, /They wrote:\n\nWhich page do I sign\?/);
+});
+
+test('the menu item sends selected rows when the panel was closed', () => {
+  const w = ready();
+  const [it] = w.ctx.prepare(5, [w.forms.decl.getId()]);
+  w.ctx.sendQueued();
+  w.ss.select(w.tracker, it.trackerRow);
+  w.alerts.length = 0;
+  w.ctx.sendSelectedRows();
+  assert.match(w.alerts[0], /^1 on the way/);
+  w.ctx.sendQueued();
+  assert.strictEqual(w.gmail.sent[1].to, 'ana@example.com');
 });
 
 let failed = 0;
