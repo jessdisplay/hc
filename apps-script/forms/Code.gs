@@ -470,7 +470,8 @@ function shareFolders_(ss) {
   ["Folder for each person's files", 'Signing templates folder'].forEach(function (label) {
     var folder = DriveApp.getFolderById(requireFolder_(label));
     var has = folder.getEditors().map(function (u) { return u.getEmail().toLowerCase(); });
-    has.push(folder.getOwner().getEmail().toLowerCase());
+    var owner = folder.getOwner();  // none for a folder in a shared drive
+    if (owner) has.push(owner.getEmail().toLowerCase());
     editors.forEach(function (email) {
       if (has.indexOf(email.toLowerCase()) !== -1) return;
       try {

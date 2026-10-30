@@ -536,6 +536,20 @@ test("Set up shares the two folders with everyone who can edit the sheet, once, 
   assert.deepStrictEqual(plain(folder.editors), ['victoria@harmony.example', 'jesse@riseos.care']);
 });
 
+test("Set up again after the folders move into Harmony's shared drive (no single owner) still works", () => {
+  const w = world();
+  w.ss.editors = ['brittany@harmony.example', 'victoria@harmony.example'];
+  w.user.active = w.user.effective = 'brittany@harmony.example';
+  w.ctx.setup();
+  for (const label of ["Folder for each person's files", 'Signing templates folder']) {
+    w.drive.get(w.ctx.folderId_(w.ctx.setting_(label)), 'folder').sharedDrive = true;
+  }
+  w.ss.editors.push('locky@harmony.example');
+  w.alerts.length = 0;
+  w.ctx.setup();
+  assert.match(w.alerts[0], /shared with: locky@harmony\.example\./);
+});
+
 let failed = 0;
 for (const t of tests) {
   try {

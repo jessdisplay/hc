@@ -67,7 +67,7 @@ class Folder {
   createFolder(n) { return this.f.drive.folder(n, this.f.id); }
   createFile(blob) { return this.f.drive.file(blob.name, blob.type, this.f.id, { bytes: blob.bytes }); }
   getEditors() { return (this.f.editors || []).map((e) => ({ getEmail: () => e })); }
-  getOwner() { return { getEmail: () => this.f.owner || 'nobody' }; }
+  getOwner() { return this.f.sharedDrive ? null : { getEmail: () => this.f.owner || 'nobody' }; }
   addEditor(e) { (this.f.editors = this.f.editors || []).push(e); return this; }
   getFilesByType(mime) {
     return iter([...this.f.drive.items.values()]
