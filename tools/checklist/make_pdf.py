@@ -1,4 +1,4 @@
-"""The all-in printed version: the checklist and the 'Send to' lists on Harmony's letterhead.
+"""The all-in printed version: everything by Practice Standard and the 'Send to' lists, on Harmony's letterhead.
 
 Uses the page template of Harmony's document renderer (harmony-care-docs/hcpdf.py,
 the one that printed the September 2026 branded set), so the cream ground,
@@ -11,6 +11,9 @@ import datetime as dt
 import sys
 from pathlib import Path
 
+import openpyxl
+
+import everything
 import export_web
 import make_workbook as mw
 from send_lists import SEND_TABS
@@ -26,6 +29,10 @@ def main(xlsx, renderer, out):
 
     docs = export_web.read(xlsx)
     modules = export_web.structure([dict(d) for d in docs])
+    wb = openpyxl.load_workbook(xlsx)
+    mw.check_never_named(wb)
+    filed = everything.by_section(everything.staff_items(wb), everything.planner_jobs(wb, docs),
+                                  [s["key"] for m in modules for s in m["standards"]])
     by_no = {d["no"]: d for d in docs}
     home = {n: s["heading"] for m in modules for s in m["standards"] for n in s["docs"]}
     today = dt.date.today()
@@ -97,9 +104,10 @@ def main(xlsx, renderer, out):
         return t
 
     story = [Paragraph(esc(spec["title"]), st["title"]),
-             Paragraph("Every document Harmony Care was audited on, set out under the NDIS Practice Standard it "
-                       "meets: when each is needed, who fills it in, who it goes to, and whether it is due for "
-                       f"review. Status as at {today.strftime('%-d %B %Y')}.", st["sub"])]
+             Paragraph("Everything Harmony Care holds, renews and does, set out under the NDIS Practice Standard "
+                       "it meets: every document, every item each worker's file must hold, and every dated job, "
+                       "with when each is needed, who it goes to, and whether it is in date. Status as at "
+                       f"{today.strftime('%-d %B %Y')}.", st["sub"])]
 
     key = [[Paragraph("", cell), Paragraph("<b>Filled in for each participant</b>", cell)],
            [Paragraph("", cell), Paragraph("<b>Filled in for each worker</b>", cell)],
@@ -113,7 +121,7 @@ def main(xlsx, renderer, out):
                             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                             ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3)]))
     story += [kt, Spacer(1, 10)]
-    parts = ["Part 1. Every document, by Practice Standard"] + \
+    parts = ["Part 1. Everything, by Practice Standard"] + \
             [f"Part {i + 2}. {t['title']}" for i, t in enumerate(SEND_TABS)] + \
             [f"Part {len(SEND_TABS) + 2}. Forms Harmony fills in itself (not sent out)"]
     story += [Paragraph("IN THIS DOCUMENT", st["h1"])] + [Paragraph(esc(p), st["li"]) for p in parts]
@@ -123,8 +131,51 @@ def main(xlsx, renderer, out):
         "Standards) Rules 2018, compilation 6 (F2026C00527), and NDIS (Quality Indicators for NDIS Practice "
         "Standards) Guidelines 2018, compilation 3 (F2026C00528), both in force from 1 July 2026.", small)]
 
+    def doc_table(numbers):
+        rows, tints = [], []
+        for n in numbers:
+            d = by_no[n]
+            label, colour = status(d)
+            rows.append([Paragraph(str(n), small), Paragraph(link(d, bool(d["file"])), cell),
+                         Paragraph(esc(d["type"] + (f", version {d['version']}" if d["version"] else "")), small),
+                         Paragraph(esc(mw.FILE_LABEL[d["file"]] if d["file"] else "Read, not filled in"),
+                                   cellb if d["file"] else small),
+                         Paragraph(esc(d["when"] or ""), small),
+                         Paragraph(esc(pretty(d["next_due"])), small),
+                         Paragraph(f'<font color="{colour.hexval()[2:] and "#" + colour.hexval()[2:]}">'
+                                   f"<b>{esc(label)}</b></font>", small)])
+            tints.append(mw.TINT[d["file"]] if d["file"] else None)
+        return table(["No.", "Document", "Type", "Filled in for", "When it is needed", "Next due", "Status"],
+                     rows, [.04, .25, .11, .1, .3, .08, .12], tints)
+
+    def staff_table(items):
+        rows = []
+        for i in items:
+            title = f'<link href="{esc(i["url"])}" color="#{rail}"><u>{esc(i["item"])}</u></link>' \
+                if i["url"] else esc(i["item"])
+            keep = esc(i["keep"]) + (f" <i>Harmony form: {esc(i['form'])}.</i>" if i["form"] else "")
+            rows.append([Paragraph(title, cellb), Paragraph(esc(i["who"]), small),
+                         Paragraph(esc(everything.WHEN_OF_GROUP.get(i["group"], i["group"])), small),
+                         Paragraph(keep, small), Paragraph(esc(i["renew"] or ""), small)])
+        return table(["Each worker's file", "Who needs it", "When it is needed", "What to keep", "Renew"],
+                     rows, [.22, .12, .19, .33, .14], [mw.TINT["Worker"]] * len(rows))
+
+    def job_table(jobs):
+        rows = []
+        for j in jobs:
+            label, due = everything.job_status(j, today)
+            colour = {"Overdue": HexColor("#8A4B2A"), "Due within 30 days": HexColor("#9A7B2F"),
+                      "No record yet": HexColor("#9A7B2F")}.get(label, HexColor("#" + rail))
+            when = j["due"] if j["due"] in everything.REPEATS else ""
+            rows.append([Paragraph(f'<link href="{esc(j["url"])}" color="#{rail}"><u>{esc(j["what"])}</u></link>', cell),
+                         Paragraph(esc(when or (due.strftime("%-d %b %Y") if due else "")), small),
+                         Paragraph(f'<font color="#{colour.hexval()[2:]}"><b>{esc(label)}</b></font>', small),
+                         Paragraph(esc(j["why"] or ""), small)])
+        return table(["Organisation job", "Due", "Status", "Why"], rows, [.36, .1, .12, .42],
+                     [mw.TINT["Organisation"]] * len(rows))
+
     # Part 1
-    story += [PageBreak(), Paragraph("PART 1. EVERY DOCUMENT, BY PRACTICE STANDARD", st["h1"])]
+    story += [PageBreak(), Paragraph("PART 1. EVERYTHING, BY PRACTICE STANDARD", st["h1"])]
     for m in modules:
         story += [CondPageBreak(5 * cm), Paragraph(esc(m["label"]), module_st)]
         for s in m["standards"]:
@@ -138,24 +189,12 @@ def main(xlsx, renderer, out):
                 d = by_no[n]
                 story.append(Paragraph(f"<i>Also meets this standard:</i> No. {n}, {link(d)} "
                                        f"(filed under {esc(home[n])})", small))
-            if not s["docs"]:
-                continue
-            rows, tints = [], []
-            for n in s["docs"]:
-                d = by_no[n]
-                label, colour = status(d)
-                rows.append([Paragraph(str(n), small), Paragraph(link(d, bool(d["file"])), cell),
-                             Paragraph(esc(d["type"] + (f", version {d['version']}" if d["version"] else "")), small),
-                             Paragraph(esc(mw.FILE_LABEL[d["file"]] if d["file"] else "Read, not filled in"),
-                                       cellb if d["file"] else small),
-                             Paragraph(esc(d["when"] or ""), small),
-                             Paragraph(esc(pretty(d["next_due"])), small),
-                             Paragraph(f'<font color="{colour.hexval()[2:] and "#" + colour.hexval()[2:]}">'
-                                       f"<b>{esc(label)}</b></font>", small)])
-                tints.append(mw.TINT[d["file"]] if d["file"] else None)
-            story += [Spacer(1, 4), table(["No.", "Document", "Type", "Filled in for", "When it is needed",
-                                           "Next due", "Status"], rows,
-                                          [.04, .25, .11, .1, .3, .08, .12], tints)]
+            if s["docs"]:
+                story += [Spacer(1, 4), doc_table(s["docs"])]
+            if filed[s["key"]]["staff"]:
+                story += [Spacer(1, 4), staff_table(filed[s["key"]]["staff"])]
+            if filed[s["key"]]["jobs"]:
+                story += [Spacer(1, 4), job_table(filed[s["key"]]["jobs"])]
 
     # Parts 2 onwards: who each form goes to
     sent, kept = mw.destinations(docs)

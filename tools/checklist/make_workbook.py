@@ -660,6 +660,7 @@ def write_checklist(wb, order, at):
                     ws.cell(r, i).fill = fill(TINT[d["file"]])
             # No fixed height: Excel, Sheets and LibreOffice fit an unmerged row to its wrapped text.
             doc_rows.append(r)
+            d["row"] = r  # the Everything tab reads this row's dates
             r += 1
 
     end = r - 1
@@ -862,8 +863,9 @@ def fix_start_here(wb, end):
             elif c.value == "All documents":
                 c.value = "Checklist"
                 ws.cell(c.row, c.column + 1).value = (
-                    "Laid out like the Avaana checklist: module, Practice Standard, its outcome and indicators, "
-                    "then every document for it. Highlighted rows are forms someone must fill in: pink for each "
+                    "The documents on their own, by module and Practice Standard with its outcome and indicators, "
+                    "and each document's version, approval and review dates. Highlighted rows are forms someone "
+                    "must fill in: pink for each "
                     "participant's file, green for each worker's file, cream for the organisation's records. "
                     "Click a title to open the file. Filter by 'Filled in for' or 'Status'. The 'Send to' tabs "
                     "list what goes out to participants, workers and practitioners, and what each has to do; "
@@ -956,6 +958,85 @@ def add_staff_items(wb, docs):
         ws.conditional_formatting.add(f"I{last + 1}:I{end}", new)
 
 
+EVERYTHING_LINE = (
+    "Everything",
+    "One list for every area: under each Practice Standard, every document, every item each worker's file must "
+    "hold, and every dated job, with when it is needed, how often, the next due date and whether it is in date. "
+    "It reads its dates from the tabs below, so a date is only ever typed once.")
+
+
+def add_everything_to_start_here(wb):
+    """Open 'How to use it' with the Everything tab: one row in, everything under it moves down."""
+    from copy import copy
+    ws = wb["Start here"]
+    at = next(c.row for c in ws["A"] if c.value == "Checklist")
+    links = [(c.row, c.column, c.hyperlink.target) for row in ws.iter_rows() for c in row if c.hyperlink]
+    heights = {r: ws.row_dimensions[r].height for r in range(at, ws.max_row + 1)}  # unset rows move too
+    merged = [m for m in ws.merged_cells.ranges if m.min_row >= at]
+    cfs = [(str(cf.sqref), cf.rules) for cf in ws.conditional_formatting]
+    ws.insert_rows(at)
+    for m in merged:
+        m.shift(row_shift=1)
+    for r in sorted(heights, reverse=True):
+        ws.row_dimensions[r + 1].height = heights[r]
+    ws.row_dimensions[at].height = None
+    # A moved cell keeps its old link address, so clear every link first, then set each at its new row.
+    for row in ws.iter_rows():
+        for c in row:
+            if c.hyperlink:
+                c.hyperlink = None
+    for row, col, target in links:
+        ws.cell(row + 1 if row >= at else row, col).hyperlink = target
+    down = lambda n: int(n) + (int(n) >= at)  # noqa: E731
+    for row in ws.iter_rows(min_row=at + 1):  # only this sheet's own references; Checklist ranges stay
+        for c in row:
+            if isinstance(c.value, str) and c.value.startswith("="):
+                c.value = re.sub(r"([,(]A)(\d+)(?=\))", lambda m: f"{m.group(1)}{down(m.group(2))}", c.value)
+    ws.conditional_formatting = type(ws.conditional_formatting)()
+    for sqref, rules in cfs:
+        new_ref = re.sub(r"([A-Z]+)(\d+)", lambda m: f"{m.group(1)}{down(m.group(2))}", sqref)
+        for rule in rules:
+            rule.formula = [re.sub(r"\bA(\d+)\b", lambda m: f"A{down(m.group(1))}", f) for f in rule.formula]
+            ws.conditional_formatting.add(new_ref, rule)
+    for col, v in enumerate(EVERYTHING_LINE, 1):
+        src, dst = ws.cell(at + 1, col), ws.cell(at, col)
+        dst.value = v
+        dst.font, dst.fill, dst.border = copy(src.font), copy(src.fill), copy(src.border)
+        dst.alignment = Alignment(wrap_text=True, vertical="top")
+    width = ws.column_dimensions["B"].width or 90
+    ws.row_dimensions[at].height = -(-len(EVERYTHING_LINE[1]) // int(width * 1.15)) * 15 + 4
+
+
+# Source notes on the 16 Oct staff file tab that named the consultancy behind Harmony's 2023 set.
+# Harmony's documents never name it, so the notes keep their own sources and drop that one.
+SOURCE_FIXES = {
+    "Harmony HR Management Policy s 4.3(a)(6). Avaana checklist: auditors expect a formal agreement for "
+    "each worker.": "Harmony HR Management Policy s 4.3(a)(6).",
+    "Avaana registration checklist (key management personnel). NDIS Commission suitability assessment.":
+        "NDIS Commission suitability assessment.",
+}
+NEVER_NAMED = re.compile(r"avaana|havana", re.I)
+
+
+def fix_sources(wb):
+    ws = wb["Staff file (copy per worker)"]
+    found = set()
+    for c in ws["J"]:
+        if c.value in SOURCE_FIXES:
+            found.add(c.value)
+            c.value = SOURCE_FIXES[c.value]
+    if found != set(SOURCE_FIXES):
+        raise SystemExit(f"staff file source notes have changed: {sorted(set(SOURCE_FIXES) - found)}")
+
+
+def check_never_named(wb):
+    hits = [f"{ws.title}!{c.coordinate}" for ws in wb for row in ws.iter_rows() for c in row
+            if isinstance(c.value, str) and NEVER_NAMED.search(c.value)]
+    hits += [f"properties.{k}" for k, v in vars(wb.properties).items() if isinstance(v, str) and NEVER_NAMED.search(v)]
+    if hits:
+        raise SystemExit(f"the workbook names the 2023 consultancy at {hits}")
+
+
 def forest_not_plum(wb):
     """The 16 Oct sheet styled its headings plum; the locked Harmony design has no plum."""
     from copy import copy
@@ -980,7 +1061,13 @@ def main(base, out):
     write_tracker(wb, at + 1 + len(SEND_TABS) + 1)
     fix_start_here(wb, end)
     add_staff_items(wb, docs)
+    fix_sources(wb)
+    import everything  # here, not at the top: it imports this module
+    filed = everything.collect(order, everything.staff_items(wb), everything.planner_jobs(wb, docs))
+    everything.write(wb, wb.sheetnames.index("Start here") + 1, filed)
+    add_everything_to_start_here(wb)
     forest_not_plum(wb)
+    check_never_named(wb)
     wb.active = 0
     wb.save(out)
     counts = {}

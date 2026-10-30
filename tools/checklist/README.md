@@ -31,6 +31,11 @@ python3 -I read_versions.py "<download folder>" brit.json m1sil.json
 document states them. `site/img/hc-lockup.png` is the letterhead lockup, cropped unchanged
 from the band the branded set is printed on; the Excel and the team pages share it.
 
+`everything.py` writes the workbook's 'Everything' tab and the PDF's Part 1: every document, staff
+file item and year planner job under its Practice Standard. It reads dates from the other tabs, so
+they are typed once. `make_pdf.py` needs Georgia, Harmony's document face, which ships with macOS; build
+the PDF on a Mac.
+
 Run with `/usr/bin/python3` (it has openpyxl). Re-running `make_workbook.py`
 starts again from the 16 Oct file and drops anything typed since, so after the
 first run only `export_web.py` is used.
