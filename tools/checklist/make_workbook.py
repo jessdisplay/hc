@@ -1018,6 +1018,37 @@ SOURCE_FIXES = {
 NEVER_NAMED = re.compile(r"avaana|havana", re.I)
 
 
+def not_recorded_yet(wb):
+    """A staff file row with no date typed says 'Not recorded yet', not 'Missing'.
+
+    The tab is a blank template and nobody has looked in the worker's file, so all the sheet knows is
+    that nothing is written down yet. Jesse, 30 Oct 2026, of a clearance flagged Missing: "this was
+    not missing". Amber (type the date), not red (a finding)."""
+    staff, team = wb["Staff file (copy per worker)"], wb["Team at a glance"]
+    changed = 0
+    for row in staff.iter_rows(min_row=22, min_col=9, max_col=9):
+        c = row[0]
+        if isinstance(c.value, str) and '"Missing"' in c.value:
+            c.value = c.value.replace('"Missing"', '"Not recorded yet"')
+            changed += 1
+    items = sum(1 for r in range(22, staff.max_row + 1) if staff.cell(r, 2).value)
+    if changed != items:
+        raise SystemExit(f"staff file: {changed} status formulas changed for {items} items")
+    for cf in staff.conditional_formatting:
+        for rule in cf.rules:
+            if rule.formula and rule.formula[0].endswith('="Missing"'):
+                rule.formula = [rule.formula[0].replace('"Missing"', '"Not recorded yet"')]
+                rule.dxf.fill = fill("FCE8B2")
+    if team["B4"].value != "Missing or expired":
+        raise SystemExit("Team at a glance has changed: B4 is no longer 'Missing or expired'")
+    team["B4"] = "Not recorded or expired"
+    for r in range(5, 20):
+        v = team.cell(r, 2).value
+        if not (isinstance(v, str) and v.count('"Missing"') == 1):
+            raise SystemExit(f"Team at a glance B{r} has changed")
+        team.cell(r, 2).value = v.replace('"Missing"', '"Not recorded yet"')
+
+
 def fix_sources(wb):
     ws = wb["Staff file (copy per worker)"]
     found = set()
@@ -1061,6 +1092,7 @@ def main(base, out):
     write_tracker(wb, at + 1 + len(SEND_TABS) + 1)
     fix_start_here(wb, end)
     add_staff_items(wb, docs)
+    not_recorded_yet(wb)
     fix_sources(wb)
     import everything  # here, not at the top: it imports this module
     filed = everything.collect(order, everything.staff_items(wb), everything.planner_jobs(wb, docs))
