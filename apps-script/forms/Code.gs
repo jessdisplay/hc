@@ -472,6 +472,7 @@ function shareFolders_(ss) {
     var has = folder.getEditors().map(function (u) { return u.getEmail().toLowerCase(); });
     var owner = folder.getOwner();  // none for a folder in a shared drive
     if (owner) has.push(owner.getEmail().toLowerCase());
+    has.push(Session.getEffectiveUser().getEmail().toLowerCase());  // whoever runs Set up has it already
     editors.forEach(function (email) {
       if (has.indexOf(email.toLowerCase()) !== -1) return;
       try {
