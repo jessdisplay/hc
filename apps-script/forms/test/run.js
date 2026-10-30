@@ -180,7 +180,7 @@ test('prepare copies the form into their folder, writes an undated row, and only
   assert.match(test.body, /^Hi Ana,/);
   assert.match(test.body, /What to do: Sign and return\./);
   assert.deepStrictEqual(plain(test.opts.attachments.map((a) => a.name)), ['Worker Declarations.pdf', 'Worker Declarations.docx']);
-  assert.ok(!/[–—]/.test(test.body), 'no dashes in what people read');
+  assert.ok(!/[\u2013\u2014]/.test(test.body), 'no dashes in what people read');
 });
 
 test('send goes once to the person, dates the row and keeps the thread; pressing again sends nothing', () => {
