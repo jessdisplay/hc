@@ -15,12 +15,13 @@
  *   Mark reviewed today       stamps today's date as 'Last reviewed' for the document on the selected row
  *   Email me what is due      what the Monday email says, now
  *
- * Two ways a form goes out. A form whose signing template has its signature fields placed goes by
- * Google eSignature: the script makes the person's copy, you press Request signature in it (Google
- * has no way for a script to press it), and the signed PDF Google files beside the copy is picked up
- * by the hourly check. Every other form goes by email as a PDF and a Word file, and the signed copy
- * they reply with is filed the same way. Either way 'Sent and returned' gets the row, the person's
- * folder gets the file, and the people in Settings get an email when it is back.
+ * Three ways a form goes out. The sign page is the main one: one link in one email, they fill in and
+ * sign in the browser, and it is filed the moment they finish. Or a form whose signing template has its
+ * fields placed goes by Google eSignature: the script makes the person's copy, you press Request
+ * signature in it (Google has no way for a script to press it), and the signed PDF Google files beside
+ * the copy is picked up by the hourly check. Or it goes by email as a PDF, and the signed copy they reply
+ * with is filed the same way. Every way 'Sent and returned' gets the row, the person's folder gets the
+ * file, and the people in Settings get an email when it is back.
  *
  * Every email goes out from the account that ran Set up, never from the person pressing the button.
  * Pressing Send puts it on a queue that a one-minute timer (running as that account) empties. That
