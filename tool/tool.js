@@ -4,7 +4,7 @@
   'use strict';
   var API = window.HC_TOOL_API;
   var main = document.getElementById('main'), nav = document.getElementById('nav');
-  var state = { token: null, email: '', today: '', checklist: null, forms: null, filter: 'all', find: '', role: '', ticked: {}, working: null };
+  var state = { token: null, email: '', today: '', checklist: null, forms: null, notes: null, book: null, team: null, file: {}, bulk: null, filter: 'all', find: '', role: '', ticked: {}, working: null };
   var ROLE_WORD = { 'Participant': 'Participants', 'Worker': 'Workers', 'Practitioner or partner': 'Practitioners and partners' };
 
   function store(key, value) {
@@ -63,6 +63,7 @@
     if (res.today) state.today = res.today;
     if (res.forms) state.forms = res.forms;
     if (res.checklist) state.checklist = res.checklist;
+    if (res.notes) state.notes = res.notes;
     return res;
   }
   /** Runs a change, shows what went wrong in place, and redraws with what came back. */
@@ -129,10 +130,11 @@
   function drawNav() {
     [].slice.call(nav.querySelectorAll('.tabs,.me')).forEach(function (n) { n.remove(); });
     if (!state.token) return;
-    var at = location.hash.slice(1).split('/')[0] || 'today';
+    var at = location.hash.slice(1).split('/')[0] || 'forms';
     if (at === 'person') at = 'forms';
     var tab = function (key, word) { return h('a', { href: '#' + key, 'aria-current': at === key ? 'page' : null }, word); };
-    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('today', 'Today'), tab('checklist', 'Checklist'), tab('forms', 'Send and sign')));
+    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('today', 'Today'), tab('checklist', 'Checklist'),
+      tab('staff', 'Staff files'), tab('planner', 'Year planner'), tab('rules', 'Rules')));
     nav.appendChild(h('div', { class: 'me' }, state.email, h('button', { class: 'link', type: 'button', on: { click: function () {
       call('signout').catch(function () {}).then(signedOut);
     } } }, 'Sign out')));
@@ -151,9 +153,12 @@
     drawNav();
     var at = location.hash.slice(1).split('/');
     if (at[0] === 'checklist') checklistPage();
-    else if (at[0] === 'forms') formsPage(at[1] === 'people');
+    else if (at[0] === 'today') todayPage();
     else if (at[0] === 'person') personPage(Number(at[1]));
-    else todayPage();
+    else if (at[0] === 'staff') staffPage(Number(at[1]));
+    else if (at[0] === 'planner') plannerPage();
+    else if (at[0] === 'rules') rulesPage();
+    else formsPage(at[1] || 'list');
   }
 
   /* ---- reading the data */
@@ -204,10 +209,6 @@
     var people = state.forms.people.filter(function (p) { return p.active; }).length;
     var go = function (filter) { return '#checklist/' + filter; };
     page(h('h1', null, 'Today'), h('p', { class: 'lede' }, when),
-      h('h2', null, 'Needs doing'),
-      line(c.overdue || 0, 'overdue on the checklist', go('overdue'), (c.overdue || 0) > 20 ? 'Most are one review round: documents approved in October 2023' : null),
-      line(c.missing || 0, 'missing documents', go('missing')),
-      line(c.soon || 0, 'due in the next 30 days', go('soon')),
       h('h2', null, 'Send and sign'),
       line(listTotal(), 'documents and forms go out to people', '#forms'),
       line(f.out || 0, 'with people now', '#forms/people'),
@@ -215,13 +216,23 @@
       line(f.back || 0, 'signed and back, to check', '#forms/people'),
       f.failed ? line(f.failed, 'that did not send', '#forms/people') : null,
       backSection(),
+      h('h2', null, 'Checklist'),
+      line(c.overdue || 0, 'overdue', go('overdue'), (c.overdue || 0) > 20 ? 'Most are one review round: documents approved in October 2023' : null),
+      line(c.missing || 0, 'missing documents', go('missing')),
+      line(c.soon || 0, 'due in the next 30 days', go('soon')),
       h('h2', null, 'Coming up'),
       next.length ? next.map(function (i) {
         return h('p', { class: 'line' }, h('span', null, offFile(i.url, i.title)), h('span', { class: 'say' }, day(i.due)));
       }) : h('p', { class: 'say' }, 'Nothing with a date ahead.'),
       h('h2', null, 'People'),
       people ? h('p', { class: 'say' }, plural(people, 'person', 'people') + ' on your list. ', h('a', { href: '#forms/people' }, 'See who has what'))
-        : h('p', { class: 'say' }, 'Nobody is on your list yet. ', h('a', { href: '#forms/people' }, 'Add your first person'), ' to start sending.'));
+        : h('p', { class: 'say' }, 'Nobody is on your list yet. ', h('a', { href: '#forms/people' }, 'Add your first person'), ' to start sending.'),
+      state.notes && state.notes.attention.length ? [h('h2', null, 'Worth knowing'), state.notes.attention.map(function (n) {
+        return h('details', { class: 'area' }, h('summary', null, h('span', null, n.title)), h('div', { class: 'body' }, h('p', { class: 'say outcome' }, n.text)));
+      })] : null,
+      state.notes && state.notes.files.length ? [h('h2', null, 'The audited files'), state.notes.files.map(function (n) {
+        return h('p', { class: 'line' }, h('span', null, offFile(n.url, n.title)), h('span', { class: 'say' }, n.text));
+      })] : null);
   }
 
   /** What has come back and is waiting on someone here, named, so nobody has to go looking. */
@@ -288,7 +299,7 @@
       h('tbody', null, rows.map(function (i) {
         var who = /participant/i.test(i.who) ? 'who-participant' : /organisation/i.test(i.who) ? 'who-organisation' : /worker|key personnel|drivers/i.test(i.who) && i.details ? 'who-worker' : null;
         return h('tr', null,
-          h('td', null, offFile(i.url, (i.no ? i.no + '. ' : '') + i.title), i.details && h('span', { class: 'sub' }, i.details)),
+          h('td', null, offFile(i.url, (i.no ? i.no + '. ' : '') + i.title), i.details && h('span', { class: 'sub' }, i.details), i.record ? recordMore(i.record) : null),
           h('td', { class: who, 'data-h': 'For' }, i.who), h('td', { 'data-h': 'When' }, i.when), h('td', { 'data-h': 'How often' }, i.often),
           h('td', { 'data-h': 'Next due' }, day(i.due)),
           h('td', { 'data-h': 'Status' }, h('span', { class: statusClass(i.status) }, i.status),
@@ -298,7 +309,14 @@
       })));
   }
 
-  /* ---- Forms */
+  function recordMore(r) {
+    var line = function (label, value) { return value ? h('li', null, label + ': ' + value) : null; };
+    return h('details', { class: 'more' }, h('summary', null, 'More about this document'), h('ul', null,
+      line('Version', r.version), line('Approved by', r.approvedBy), line('Approved', r.approved), line('Last reviewed', r.reviewed ? day(r.reviewed) || r.reviewed : ''),
+      line('Completed by', r.completedBy), line('Signed by', r.signedBy), line('Kept', r.kept), line('For the next audit', r.notes), line("Harmony's rule", r.rule)));
+  }
+
+  /* ---- Send and sign */
 
   function tally(sends) {
     var c = counts(sends, function (s) { return s.standing; });
@@ -309,24 +327,47 @@
       return n + state.forms.lists[role].reduce(function (m, g) { return m + g.forms.length; }, 0);
     }, 0);
   }
-  function formsPage(people) {
+  function formsPage(view) {
     var f = state.forms, all = tally(f.sends);
     var plain = function (n, word, bad) { return h('span', { class: 'stat' + (bad && n ? ' bad' : '') }, h('b', null, n), h('span', null, word)); };
-    var view = function (href, word, on) { return on ? h('b', null, word) : h('a', { href: href }, word); };
+    var pick = function (key, href, word) { return view === key ? h('b', null, word) : h('a', { href: href }, word); };
     page(h('h1', null, 'Send and sign'), h('p', { class: 'lede' }, 'Everything that goes out to people: what they do with it, when, and who signs. Then whether it has come back.'),
       h('div', { class: 'stats' }, plain(listTotal(), 'go out'), plain(all.out, 'with people'), plain(all.chase, 'to chase', true), plain(all.back, 'back to check'), plain(all.done, 'done'), all.failed ? plain(all.failed, 'did not send', true) : null),
-      h('div', { class: 'tools' }, h('p', { class: 'say' }, view('#forms', 'What goes out', !people), '  |  ', view('#forms/people', 'Who has what', people))),
-      people ? peopleList() : whatGoesOut());
+      h('div', { class: 'tools' }, h('p', { class: 'say' }, pick('list', '#forms', 'What goes out'), '  |  ', pick('people', '#forms/people', 'Who has what'), '  |  ', pick('office', '#forms/office', 'Kept in the office')),
+        f.completed ? h('p', { class: 'say' }, offFile(f.completed, 'Open every completed document')) : null),
+      view === 'people' ? peopleList() : view === 'office' ? officeList() : whatGoesOut());
+  }
+  function officeList() {
+    var wrap = h('div', null, h('p', { class: 'say' }, 'Loading…'));
+    needBook(function (book) {
+      wrap.textContent = '';
+      wrap.appendChild(h('p', { class: 'say' }, 'Registers, records and plans Harmony fills in itself. Nobody outside needs to be sent these.'));
+      book.office.forEach(function (g) {
+        wrap.appendChild(h('h3', null, g.name));
+        wrap.appendChild(h('table', { class: 'stack goes' }, h('thead', null, h('tr', null, ['Document', 'When it is needed', 'Who fills it in', 'Who signs'].map(function (t) { return h('th', null, t); }))),
+          h('tbody', null, g.forms.map(function (x) { return h('tr', null, h('td', null, offFile(x.url, x.title)), h('td', { 'data-h': 'When' }, x.when), h('td', { 'data-h': 'Fills it in' }, x.fills), h('td', { 'data-h': 'Signs' }, x.signs)); }))));
+      });
+    }, wrap);
+    return wrap;
+  }
+  function needBook(draw, wrap) {
+    if (state.book) return draw(state.book);
+    call('book').then(function (res) { state.book = res.data; draw(state.book); }).catch(function (e) { wrap.textContent = ''; wrap.appendChild(h('p', { class: 'note bad' }, e.message)); });
   }
   function peopleList() {
     var f = state.forms, wrap = h('div');
     var open = h('button', { class: 'btn ghost', type: 'button', on: { click: function () { wrap.insertBefore(personForm(), wrap.firstChild); open.remove(); } } }, 'Add a person');
+    var many = h('button', { class: 'btn', type: 'button', on: { click: function () { wrap.insertBefore(bulkPanel(), wrap.firstChild); many.remove(); } } }, 'Add many people');
     var search = h('input', { type: 'search', placeholder: 'Find a person', 'aria-label': 'Find a person', value: state.find, on: { input: function () { state.find = search.value; draw(); } } });
     var pick = h('select', { 'aria-label': 'Who they are', on: { change: function () { state.role = pick.value; draw(); } } },
       h('option', { value: '' }, 'Everyone'), Object.keys(ROLE_WORD).map(function (r) { return h('option', { value: r, selected: state.role === r }, ROLE_WORD[r]); }));
     var table = h('div');
     function draw() {
       table.textContent = '';
+      if (state.bulk) {
+        table.appendChild(h('div', { class: 'note' }, h('p', null, plural(state.bulk.added, 'person', 'people') + ' added. Their folders appear within a few minutes.'),
+          state.bulk.skipped.length ? h('ul', null, state.bulk.skipped.map(function (x) { return h('li', { class: 'bad' }, x.name + ': ' + x.why); })) : null));
+      }
       var word = state.find.trim().toLowerCase();
       var rows = f.people.filter(function (p) { return (!state.role || p.role === state.role) && (!word || p.name.toLowerCase().indexOf(word) !== -1); });
       if (!f.people.length) return table.appendChild(h('p', { class: 'say' }, 'Add the people Harmony sends forms to: workers, participants and practitioners.'));
@@ -340,10 +381,49 @@
             h('td', { 'data-h': 'Who' }, p.role), n(t.out, 'With them'), n(t.chase, 'To chase', true), n(t.back, 'Back to check'), n(t.done, 'Done'));
         }))));
     }
-    wrap.appendChild(h('div', { class: 'tools' }, search, pick, open));
+    wrap.appendChild(h('div', { class: 'tools' }, many, open, search, pick));
     wrap.appendChild(table);
     draw();
     return wrap;
+  }
+  /** A list from Excel, a CSV or a paste, shown and checked here before anything is saved. */
+  function bulkPanel() {
+    var panel = h('section', { class: 'note' }), preview = h('div');
+    var rows = [], fallback = h('select', { 'aria-label': 'If your list does not say who they are', on: { change: read } }, h('option', { value: '' }, 'Choose'), Object.keys(ROLE_WORD).map(function (r) { return h('option', { value: r }, ROLE_WORD[r]); }));
+    function read() {
+      preview.textContent = '';
+      if (!rows.length) return;
+      var known = state.forms.people.map(function (p) { return p.name; });
+      var people = window.HCPeople.toPeople(rows, fallback.value, known);
+      var good = people.filter(function (x) { return !x.problem; }), bad = people.length - good.length;
+      var add = h('button', { class: 'btn', type: 'button', disabled: !good.length, on: { click: function () {
+        act(add, 'people', { people: good.map(function (x) { return { name: x.name, email: x.email, role: x.role, guardian: x.guardian, guardianEmail: x.guardianEmail, start: x.start }; }) },
+          function (res) { state.bulk = res; });
+      } } }, 'Add ' + plural(good.length, 'person', 'people'));
+      preview.appendChild(h('p', { class: 'row' }, add, bad ? h('span', { class: 'bad' }, plural(bad, 'line') + ' to fix. The rest can go in now.') : h('span', { class: 'good' }, 'All good.')));
+      preview.appendChild(h('table', { class: 'stack' }, h('thead', null, h('tr', null, ['Name', 'Email', 'Who they are', 'Signs for them', 'Their email', 'Check'].map(function (t) { return h('th', null, t); }))),
+        h('tbody', null, people.map(function (x) { return h('tr', null, h('td', null, x.name), h('td', { 'data-h': 'Email' }, x.email), h('td', { 'data-h': 'Who' }, x.role), h('td', { 'data-h': 'Signs' }, x.guardian), h('td', { 'data-h': 'Their email' }, x.guardianEmail),
+          h('td', { 'data-h': 'Check' }, h('span', { class: x.problem ? 'bad' : 'good' }, x.problem || 'Ready'))); }))));
+    }
+    var paste = h('textarea', { rows: 4, 'aria-label': 'Paste from Excel', placeholder: 'Or copy the rows in Excel and paste them here', on: { input: function () { rows = window.HCPeople.parseText(paste.value); read(); } } });
+    var problem = h('p', { class: 'bad', role: 'alert' });
+    var file = h('input', { type: 'file', accept: '.xlsx,.csv,.txt', 'aria-label': 'Choose a file', on: { change: function () {
+      var f = file.files[0];
+      problem.textContent = '';
+      if (!f) return;
+      var xlsx = /\.xlsx$/i.test(f.name);
+      var done = function (r) { rows = r; read(); };
+      var fail = function () { problem.textContent = "We couldn't read that file. Save it as CSV, or copy the rows and paste them below."; };
+      if (xlsx) f.arrayBuffer().then(window.HCPeople.readXlsx).then(done).catch(fail);
+      else f.text().then(function (t) { done(window.HCPeople.parseText(t)); }).catch(fail);
+    } } });
+    panel.appendChild(h('h3', null, 'Add many people'));
+    panel.appendChild(h('p', null, 'Upload an Excel or CSV file with a heading row. We look for their name, email, who they are, and who signs for them with that person\u2019s email. ', h('a', { href: 'people-template.csv', download: 'Harmony people list.csv' }, 'Download a blank list')));
+    panel.appendChild(h('div', { class: 'tools' }, file));
+    panel.appendChild(problem);
+    panel.appendChild(h('div', { class: 'form wide' }, paste, h('label', null, 'If your list does not say who they are', fallback)));
+    panel.appendChild(preview);
+    return panel;
   }
   function personForm(p) {
     var field = function (label, input) { return h('label', null, label, input); };
@@ -453,7 +533,9 @@
     page(h('a', { class: 'back', href: '#forms/people' }, 'Who has what'), h('h1', null, p.name),
       h('p', { class: 'lede' }, [p.role, p.email, p.guardian ? 'Signs: ' + p.guardian + (p.guardianEmail ? ', ' + p.guardianEmail : '') : ''].filter(Boolean).join('  |  ')),
       p.problems.length ? h('p', { class: 'note bad' }, p.problems.join(' ')) : null,
-      h('p', { class: 'say' }, h('button', { class: 'link', type: 'button', on: { click: function () { editing.textContent = ''; editing.appendChild(personForm(p)); } } }, 'Change their details')), editing,
+      h('p', { class: 'row say' }, h('button', { class: 'link', type: 'button', on: { click: function () { editing.textContent = ''; editing.appendChild(personForm(p)); } } }, 'Change their details'),
+        p.folder ? offFile(p.folder, 'Open their folder') : h('span', null, 'Their folder is being made'),
+        p.role === 'Worker' ? h('a', { href: '#staff/' + p.row }, 'Their staff file') : null), editing,
       w ? testPanel(p, w) : null, content, bar);
     drawBar();
   }
@@ -471,6 +553,7 @@
       if (send.standing === 'back') { acts.push(button('Approve', 'approve')); acts.push(button('Not back yet', 'back', true)); }
       if (send.standing === 'done') acts.push(button('Not approved yet', 'approve', true));
       if (send.signed) acts.push(offFile(send.signed, 'Open the signed copy'));
+      else if (send.standing === 'out' || send.standing === 'chase' || send.standing === 'back') acts.push(addSigned(send));
       if (send.standing === 'ready' && send.how === 'Google eSignature') {
         acts.push(offFile(send.copy, 'Open their copy'));
         acts.push(button('I have requested the signature', 'requested'));
@@ -482,6 +565,21 @@
       h('td', null, offFile(form.url, form.title), h('span', { class: 'sub' }, form.need + (form.how === 'Google eSignature' ? '. By Google eSignature' : ''))),
       h('td', { 'data-h': 'When' }, form.when),
       h('td', { 'data-h': 'Where it stands' }, h('span', { class: st ? st.cls : 'quiet' }, line), dates && h('span', { class: 'sub' }, dates), send && send.notes ? h('span', { class: 'sub' }, send.notes) : null, acts.length ? h('span', { class: 'doit' }, acts) : null));
+  }
+  /** A form that came back on paper: scan or photograph it, and it files like one that came by email. */
+  function addSigned(send) {
+    var label, input = h('input', { type: 'file', class: 'away', accept: '.pdf,.jpg,.jpeg,.png,.heic,.doc,.docx', 'aria-label': 'Add the signed copy of ' + send.form, on: { change: function () {
+      var f = input.files[0];
+      if (!f) return;
+      if (f.size > 15000000) return alertLine('That file is too big. Keep it under 15 MB.');
+      label.firstChild.textContent = 'Adding…';
+      var reader = new FileReader();
+      reader.onload = function () { act(null, 'signed', { row: send.row, name: f.name, data: String(reader.result).split(',')[1] }); };
+      reader.onerror = function () { alertLine("We couldn't read that file."); };
+      reader.readAsDataURL(f);
+    } } });
+    label = h('label', { class: 'link' }, 'Add the signed copy', input);
+    return label;
   }
   function testPanel(p, items) {
     var bad = items.filter(function (i) { return i.error; });
@@ -501,7 +599,92 @@
       items.some(function (i) { return i.how === 'Google eSignature'; }) ? h('p', null, 'For the eSignature forms below: open their copy, choose Tools, eSignature, Request signature, then tell us here.') : null);
   }
 
-  window.addEventListener('hashchange', function () { state.find = ''; window.scrollTo(0, 0); show(); });
+  /* ---- Staff files */
+
+  function waiting(promise, draw) {
+    page(h('p', { class: 'say' }, 'Loading…'));
+    promise.then(draw).catch(function (e) { if (state.token) page(h('p', { class: 'note bad', role: 'alert' }, e.message)); });
+  }
+  function staffPage(row) {
+    if (row) return waiting(call('staffFile', { person: row }), function (res) { staffFile(row, res.data); });
+    waiting(call('team'), function (res) {
+      var rows = res.data;
+      page(h('h1', null, 'Staff files'), h('p', { class: 'lede' }, 'What each worker\u2019s file must hold, and what runs out next.'),
+        rows.length ? h('table', { class: 'stack' }, h('thead', null, h('tr', null, h('th', null, 'Worker'), h('th', { class: 'num' }, 'Not recorded yet'), h('th', { class: 'num' }, 'Expired'), h('th', { class: 'num' }, 'Held'), h('th', null, 'Runs out next'))),
+          h('tbody', null, rows.map(function (w) {
+            return h('tr', null, h('td', null, h('a', { href: '#staff/' + w.row }, w.name)), h('td', { class: 'num', 'data-h': 'Not recorded' }, w.missing), h('td', { class: 'num', 'data-h': 'Expired' }, h('span', { class: w.expired ? 'bad' : 'quiet' }, w.expired)), h('td', { class: 'num', 'data-h': 'Held' }, w.held),
+              h('td', { 'data-h': 'Next' }, w.next ? w.nextItem + ', ' + day(w.next) : ''));
+          }))) : h('p', { class: 'say' }, 'No workers yet. ', h('a', { href: '#forms/people' }, 'Add them'), ' and each gets a staff file here.'));
+    });
+  }
+  function staffFile(row, file) {
+    var draw = function (data) { staffFile(row, data); };
+    var flag = function (x) {
+      var box = h('input', { type: 'checkbox', checked: x.yes, on: { change: function () {
+        box.disabled = true;
+        call('staffFlag', { person: row, sheetRow: x.row, yes: box.checked }).then(function (res) { draw(res.data); }).catch(function (e) { alertLine(e.message); box.disabled = false; });
+      } } });
+      return h('label', { class: 'row flag' }, box, x.label);
+    };
+    var date = function (i, field, value) {
+      var input = h('input', { type: 'date', value: value, 'aria-label': (field === 'done' ? 'Date done, ' : 'Expiry, ') + i.item, on: { change: function () {
+        input.disabled = true;
+        call('staffDate', { person: row, sheetRow: i.row, field: field, value: input.value }).then(function (res) { draw(res.data); }).catch(function (e) { alertLine(e.message); input.disabled = false; });
+      } } });
+      return input;
+    };
+    var needed = file.items.filter(function (i) { return i.status !== 'Not needed'; }), left = file.items.length - needed.length, groups = [];
+    needed.forEach(function (i) { var g = groups[groups.length - 1]; if (g && g.name === i.group) g.items.push(i); else groups.push({ name: i.group, items: [i] }); });
+    var cls = function (s) { return s === 'Expired' ? 'bad' : s === 'Renew soon' ? 'soon' : s === 'In date' || s === 'Held' ? 'good' : 'quiet'; };
+    page(h('a', { class: 'back', href: '#staff' }, 'Staff files'), h('h1', null, file.name),
+      h('p', { class: 'row say' }, offFile(file.folder, 'Open their folder')),
+      h('details', { class: 'more' }, h('summary', null, 'What applies to this worker'), h('div', { class: 'flags' }, file.flags.map(flag))),
+      groups.map(function (g) {
+        return [h('h3', null, g.name), h('table', { class: 'stack' }, h('thead', null, h('tr', null, ['What', 'Renew', 'Date done', 'Expiry or next due', 'Status'].map(function (t) { return h('th', null, t); }))),
+          h('tbody', null, g.items.map(function (i) {
+            return h('tr', null, h('td', null, i.item, h('span', { class: 'sub' }, i.keep), i.form && i.form !== 'None' ? h('span', { class: 'sub' }, offFile(i.formUrl, i.form)) : null), h('td', { 'data-h': 'Renew' }, i.renew),
+              h('td', { 'data-h': 'Date done' }, date(i, 'done', i.done)), h('td', { 'data-h': 'Expiry' }, i.expiryWorkedOut ? day(i.expiry) : date(i, 'expiry', i.expiry)), h('td', { 'data-h': 'Status' }, h('span', { class: cls(i.status) }, i.status)));
+          })))];
+      }),
+      left ? h('p', { class: 'say' }, plural(left, 'item') + ' not needed for this worker. Change that under What applies to this worker.') : null);
+  }
+
+  /* ---- Year planner and Rules */
+
+  function plannerPage() {
+    var draw = function () {
+      var jobs = state.book.planner;
+      page(h('h1', null, 'Year planner'), h('p', { class: 'lede' }, 'The dated jobs for the next 12 months: internal audits, reviews and renewals.'),
+        h('table', { class: 'stack' }, h('thead', null, h('tr', null, ['Due', 'What', 'Open', 'Why', 'Done'].map(function (t) { return h('th', null, t); }))),
+          h('tbody', null, jobs.map(function (j) {
+            var late = j.due && !j.done && j.due < state.today;
+            return h('tr', null, h('td', { 'data-h': 'Due' }, h('span', { class: late ? 'bad' : '' }, j.due ? day(j.due) : j.every)), h('td', null, j.what), h('td', { 'data-h': 'Open' }, offFile(j.url, j.open)), h('td', { 'data-h': 'Why' }, j.why),
+              h('td', { 'data-h': 'Done' }, j.done ? [h('span', { class: 'good' }, day(j.done)), h('span', { class: 'doit' }, plannerButton(j, true, 'Not done yet'))] : j.due ? plannerButton(j, false, 'Done today') : null));
+          }))));
+    };
+    if (state.book) return draw();
+    waiting(call('book'), function (res) { state.book = res.data; draw(); });
+  }
+  function plannerButton(j, undo, word) {
+    return h('button', { class: 'link', type: 'button', on: { click: function (e) {
+      e.target.disabled = true;
+      call('plannerDone', { row: j.row, undo: undo }).then(took).then(function (res) { state.book.planner = res.data.planner; show(); }).catch(function (err) { alertLine(err.message); e.target.disabled = false; });
+    } } }, word);
+  }
+  function rulesPage() {
+    var draw = function () {
+      page(h('h1', null, 'Rules'), h('p', { class: 'lede' }, 'The rules behind the renewal dates, and where each comes from.'),
+        state.book.rules.map(function (r) {
+          var line = function (label, text) { return text ? h('p', { class: 'say outcome' }, h('b', null, label + ': '), text) : null; };
+          return h('details', { class: 'area' }, h('summary', null, h('span', null, r.item)), h('div', { class: 'body' }, line('Who it applies to', r.who), line('Valid for, or renew', r.valid), line('Evidence to keep', r.keep), line('Recent change', r.change),
+            r.source ? h('p', { class: 'say' }, offFile(r.url, r.source)) : null));
+        }));
+    };
+    if (state.book) return draw();
+    waiting(call('book'), function (res) { state.book = res.data; draw(); });
+  }
+
+  window.addEventListener('hashchange', function () { state.find = ''; state.bulk = null; window.scrollTo(0, 0); show(); });
   state.token = store('hc-tool-token');
   state.email = store('hc-tool-email') || '';
   if (state.token) start(); else signIn();
