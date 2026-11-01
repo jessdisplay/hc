@@ -102,17 +102,21 @@
   }
 
   function showForm(form) {
-    var original = bytesOf(form.pdf);
+    var original = bytesOf(form.pdf), OPS;
     return loadPdfJs().then(function (lib) {
+      OPS = lib.OPS;
       return lib.getDocument({ data: original.slice(), isEvalSupported: false }).promise;
     }).then(function (doc) {
       var sheets = [];
       var next = function (n) {
         if (n > doc.numPages) return sheets;
         return doc.getPage(n).then(function (p) {
-          return p.getTextContent().then(function (tc) {
+          return Promise.all([p.getTextContent(), p.getOperatorList()]).then(function (got) {
             var view = p.getViewport({ scale: 1 });
-            sheets.push({ n: n, pdf: p, w: view.width, h: view.height, spots: HCFind.findSpots(tc.items, view.width) });
+            var cells = HCFind.cellsOf(got[1].fnArray, got[1].argsArray, OPS, view.width, view.height);
+            var spots = HCFind.findSpots(got[0].items, view.width, cells);
+            spots.forEach(function (x) { x.page = n; });
+            sheets.push({ n: n, pdf: p, w: view.width, h: view.height, spots: spots });
             return next(n + 1);
           });
         });
@@ -140,19 +144,26 @@
         el.style.height = (x.h / s.h * 100) + '%';
         return el;
       };
-      var cls = 'spot ' + (x.must ? 'must' : x.type === 'tick' ? 'tick' : 'write');
-      var word = x.must ? 'Sign here' : x.type === 'tick' ? 'Tick box' : x.type === 'date' ? 'Date' : x.type === 'name' ? 'Your name' : 'Write here';
-      x.el = style(h('button', { class: cls, type: 'button', 'aria-label': word, on: { click: function (e) { e.stopPropagation(); tap(x); } } }, x.must ? 'Sign here' : null));
+      var theirs = x.type === 'sign' && !x.must;
+      var cls = 'spot ' + (x.must ? 'must' : theirs ? 'other' : x.type === 'tick' ? 'tick' : 'write');
+      var word = x.must ? 'Sign here' : theirs ? forWhom(x) : x.type === 'tick' ? 'Tick box' : x.type === 'date' ? 'Date' : x.type === 'name' ? 'Your name' : 'Write here';
+      x.el = style(h('button', { class: cls, type: 'button', 'aria-label': word, on: { click: function (e) { e.stopPropagation(); tap(x); } } }, x.must || theirs ? word : null));
       return x.el;
+    }
+    function spare(x) { return !x.who || kinds.indexOf(x.who) !== -1; }
+    /** Every signature box shows who it is for, so nobody wonders about the ones that are not theirs. */
+    function forWhom(x) {
+      if (spare(x)) return 'Sign if needed';
+      return { harmony: 'Harmony Care', supervisor: 'Harmony Care', representative: 'Representative', client: 'Client', worker: 'Worker', practitioner: 'Practitioner' }[x.who];
     }
     function paint(x) {
       if (!x.el) return;
       var s = x.sheet;
       x.el.textContent = '';
       x.el.classList.toggle('on', !!x.value);
-      if (!x.value) { if (x.must) x.el.textContent = 'Sign here'; return; }
+      if (!x.value) { if (x.must) x.el.textContent = 'Sign here'; else if (x.type === 'sign' && !x.free) x.el.textContent = forWhom(x); return; }
       if (x.value.png) { x.el.appendChild(h('img', { src: x.value.png, alt: 'Signature' })); return; }
-      var mark = h('span', { class: 'mark' }, x.value.text);
+      var mark = h('span', { class: tall(x) ? 'mark many' : 'mark' }, x.value.text);
       mark.style.fontSize = (x.type === 'tick' ? x.h : 10) / s.w * 100 + 'cqw';
       x.el.appendChild(mark);
     }
@@ -166,23 +177,22 @@
     /** Signing also fills the date and printed name beside it, so nobody writes them twice. */
     function signed(x) {
       set(x, { png: state.ink.png, ratio: state.ink.ratio });
-      x.sheet.spots.forEach(function (o) {
-        if (o.value || (o.type !== 'date' && o.type !== 'name')) return;
-        var gap = x.y - o.y;
-        if (gap < -12 || gap > 62) return;
-        if (o.type === 'date') set(o, { text: today() });
-        else if (state.name) set(o, { text: state.name });
-      });
+      var date = HCFind.partner(x.sheet.spots, x, 'date'), name = HCFind.partner(x.sheet.spots, x, 'name');
+      if (date) set(date, { text: today() });
+      if (name && state.name) set(name, { text: state.name });
     }
     function tap(x) {
       problem = null;
       if (x.must || x.type === 'sign') {
-        if (x.value) return askSign(function () { signed(x); }, function () { set(x, null); });
-        if (state.ink) return signed(x);
-        return askSign(function () { signed(x); });
+        var sign = function () {
+          if (x.value) return askSign(function () { signed(x); }, function () { set(x, null); });
+          if (state.ink) return signed(x);
+          askSign(function () { signed(x); });
+        };
+        return x.must || x.value || x.free || spare(x) ? sign() : askOther(forWhom(x), sign);
       }
       if (x.type === 'tick') return set(x, x.value ? null : { text: '✓' });
-      askText(x.type === 'date' ? 'The date' : x.type === 'name' ? 'Your name' : 'What goes here', x.value ? x.value.text : x.type === 'date' ? today() : x.type === 'name' ? state.name : '', function (text) { set(x, text ? { text: text } : null); }, x.value || x.free ? function () { removeFree(x); } : null);
+      askText(x.type === 'date' ? 'The date' : x.type === 'name' ? 'Your name' : 'What goes here', x.value ? x.value.text : x.type === 'date' ? today() : x.type === 'name' ? state.name : '', function (text) { set(x, text ? { text: text } : null); }, x.value || x.free ? function () { removeFree(x); } : null, x);
     }
     function removeFree(x) {
       set(x, null);
@@ -250,7 +260,7 @@
     var stage = h('div', { class: 'sheets' }, sheets.map(function (s) {
       var canvas = h('canvas', { 'aria-label': 'Page ' + s.n + ' of ' + form.title });
       var layer = h('div', { class: 'layer', on: { click: function (e) { if (e.target === layer) tapPage(s, e, layer); } } }, s.spots.filter(function (x) {
-        return x.type !== 'sign' || x.must;
+        return x.type !== 'sign' || x.must || !staffRow || kinds.indexOf(x.who) !== -1;  // on a returned copy the others have signed
       }).map(spotEl));
       var sheet = h('div', { class: 'leaf' }, canvas, layer);
       sheet.style.aspectRatio = s.w + ' / ' + s.h;
@@ -299,16 +309,28 @@
     d.showModal();
     return d;
   }
+  function askOther(whose, yes) {
+    var d = dialog('This box is for: ' + whose, [h('p', { class: 'say' }, 'Sign it only if that is you.'), h('div', { class: 'doit' },
+      h('button', { class: 'btn', type: 'button', on: { click: function () { d.close(); yes(); } } }, 'It is mine'),
+      h('button', { class: 'linkbtn', type: 'button', on: { click: function () { d.close(); } } }, 'Leave it'))]);
+  }
   function askChoice(words, ink) {
     var d = dialog('What goes here?', h('div', { class: 'doit' },
       h('button', { class: 'btn', type: 'button', on: { click: function () { d.close(); words(); } } }, 'Words'),
       h('button', { class: 'btn', type: 'button', on: { click: function () { d.close(); ink(); } } }, 'My signature'),
       h('button', { class: 'linkbtn', type: 'button', on: { click: function () { d.close(); } } }, 'Cancel')));
   }
-  function askText(title, value, done, remove) {
-    var input = h('input', { type: 'text', value: value, 'aria-label': title, maxLength: 200 });
+  function tall(x) { return !!x.cell && x.h >= 26; }
+  /** The most letters a box can hold at the smallest size the stamp will go to. */
+  function roomFor(x) {
+    if (!x || !x.cell) return 200;
+    return Math.min(2000, Math.max(4, Math.floor((x.w - 2) / 3) * Math.max(1, Math.floor(x.h / 7.2))));
+  }
+  function askText(title, value, done, remove, box) {
+    var input = box && tall(box) ? h('textarea', { rows: 4, value: value, 'aria-label': title, maxLength: roomFor(box) })
+      : h('input', { type: 'text', value: value, 'aria-label': title, maxLength: roomFor(box) });
     var save = function () { var text = input.value.trim(); d.close(); done(text); };
-    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); save(); } });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && input.tagName === 'INPUT') { e.preventDefault(); save(); } });
     var d = dialog(title, [input, h('div', { class: 'doit' },
       h('button', { class: 'btn', type: 'button', on: { click: save } }, 'Save'),
       remove ? h('button', { class: 'linkbtn', type: 'button', on: { click: function () { d.close(); remove(); } } }, 'Remove') : null,
@@ -436,10 +458,32 @@
       page.drawImage(img, { x: x, y: y - 3, width: pic.w * fit, height: pic.h * fit });
     });
   }
+  /** A long answer wraps inside its cell, smaller if it has to. */
+  function drawLines(page, font, x) {
+    var size = 10.5, lines = [];
+    var wrap = function (s) {
+      var out = [];
+      x.value.text.split('\n').forEach(function (para) {
+        var line = '';
+        para.split(' ').forEach(function (word) {
+          var next = line ? line + ' ' + word : word;
+          if (line && font.widthOfTextAtSize(next, s) > x.w - 2) { out.push(line); line = word; } else line = next;
+        });
+        out.push(line);
+      });
+      return out;
+    };
+    do { size -= 0.5; lines = wrap(size); } while (size > 6 && lines.length * size * 1.2 > x.h);
+    lines.forEach(function (line, i) {
+      page.drawText(line, { x: x.x + 1, y: x.y + x.h - size * 1.2 * (i + 1), size: size, font: font, color: PDFLib.rgb(INK[0], INK[1], INK[2]) });
+    });
+    return null;
+  }
+  /** In a measured cell the ink stays in the cell. On a ruled line it may rise above the line, as a pen does. */
   function fitInk(x) {
-    var ratio = x.value.ratio, h2 = Math.max(x.h, 22) + 4, w = h2 * ratio;
+    var ratio = x.value.ratio, h2 = x.cell ? x.h : Math.max(x.h, 22) + 4, w = h2 * ratio;
     if (w > x.w) { w = x.w; h2 = w / ratio; }
-    return { x: x.x + 1, y: x.y, width: w, height: h2 };
+    return { x: x.x + 1, y: x.cell ? x.y + (x.h - h2) / 2 : x.y, width: w, height: h2 };
   }
   function stamp(original, marks, form) {
     return PDFLib.PDFDocument.load(original, { ignoreEncryption: true }).then(function (doc) {
@@ -456,7 +500,8 @@
                 p.drawLine({ start: { x: m, y: n }, end: { x: r, y: t }, thickness: 1.3, color: color });
                 return null;
               }
-              return drawWords(doc, p, font, x.value.text, x.x + 1, x.y + 3, 10, Math.max(x.w, 60));
+              if (tall(x) && plain(x.value.text.replace(/\n/g, ' '))) return drawLines(p, font, x);
+              return drawWords(doc, p, font, x.value.text.replace(/\n/g, ' '), x.x + 1, x.y + (x.cell ? Math.max((x.h - 10) / 2, 1) + 2 : 3), 10, x.cell ? x.w - 2 : Math.max(x.w, 60));
             });
           }, Promise.resolve());
           return steps.then(function () { return record(doc, font, bold, form); }).then(function () { return doc.save(); });
