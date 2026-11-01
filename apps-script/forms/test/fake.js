@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 // In-memory stand-ins for the Google services Code.gs uses, so it can be run and tested with node.
 // They behave like Google's where the script depends on it (a yyyy-mm-dd string typed into a cell
 // becomes that day; copies land in the folder given; replies sit in the thread) and record every
@@ -16,6 +17,7 @@ function fakeDate(nowIso) {
   }
   FakeDate.at = nowIso;
   FakeDate.parse = Real.parse; FakeDate.UTC = Real.UTC;
+  FakeDate.advance = (days) => { FakeDate.at = new Real(Real.parse(FakeDate.at) + days * 86400000).toISOString(); };
   return FakeDate;
 }
 
@@ -145,6 +147,11 @@ class Range {
       : x.v === undefined ? '' : String(x.v)));
   }
   getFormulas() { return this.cells((x) => x.formula || ''); }
+  getFormula() { return this.getFormulas()[0][0]; }
+  setFormulas(rows) {
+    rows.forEach((row, i) => row.forEach((f, j) => { this.sheet.cell(this.r + i, this.c + j).formula = f; }));
+    return this;
+  }
   getRichTextValues() { return this.cells((x) => ({ getLinkUrl: () => x.link || null })); }
   setValues(rows) {
     if (rows.length !== this.nr || rows.some((r) => r.length !== this.nc)) {
@@ -260,6 +267,7 @@ class Spreadsheet {
     sheet.name = n;
   }
   setSpreadsheetTimeZone(tz) { this.tz = tz; }
+  getId() { return 'SHEET'; }
   getUrl() { return 'https://docs.google.com/spreadsheets/d/SHEET/edit'; }
   getEditors() { return (this.editors || []).map((e) => ({ getEmail: () => e })); }
   toast(msg) { this.toasts.push(msg); }
@@ -323,6 +331,9 @@ function google(opts) {
   gmail.who = () => user.effective;
   drive.owner = () => user.effective;  // a folder belongs to whoever made it
   const userProps = {};
+  const scriptProps = {};
+  const cacheHeld = {};
+  let uuids = 0;
   let fetchFails = null;  // a function(url) -> status code, to make Drive's API refuse
   let triggerIds = 0;
   const trigger = (handler) => {
@@ -334,6 +345,8 @@ function google(opts) {
     Date: clock,
     SpreadsheetApp: {
       getActive: () => ss,
+      openById: () => ss,
+      flush: () => {},
       getActiveSheet: () => ss.active,
       getUi: () => ({
         alert: (m) => alerts.push(m),
@@ -382,12 +395,35 @@ function google(opts) {
     Session: { getEffectiveUser: () => ({ getEmail: () => user.effective }),
                getActiveUser: () => ({ getEmail: () => user.active }) },
     PropertiesService: {
+      getScriptProperties: () => ({
+        getProperty: (k) => (k in scriptProps ? scriptProps[k] : null),
+        setProperty: (k, v) => { scriptProps[k] = String(v); },
+        deleteProperty: (k) => { delete scriptProps[k]; },
+        getProperties: () => Object.assign({}, scriptProps)
+      }),
       getUserProperties: () => {
         const mine = (userProps[user.active] = userProps[user.active] || {});
         return { getProperty: (k) => (k in mine ? mine[k] : null), setProperty: (k, v) => { mine[k] = v; } };
       }
     },
-    Utilities: { formatDate },
+    Utilities: {
+      formatDate,
+      getUuid: () => crypto.randomUUID ? crypto.randomUUID() : 'uuid-' + ++uuids,
+      computeDigest: (a, t) => [...crypto.createHash('sha256').update(String(t)).digest()].map((b) => (b > 127 ? b - 256 : b)),
+      base64Encode: (bytes) => Buffer.from(bytes.map((b) => b & 255)).toString('base64'),
+      DigestAlgorithm: { SHA_256: 'SHA_256' }
+    },
+    CacheService: {
+      getScriptCache: () => ({
+        get: (k) => (cacheHeld[k] && cacheHeld[k].until > new clock().getTime() ? cacheHeld[k].v : null),
+        put: (k, v, secs) => { cacheHeld[k] = { v: String(v), until: new clock().getTime() + secs * 1000 }; },
+        remove: (k) => { delete cacheHeld[k]; }
+      })
+    },
+    ContentService: {
+      MimeType: { JSON: 'json' },
+      createTextOutput: (t) => ({ text: t, setMimeType() { return this; } })
+    },
     GmailApp: gmail,
     MailApp: { sendEmail: (m) => mail.push(Object.assign({ from: user.effective }, m)) },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },

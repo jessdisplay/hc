@@ -75,16 +75,19 @@ function world(now) {
   checklist.getRange(11, 1).setValue(1);
   checklist.getRange(11, 4).setValue('Promoting and Protecting Rights Policy');
   const every = ss.insertSheet('Everything');
-  every.getRange(5, 1, 1, 12).setValues([['No.', 'Module', 'Practice Standard', 'What (opens the file)', 'Kind',
-    'For', 'When it is needed', 'Details', 'How often', 'Next due', 'Status', 'Type dates in']]);
-  every.getRange(6, 1).setValue('CORE MODULE');
-  every.getRange(8, 1, 1, 12).setValues([[1, 'Core Module', 'Person-centred supports',
-    'Promoting and Protecting Rights Policy', 'Policy and procedure', 'Not filled in', '', '', '',
-    '31 Oct 2025', 'Overdue', 'Checklist, No. 1']]);
-  every.getRange(9, 1, 1, 12).setValues([['', 'Core Module', 'Human Resource Management', 'First aid (HLTAID011)',
-    "Worker's file", 'All workers', '', '', 'Every 3 years', '', 'Add workers on Team at a glance', '']]);
-  every.getRange(10, 1, 1, 12).setValues([['', 'Core Module', 'Risk Management', 'Renew WorkCover', 'Dated job',
-    'The organisation', '', '', '', '30 Nov 2026', 'Due within 30 days', 'Year planner']]);
+  every.getRange(5, 1, 1, 12).setValues([['Practice Standard', 'Outcome', 'Indicators to be demonstrated',
+    'Policies and other documents', 'Evidence/Information to be provided by Harmony Care', 'Who it is for',
+    'When it is needed', 'Details', 'How often', 'Next due', 'Status', 'Type dates in']]);
+  every.getRange(6, 1).setValue('Core Module');
+  every.getRange(7, 1, 1, 12).setValues([['Person-centred supports', 'Each participant accesses supports.', '1. Rights are understood.',
+    '1. Promoting and Protecting Rights Policy', '', 'All workers', 'In force at all times', '', 'Review by the next due date',
+    '2025-10-31', 'Overdue', 'Checklist, No. 1']]);
+  every.cell(7, 4).link = 'https://drive.google.com/file/d/rightspolicy000000000000/view';
+  every.getRange(8, 3).setValue('2. Communication is responsive.');
+  every.getRange(9, 1, 1, 12).setValues([['Human Resource Management', 'Each worker is competent.', '1. Workers are screened.', '',
+    'First aid (HLTAID011)', 'All workers', 'Training: all workers', '', 'Every 3 years', '', 'Add workers on Team at a glance', '']]);
+  every.getRange(10, 1, 1, 12).setValues([['Risk Management', 'Risks are managed.', '', '', 'Renew WorkCover', 'Organisation', '', '', '',
+    '2026-11-30', 'Due within 30 days', 'Year planner']]);
   ss.active = every;
   return Object.assign(g, { ctx, forms, tracker, team, checklist, every, audited });
 }
@@ -143,7 +146,7 @@ test('set up makes the tabs, folders and three timers, and running it twice chan
   w.ctx.setup();
   assert.strictEqual(w.triggers.length, 4, 'timers not doubled');
   assert.strictEqual([...w.drive.items.values()].filter((x) => x.kind === 'folder').length, folders, 'no new folders');
-  assert.strictEqual(w.ss.getSheetByName('Settings').getLastRow(), 10, 'settings not doubled');
+  assert.strictEqual(w.ss.getSheetByName('Settings').getLastRow(), 11, 'settings not doubled');
   assert.strictEqual(w.ctx.setting_('Emails go out from'), 'jesse@riseos.care');
 });
 
@@ -181,7 +184,7 @@ test('a full Team at a glance stops the menu item but never a send', () => {
   assert.ok(!items[0].error, items[0].error);
 });
 
-test("the sidebar lists a person's forms by their role's tab, all by email until a template is ready", () => {
+test("a person's forms come from their role's tab, all by email until a template is ready", () => {
   const w = ready();
   const d = w.ctx.formsFor(5);
   assert.deepStrictEqual(plain(d.to), ['ana@example.com']);
@@ -393,7 +396,7 @@ test('chasing leaves a form alone before its 14 days', () => {
 
 test('mark reviewed today: from the Everything row to the Checklist cell, in Brisbane time', () => {
   const w = ready();
-  w.ss.select(w.every, 8);
+  w.ss.select(w.every, 7);
   w.ctx.markReviewedToday();
   assert.strictEqual(asDay(w, w.checklist.getRange(11, 15).getValue()), TODAY);
   assert.match(w.ss.toasts[0], /No\. 1 marked reviewed today/);
@@ -410,7 +413,7 @@ test('the Monday email counts what is overdue, due soon, out and waiting', () =>
   w.ctx.mondayDigest();
   const m = w.mail[0];
   assert.strictEqual(m.subject, 'Harmony Care this week: 1 overdue or missing, 1 due soon');
-  assert.match(m.body, /Promoting and Protecting Rights Policy \(Person-centred supports\), due 31 Oct 2025: Overdue/);
+  assert.match(m.body, /Promoting and Protecting Rights Policy \(Person-centred supports\), due 2025-10-31: Overdue/);
   assert.match(m.body, /Renew WorkCover/);
   assert.match(m.body, /Forms out and not back: 1\./);
 });
@@ -574,9 +577,7 @@ test('an older sheet is brought up to date: wording fixed, nothing named, and tw
   const w = world();
   w.ctx.upgradeWorkbook();
   const start = w.ss.getSheetByName('Start here');
-  assert.deepStrictEqual(plain(start.getRange(6, 1, 1, 2).getValues()[0].map((x) => String(x).slice(0, 30))),
-    ['Everything', 'One list for every area: under']);
-  assert.match(start.getRange(7, 2).getValue(), /^The documents on their own, by module and Practice Standard/);
+  assert.match(start.getRange(6, 2).getValue(), /^The documents on their own, by module and Practice Standard/);
   const staff = w.ss.getSheetByName('Staff file (copy per worker)');
   assert.strictEqual(staff.getRange(37, 10).getValue(), 'Harmony HR Management Policy s 4.3(a)(6).');
   assert.match(staff.getRange(22, 9).getValue(), /"Not recorded yet"/);
@@ -588,58 +589,217 @@ test('an older sheet is brought up to date: wording fixed, nothing named, and tw
   w.alerts.length = 0;
   w.ctx.upgradeWorkbook();
   assert.strictEqual(w.alerts[0], 'The checklist was already up to date.');
-  assert.strictEqual(start.getRange(8, 1).getValue(), 'After a review', 'the Everything line went in once');
 });
 
-test('an older sheet without the Everything tab gets one, read from its own tabs', () => {
-  const w = world();
-  w.ss.sheets.splice(w.ss.sheets.indexOf(w.every), 1);
-  const ck = w.checklist, docx = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-  const policy = w.drive.file('HR Policy.docx', docx, w.audited.getId());
-  const register = w.drive.file('Risk Register.docx', docx, w.audited.getId());
-  for (let r = 6; r <= 20; r++) for (let c = 1; c <= 22; c++) ck.put(r, c, undefined);
-  const rows = [
-    [6, ['CORE MODULE']],
-    [7, ['', '', 'Human Resource Management', 'Outcome: Workers are competent.']],
-    [8, ['', '', 'Indicators to be demonstrated', '1. Records of checks are kept.']],
-    [9, ['', '', '', '2. Induction is completed.']],
-    [10, [1, 'Core Module', 'Human Resource Management', 'HR Policy', 'Policy', 'Not filled in', 'Always', 'Principal', 'Not signed']],
-    [11, [2, 'Core Module', 'Human Resource Management', 'Worker Declarations', 'Form', 'Each worker', 'Before they start', 'Worker', 'Worker and supervisor']],
-    [12, ['', '', 'Risk Management', 'Outcome: Risks are managed.']],
-    [13, [3, 'Core Module', 'Risk Management', 'Risk Register', 'Register', 'Organisation', 'Kept current', 'Principal', 'Not signed']]
-  ];
-  for (const [r, vals] of rows) vals.forEach((v, j) => ck.put(r, j + 1, v));
-  for (const [r, sec, f] of [[10, '17', policy], [11, '17', w.forms.decl], [13, '12', register]]) {
-    ck.put(r, 22, sec); ck.put(r, 19, 'Yearly'); ck.cell(r, 4).link = f.getUrl();
+/* ---- the tool */
+
+const call = (w, body) => JSON.parse(w.ctx.doPost({ postData: { contents: JSON.stringify(body) } }).text);
+/** a test row on the workers' list: what a person only reads, added the way the workbook holds it */
+function addReading(w) {
+  const docx = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  const made = ['Diversity Policy', 'Risk Management Policy'].map((n) => w.drive.file(n + '.docx', docx, w.audited.getId()));
+  const s = w.ss.getSheetByName('Send to workers');
+  s.getRange(9, 1).setValue('Policies and procedures to read at induction');
+  [[2, made[0], 'Read, then confirm it on the Staff Induction Checklist'], [17, made[1], 'Read']].forEach(([no, f, need], i) => {
+    s.getRange(10 + i, 1, 1, 3).setValues([[no, f.getName().replace('.docx', ''), need]]);
+    s.cell(10 + i, 2).link = f.getUrl();
+  });
+  return made;
+}
+function signedIn(w, email = 'brittany@example.com') {
+  w.ctx.putSetting_('Who can sign in to the tool', 'jesse@example.com, ' + email);
+  call(w, { action: 'code', email });
+  const code = w.mail.filter((m) => m.to === email).pop().subject.match(/(\d{6})$/)[1];
+  return call(w, { action: 'signin', email, code }).token;
+}
+
+test('the tool: only the door is open, and no action runs without a session', () => {
+  const w = ready();
+  assert.ok(!/function doGet|HtmlService|google\.script/.test(CODE), 'no page is served, so nothing else can be called');
+  for (const action of ['load', 'forms', 'person', 'prepare', 'send', 'requested', 'handed', 'back', 'approve', 'reviewed', 'signout']) {
+    const res = call(w, { action, token: 'not-a-real-token-not-a-real-token-00', rows: [6], ids: ['x'] });
+    assert.strictEqual(res.ok, false, action);
+    assert.strictEqual(res.signedOut, true, action);
   }
-  const planner = w.ss.insertSheet('Year planner');
-  planner.getRange(3, 1, 1, 5).setValues([['Due', 'What', 'Open', 'Why (source)', 'Done on (type the date)']]);
-  planner.getRange(4, 1, 1, 4).setValues([['Every month', 'Review the risk register', 'Risk Register', 'Policy']]);
-  planner.cell(4, 3).link = register.getUrl();
-  planner.getRange(5, 1, 1, 4).setValues([['2026-11-30', 'Renew WorkCover', 'Risk Register', 'Certificate']]);
-  planner.cell(5, 3).link = register.getUrl();
-  w.ctx.upgradeWorkbook();
-  const ev = w.ss.getSheetByName('Everything');
-  assert.ok(ev, 'Everything tab made');
-  assert.strictEqual(w.ss.sheets.indexOf(ev), w.ss.sheets.indexOf(w.ss.getSheetByName('Start here')) + 1, 'right after Start here');
-  const col = (r, c) => ev.getRange(r, c).getValue();
-  const kinds = [];
-  for (let r = 6; r <= ev.getLastRow(); r++) kinds.push(col(r, 5) || col(r, 3) || col(r, 1));
-  assert.deepStrictEqual(plain(kinds), ['CORE MODULE', 'Human Resource Management', 'Indicators to be demonstrated',
-    '', 'Policy', 'Form', "Worker's file", "Worker's file", 'Risk Management', 'Register', 'Regular job', 'Dated job']);
-  assert.strictEqual(col(11, 4), 'Worker Declarations');
-  assert.strictEqual(ev.cell(11, 4).link, w.forms.decl.getUrl(), 'title opens the form');
-  assert.strictEqual(col(11, 8), 'Filled in by: Worker. Signed by: Worker and supervisor.');
-  assert.strictEqual(col(11, 10), '=IF(Checklist!P11="","",Checklist!P11)');
-  assert.strictEqual(col(11, 11), '=Checklist!Q11');
-  assert.strictEqual(ev.cell(11, 12).link, '#gid=' + w.checklist.getSheetId() + '&range=O11');
-  assert.strictEqual(col(13, 4), 'First aid (HLTAID011)');
-  assert.match(col(13, 11), /^=IF\(COUNTA\('Team at a glance'!\$A\$5:\$A\$19\)=0,"Add workers on Team at a glance"/);
-  assert.strictEqual(col(12, 11), 'Per worker', 'an item Team at a glance does not track');
-  assert.strictEqual(col(16, 10), "=IF('Year planner'!E4=\"\",\"\",EDATE('Year planner'!E4,1))");
-  assert.strictEqual(col(17, 10), "='Year planner'!A5");
-  assert.deepStrictEqual(plain(ev.groups), [[8, 2, 1]], 'the two indicator rows fold');
-  assert.ok(ev.collapsed);
+  assert.strictEqual(call(w, { action: 'load' }).signedOut, true);
+  const token = signedIn(w);
+  assert.match(call(w, { action: 'constructor', token }).error, /does not do/);
+  assert.match(call(w, { action: '__proto__', token }).error, /does not do/);
+  assert.strictEqual(w.ctx.doPost({ postData: { contents: 'not json' } }).text, JSON.stringify({ ok: false, error: 'That did not work. Try again in a moment.' }));
+});
+
+test('sign in: a code goes only to an allowed address, and the answer gives nothing away', () => {
+  const w = ready();
+  w.ctx.putSetting_('Who can sign in to the tool', 'Brittany@Example.com');
+  w.mail.length = 0;
+  assert.deepStrictEqual(call(w, { action: 'code', email: 'stranger@example.com' }), { ok: true });
+  assert.strictEqual(w.mail.length, 0, 'nothing to a stranger');
+  assert.deepStrictEqual(call(w, { action: 'code', email: 'brittany@example.com' }), { ok: true });
+  assert.strictEqual(w.mail.length, 1);
+  const code = w.mail[0].subject.match(/(\d{6})$/)[1];
+  assert.strictEqual(call(w, { action: 'signin', email: 'stranger@example.com', code }).ok, false);
+  const good = call(w, { action: 'signin', email: 'brittany@example.com', code });
+  assert.ok(good.ok && good.token.length >= 32);
+  assert.strictEqual(call(w, { action: 'signin', email: 'brittany@example.com', code }).ok, false, 'a code works once');
+  assert.ok(!JSON.stringify(w.ctx.PropertiesService.getScriptProperties().getProperties()).includes(good.token), 'only a hash is kept');
+  assert.strictEqual(call(w, { action: 'load', token: good.token }).ok, true);
+  assert.strictEqual(call(w, { action: 'signout', token: good.token }).ok, true);
+  assert.strictEqual(call(w, { action: 'load', token: good.token }).signedOut, true, 'signing out ends it');
+});
+
+test('sign in: five wrong codes end the code, five codes an hour, and taken off the list means out', () => {
+  const w = ready();
+  const token = signedIn(w);
+  assert.strictEqual(call(w, { action: 'load', token }).ok, true);
+  w.ctx.putSetting_('Who can sign in to the tool', 'jesse@example.com');
+  assert.strictEqual(call(w, { action: 'load', token }).signedOut, true, 'off the list, session gone');
+  w.ctx.putSetting_('Who can sign in to the tool', 'brittany@example.com');
+  w.mail.length = 0;
+  call(w, { action: 'code', email: 'brittany@example.com' });
+  const real = w.mail[0].subject.match(/(\d{6})$/)[1];
+  const wrong = real === '000000' ? '000001' : '000000';
+  for (let i = 0; i < 4; i++) assert.match(call(w, { action: 'signin', email: 'brittany@example.com', code: wrong }).error, /isn't right/);
+  assert.match(call(w, { action: 'signin', email: 'brittany@example.com', code: wrong }).error, /Too many tries/);
+  assert.match(call(w, { action: 'signin', email: 'brittany@example.com', code: real }).error, /run out/, 'the right code is gone too');
+  w.mail.length = 0;
+  for (let i = 0; i < 9; i++) call(w, { action: 'code', email: 'brittany@example.com' });
+  assert.strictEqual(w.mail.length, 3, 'five codes an hour: two were spent above, so three more go');
+});
+
+test('what is only read goes in one email of links, with no copy made, and is never chased', () => {
+  const w = ready();
+  const made = addReading(w);
+  const before = w.fetches.length;
+  const items = plain(w.ctx.prepare(5, made.map((f) => f.getId()), 'test@example.com'));
+  assert.strictEqual(w.fetches.length, before, 'no Google Doc is made of a policy');
+  assert.strictEqual(items.length, 2);
+  w.ctx.sendQueued();
+  assert.strictEqual(w.gmail.sent.filter((m) => /Test copy/.test(m.subject)).length, 1, 'one test copy for both');
+  w.ctx.sendNow(items.map((i) => i.trackerRow));
+  w.ctx.sendQueued();
+  const real = w.gmail.sent.filter((m) => !/Test copy/.test(m.subject));
+  assert.strictEqual(real.length, 1, 'one email for both');
+  assert.match(real[0].body, /2 documents for you to read/);
+  assert.match(real[0].body, /Diversity Policy\n  https:/);
+  assert.match(real[0].body, /What to do: Read, then confirm it on the Staff Induction Checklist\./);
+  assert.match(real[0].body, /Nothing needs to come back/);
+  assert.ok(!(real[0].attachments || []).length, 'links, not attachments');
+  const f = w.ctx.forms_();
+  assert.deepStrictEqual(plain(f.sends.map((s) => s.standing)), ['read', 'read']);
+  w.clock.advance(30);
+  w.ctx.dailyChase();
+  assert.strictEqual(w.mail.filter((m) => /to chase/.test(m.subject)).length, 0);
+  assert.deepStrictEqual(plain(w.ctx.forms_().sends.map((s) => s.standing)), ['read', 'read'], 'still not chase');
+});
+
+test('the Forms screen: a form moves through every standing, and each step can be undone', () => {
+  const w = ready();
+  let token = signedIn(w);
+  const f = call(w, { action: 'forms', token }).forms;
+  assert.deepStrictEqual(f.people.map((p) => p.name), ["Ana O'Brien", 'Sam Lee', 'Dr Rae']);
+  assert.deepStrictEqual(f.people[2].problems, ["'rae@clinic' for Dr Rae is not an email address."]);
+  assert.strictEqual(f.lists.Worker[0].forms[0].title, 'Worker Declarations');
+  const res = call(w, { action: 'prepare', token, person: 5, ids: [w.forms.decl.getId()] });
+  const r = res.items[0].trackerRow;
+  const standing = () => call(w, { action: 'forms', token }).forms.sends[0];
+  assert.strictEqual(res.forms.sends[0].standing, 'ready');
+  assert.match(w.gmail.sent.concat([{}]).map((m) => m.subject).join(), /^(,)?$/, 'nothing has gone yet');
+  w.ctx.sendQueued();
+  assert.strictEqual(w.gmail.sent[0].subject.startsWith('[Test copy'), true);
+  assert.strictEqual(w.gmail.sent[0].to, 'brittany@example.com', 'the test comes to whoever is signed in');
+  call(w, { action: 'send', token, rows: [r] });
+  w.ctx.sendQueued();
+  assert.strictEqual(standing().standing, 'out');
+  w.clock.advance(15);
+  assert.strictEqual(call(w, { action: 'forms', token }).signedOut, true, 'a session lasts 14 days');
+  token = signedIn(w);
+  assert.strictEqual(standing().standing, 'chase');
+  assert.strictEqual(call(w, { action: 'back', token, row: r }).forms.sends[0].standing, 'back');
+  assert.strictEqual(call(w, { action: 'back', token, row: r, undo: true }).forms.sends[0].standing, 'chase');
+  call(w, { action: 'back', token, row: r });
+  const done = call(w, { action: 'approve', token, row: r }).forms.sends[0];
+  assert.strictEqual(done.standing, 'done');
+  assert.strictEqual(done.approvedBy, 'brittany@example.com');
+  assert.strictEqual(call(w, { action: 'approve', token, row: r, undo: true }).forms.sends[0].standing, 'back');
+  assert.match(call(w, { action: 'back', token, row: 999 }).error, /not on the list/);
+  assert.match(call(w, { action: 'back', token, row: 'x' }).error, /not on the list/);
+});
+
+test('a real problem reaches the person who pressed the button, and a big batch stops before Google does', () => {
+  const w = ready();
+  const token = signedIn(w);
+  const r = call(w, { action: 'prepare', token, person: 7, ids: [w.forms.plan.getId()] });
+  assert.match(r.error, /is not an email address/);
+  const start = w.clock.at;
+  const was = w.ctx.DriveApp.getFolderById;
+  let done = 0;
+  w.ctx.DriveApp.getFileById = ((real) => (id) => { if (++done === 1) w.clock.advance(1); return real(id); })(w.ctx.DriveApp.getFileById);
+  const items = w.ctx.prepare(5, [w.forms.decl.getId(), w.forms.preEmp.getId()], 'test@example.com');
+  assert.match(items[1].error, /Not done in time/);
+  assert.ok(start && was);
+});
+
+test('handed over in person: tracked like the rest, nothing emailed, and chased in person', () => {
+  const w = ready();
+  let token = signedIn(w);
+  const sent = w.gmail.sent.length;
+  const f = call(w, { action: 'handed', token, person: 5, ids: [w.forms.decl.getId()] }).forms;
+  assert.strictEqual(f.sends[0].how, 'By hand');
+  assert.strictEqual(f.sends[0].standing, 'out');
+  assert.strictEqual(w.gmail.sent.length, sent);
+  w.clock.advance(15);
+  w.ctx.dailyChase();
+  assert.match(w.mail.filter((m) => /to chase/.test(m.subject))[0].body, /ask for it back in person/);
+  token = signedIn(w);
+  assert.match(call(w, { action: 'handed', token, person: 5, ids: [w.forms.consent.getId()] }).error, /not on the Worker list/);
+});
+
+test('adding a person from the tool: checked, safe in a cell, and set up like the menu item', () => {
+  const w = ready();
+  const token = signedIn(w);
+  const add = (x) => call(w, Object.assign({ action: 'person', token, role: 'Worker', email: 'lee@example.com' }, x));
+  assert.match(add({ name: '' }).error, /Give their name/);
+  assert.match(add({ name: 'Lee', role: 'Boss' }).error, /Choose who they are/);
+  assert.match(add({ name: 'Lee', email: 'nope' }).error, /doesn't look right/);
+  assert.match(add({ name: 'Lee', email: '' }).error, /Give an email/);
+  assert.match(add({ name: "ana o'brien" }).error, /already on your list/);
+  const ok = add({ name: 'Lee Tran' });
+  assert.ok(ok.ok);
+  assert.ok(ok.forms.people.some((p) => p.name === 'Lee Tran' && p.active));
+  assert.ok(w.ss.getSheetByName('Lee Tran'), 'a worker gets a staff file tab');
+  const evil = add({ name: '=IMPORTXML("https://evil.example","//a")', email: 'x@example.com' });
+  assert.ok(evil.ok);
+  assert.ok(w.ss.getSheetByName('People').getRange(evil.person, 1).getValue().startsWith("'="), 'a formula stays words');
+  assert.match(add({ row: ok.person, name: 'Someone Else' }).error, /cannot change/);
+  assert.ok(add({ row: ok.person, name: 'Lee Tran', email: 'new@example.com' }).ok);
+});
+
+test('the Checklist screen: merged blocks read back into modules, standards and items', () => {
+  const w = ready();
+  const token = signedIn(w);
+  const c = call(w, { action: 'load', token }).checklist;
+  assert.deepStrictEqual(c.modules.map((m) => m.name), ['Core Module']);
+  const [one, two] = c.modules[0].standards;
+  assert.strictEqual(one.name, 'Person-centred supports');
+  assert.deepStrictEqual(one.indicators, ['1. Rights are understood.', '2. Communication is responsive.']);
+  assert.strictEqual(one.items[0].no, 1);
+  assert.strictEqual(one.items[0].title, 'Promoting and Protecting Rights Policy');
+  assert.strictEqual(one.items[0].due, '2025-10-31');
+  assert.strictEqual(one.items[0].evidence, false);
+  assert.strictEqual(two.items[0].evidence, true);
+  assert.strictEqual(two.items[0].no, '');
+  const after = call(w, { action: 'reviewed', token, no: 1 });
+  assert.ok(after.ok);
+  assert.strictEqual(asDay(w, w.checklist.getRange(11, 15).getValue()), TODAY);
+  assert.match(call(w, { action: 'reviewed', token, no: 999 }).error, /not on the Checklist/, 'staff see the real reason');
+});
+
+test("the status line on 'Sent and returned' says what is only read, once", () => {
+  const w = ready();
+  assert.match(w.tracker.getRange(6, 10).getFormula(), /Sent, nothing to return/);
+  assert.match(w.tracker.getRange(7, 10).getFormula(), /^=IF\(E7=""/);
+  assert.strictEqual(w.ctx.upgradeWorkbook(), undefined);
+  assert.strictEqual(w.alerts.pop(), 'The checklist was already up to date.');
 });
 
 let failed = 0;

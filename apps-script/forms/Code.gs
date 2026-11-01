@@ -1,14 +1,14 @@
 /**
  * Harmony Care forms :: send forms to people to sign, and see them come back
  *
- * Lives inside the Harmony Care checklist, opened as a Google Sheet. Adds a
- * 'Harmony forms' menu:
+ * The engine behind Harmony's tool (hc.riseos.care/tool). The Sheet is the store: people use the tool,
+ * never the tabs. doPost at the bottom of this file is the tool's only way in. Set up and the office
+ * jobs stay on a 'Harmony forms' menu in the Sheet:
  *
  *   Set up                    first time only: People, Settings, Signing templates and Forms log tabs,
  *                             the two Drive folders, and the hourly, daily and Monday timers
  *   Add the selected people   a Drive folder each; a worker also gets their own staff file tab and a
  *                             line on Team at a glance
- *   Send forms to someone     pick a person and their forms; a test copy of every email comes to you first
  *   Send the selected rows    on 'Sent and returned': send tested rows, if the Send panel was closed
  *   Make signing templates    a Google Doc of every form, for placing eSignature fields once
  *   Check for returned forms  what the hourly timer does, now
@@ -42,7 +42,7 @@ var SEND_TABS = {
   'Practitioner or partner': 'Send to practitioners'
 };
 var LABEL = 'Harmony forms';  // every email thread the script starts carries this Gmail label
-var ESIGN = 'Google eSignature', EMAIL = 'Email';
+var ESIGN = 'Google eSignature', EMAIL = 'Email', BY_HAND = 'By hand';
 var MARK = 'Harmony forms: ';  // on a file's description: the hourly check has dealt with it
 
 // People: one row per person, typed in by Harmony.
@@ -70,6 +70,7 @@ var SETTINGS = [
   ['Test copies go to', '', 'Where a test copy goes if the sender gives no address in the Send panel.'],
   ['Emails go out from', '', 'Set up fills this: the account that ran it. Every email goes from here.'],
   ['Tell these people when a form comes back', '', 'Comma separated. They also get the Monday email.'],
+  ['Who can sign in to the tool', '', 'Comma separated email addresses. Each gets a code by email to sign in.'],
   ["Folder for each person's files", '', 'Set up makes it. Each person gets a folder inside it.'],
   ['Signing templates folder', '', 'Set up makes it. The signing templates live here.'],
   ['Chase after (days)', 14, 'A form not back after this many days gets a reminder drafted in Gmail.']
@@ -83,7 +84,6 @@ var TIMERS = ['sendQueued', 'checkReturns', 'dailyChase', 'mondayDigest'];
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Harmony forms')
-    .addItem('Send forms to someone', 'openSender')
     .addItem('Send the selected rows', 'sendSelectedRows')
     .addItem('Add the selected people', 'addSelectedPeople')
     .addSeparator()
@@ -99,6 +99,7 @@ function onOpen() {
 
 function setup() {
   var ss = SpreadsheetApp.getActive();
+  PropertiesService.getScriptProperties().setProperty('SHEET_ID', ss.getId());
   ss.setSpreadsheetTimeZone(TZ);
   upgrade_(ss);
   var me = Session.getEffectiveUser().getEmail();
@@ -117,6 +118,7 @@ function setup() {
   if (!setting_('Tell these people when a form comes back')) {
     putSetting_('Tell these people when a form comes back', me);
   }
+  if (!setting_('Who can sign in to the tool')) putSetting_('Who can sign in to the tool', me);
   if (!folderId_(setting_("Folder for each person's files"))) {
     putSetting_("Folder for each person's files",
                 DriveApp.createFolder("Harmony Care - each person's forms").getUrl());
@@ -243,7 +245,7 @@ function setUpPerson_(person, strict) {
 
 /** A copy of the staff file tab named for the worker, and their name on Team at a glance. */
 function staffTab_(person) {
-  var ss = SpreadsheetApp.getActive();
+  var ss = book_();
   var name = sheetName_(person.name);
   if (!ss.getSheetByName(name)) {
     var copy = tab_(TABS.staff).copyTo(ss).setName(name);
@@ -282,25 +284,7 @@ function signers_(person) {
 
 /* ------------------------------------------------------------------ sending */
 
-function openSender() {
-  var html = HtmlService.createHtmlOutput(SIDEBAR).setTitle('Send forms');
-  SpreadsheetApp.getUi().showSidebar(html);
-}
-
-/** For the sidebar: everyone active on the People tab. */
-function sidebarPeople() {
-  var sheet = tab_(TABS.people);
-  var last = sheet.getLastRow();
-  if (last <= PEOPLE_HEAD) return [];
-  var out = [];
-  for (var r = PEOPLE_HEAD + 1; r <= last; r++) {
-    var p = person_(r);
-    if (p.name && p.active) out.push({ row: r, name: p.name, role: p.role });
-  }
-  return out;
-}
-
-/** For the sidebar: the forms for this person's role, grouped as on its 'Send to' tab. */
+/** The forms for this person's role, grouped as on its 'Send to' tab. */
 function formsFor(row) {
   var person = person_(row);
   var tabName = SEND_TABS[person.role];
@@ -335,18 +319,24 @@ function prepare(row, ids, testTo) {
   PropertiesService.getUserProperties().setProperty('TEST_TO', testTo);  // remembered for this person
   var folder = DriveApp.getFolderById(person.folder);
   var stamp = Utilities.formatDate(new Date(), TZ, 'd MMM yyyy');
-  var out = [];
+  var out = [], started = Date.now();
   ids.forEach(function (id) {
     var form = forms.filter(function (f) { return f.id === id; })[0];
     if (!form) return out.push({ title: id, error: 'That form is not on the ' + person.role + ' list.' });
+    if (Date.now() - started > TIME_BUDGET_MS) return out.push({ title: form.title, error: 'Not done in time. Tick it and send it again.' });
     var name = form.title + ' - ' + person.name + ' (' + stamp + ')';
     try {
       var t = templates[id];
-      var item = { title: form.title, to: who.to, how: t && t.ready ? ESIGN : EMAIL };
-      var copyId = item.how === ESIGN
-        ? DriveApp.getFileById(t.id).makeCopy(name, folder).getId()
-        : toDoc_(id, name, person.folder);
-      item.copyUrl = DriveApp.getFileById(copyId).getUrl();
+      var reading = readOnly_(form.need);
+      var item = { title: form.title, to: who.to, how: t && t.ready && !reading ? ESIGN : EMAIL };
+      if (reading) {  // they read the one document, so no copy of it is made for them
+        item.copyUrl = 'https://drive.google.com/file/d/' + id + '/view';
+      } else {
+        var copyId = item.how === ESIGN
+          ? DriveApp.getFileById(t.id).makeCopy(name, folder).getId()
+          : toDoc_(id, name, person.folder);
+        item.copyUrl = DriveApp.getFileById(copyId).getUrl();
+      }
       item.trackerRow = trackRow_({
         to: person.name, who: person.role, email: who.to.join(', '), form: form.title, need: form.need,
         copy: item.copyUrl, how: item.how, step: item.how === EMAIL ? 'Test' : '', testTo: testTo
@@ -406,9 +396,15 @@ function sendQueued(e) {
     var tracker = tab_(TABS.tracker);
     var last = Math.max(tracker.getLastRow(), TRACKER_FIRST);
     var rows = tracker.getRange(TRACKER_FIRST, 1, last - TRACKER_FIRST + 1, TRACKER.length).getValues();
+    var reading = {};  // what one person only has to read goes in one email, not one each
     rows.forEach(function (v, i) {
       var step = v[T['Send step']], r = TRACKER_FIRST + i;
       if (step !== 'Test' && step !== 'Send') return;
+      if (readOnly_(v[T['They need to']])) {
+        var key = step + '|' + v[T['Sent to']];
+        (reading[key] = reading[key] || []).push({ r: r, v: v });
+        return;
+      }
       var cell = tracker.getRange(r, T['Send step'] + 1);
       try {
         var person = byName_(v[T['Sent to']]);
@@ -435,12 +431,61 @@ function sendQueued(e) {
         tell_('Not sent: ' + v[T['Form']] + ' to ' + v[T['Sent to']],
               v[T['Form']] + ' to ' + v[T['Sent to']] + ' did not go out: ' + err.message + '\n\n' +
               "Fix it, then make it again from Send forms. Row " + r + " of 'Sent and returned'.\n" +
-              SpreadsheetApp.getActive().getUrl());
+              book_().getUrl());
       }
     });
+    Object.keys(reading).forEach(function (key) { sendReading_(tracker, reading[key]); });
   } finally {
     lock.releaseLock();
   }
+}
+
+/** One email of links for everything one person has to read, marked on every row it covers. */
+function sendReading_(tracker, rows) {
+  var first = rows[0].v, step = first[T['Send step']];
+  var mark = function (value) {
+    rows.forEach(function (x) { tracker.getRange(x.r, T['Send step'] + 1).setValue(value); });
+  };
+  try {
+    var person = byName_(first[T['Sent to']]);
+    var mail = readingEmail_(person, rows);
+    var opts = { name: setting_('Send emails as') };
+    if (step === 'Test') {
+      GmailApp.sendEmail(first[T['Test copy to']], '[Test copy for ' + person.name + '] ' + mail.subject, mail.body, opts);
+      return mark('Test sent');
+    }
+    var who = signers_(person);
+    if (who.problems.length) throw new Error(who.problems.join(' '));
+    var thread = GmailApp.createDraft(who.to.join(','), mail.subject, mail.body, opts).send().getThread();
+    thread.addLabel(GmailApp.getUserLabelByName(LABEL) || GmailApp.createLabel(LABEL));
+    rows.forEach(function (x) {
+      date_(tracker.getRange(x.r, T['Date sent'] + 1), new Date());
+      tracker.getRange(x.r, T['Email thread'] + 1).setValue(thread.getId());
+    });
+    mark('Sent');
+    log_('Sent', rows.length + ' to read, to ' + who.to.join(', '));
+  } catch (err) {
+    mark('Not sent: ' + err.message);
+    log_('Send failed', first[T['Sent to']] + ', ' + rows.length + ' to read: ' + err.message);
+    tell_('Not sent: documents to read for ' + first[T['Sent to']], err.message + '\n\n' + book_().getUrl());
+  }
+}
+
+function readingEmail_(person, rows) {
+  var first = (person.guardian && !person.email ? person.guardian : person.name).split(' ')[0];
+  var list = rows.map(function (x) { return '- ' + x.v[T['Form']] + '\n  ' + x.v[T['Copy sent (opens it)']]; });
+  var asks = [];
+  rows.forEach(function (x) {
+    var need = String(x.v[T['They need to']]).replace(/\.$/, '');
+    if (need !== 'Read' && asks.indexOf(need) === -1) asks.push(need);
+  });
+  return {
+    subject: 'Harmony Care: documents to read',
+    body: 'Hi ' + first + ',\n\nHarmony Care has ' + (rows.length === 1 ? 'a document' : rows.length + ' documents') +
+          ' for you to read. Each link opens it.\n\n' + list.join('\n\n') + '\n\n' +
+          (asks.length ? 'What to do: ' + asks.join('. ') + '.\n\n' : '') +
+          'Nothing needs to come back by email. Any questions, just reply here.\n\nThank you,\nHarmony Care'
+  };
 }
 
 /**
@@ -541,7 +586,7 @@ function checkReturns(e) {
     // eSignature rows waiting in the same folder share that folder's new PDFs
     var waiting = {};
     rows.forEach(function (v, i) {
-      if (!v[T['Date sent']] || v[T['Returned on']] || v[T['Signed copy']]) return;
+      if (!v[T['Date sent']] || v[T['Returned on']] || v[T['Signed copy']] || readOnly_(v[T['They need to']])) return;
       var r = TRACKER_FIRST + i;
       try {
         if (v[T['How it went out']] === EMAIL && v[T['Email thread']]) {
@@ -653,7 +698,7 @@ function returned_(tracker, r, v, url, note) {
   tell_('Signed and back: ' + v[T['Form']] + ' from ' + v[T['Sent to']],
         v[T['Sent to']] + ' has returned ' + v[T['Form']] + '.\n\nOpen it: ' + url + '\n\n' +
         "Check it, then type who approved it and when in 'Sent and returned' (row " + r + ').\n' +
-        SpreadsheetApp.getActive().getUrl());
+        book_().getUrl());
 }
 
 
@@ -673,7 +718,7 @@ function dailyChase(e) {
   var lines = [];
   rows.forEach(function (v, i) {
     var sent = v[T['Date sent']], r = TRACKER_FIRST + i;
-    if (!sent || v[T['Returned on']] || !v[T['Form']]) return;
+    if (!sent || v[T['Returned on']] || !v[T['Form']] || readOnly_(v[T['They need to']])) return;
     if (daysBetween_(day_(sent), today) < days) return;
     var chased = v[T['Last chased']];
     if (chased && daysBetween_(day_(chased), today) < 7) return;
@@ -687,6 +732,8 @@ function dailyChase(e) {
             'when you have a moment?\n\nThank you,\nHarmony Care');
         }
         lines.push('- ' + v[T['Form']] + ', ' + v[T['Sent to']] + ': a reminder is waiting in Gmail drafts.');
+      } else if (how === BY_HAND) {
+        lines.push('- ' + v[T['Form']] + ', ' + v[T['Sent to']] + ': handed over, ask for it back in person.');
       } else {
         lines.push('- ' + v[T['Form']] + ', ' + v[T['Sent to']] + ': open the copy and send a reminder from ' +
                    'its eSignature panel. ' + v[T['Copy sent (opens it)']]);
@@ -699,7 +746,7 @@ function dailyChase(e) {
   if (lines.length) {
     tell_(lines.length + ' form' + (lines.length > 1 ? 's' : '') + ' to chase',
           'Out for ' + days + ' days or more and not back yet:\n\n' + lines.join('\n') + '\n\n' +
-          SpreadsheetApp.getActive().getUrl());
+          book_().getUrl());
     log_('Chased', lines.length + ' forms');
   }
 }
@@ -707,59 +754,60 @@ function dailyChase(e) {
 /** Monday 8 am, or from the menu: what is overdue or due soon on the Everything tab, and forms out. */
 function mondayDigest(e) {
   if (e && !timerOwner_(e)) return;  // from the menu anyone may ask for it
-  var sheet = tab_(TABS.everything);
-  var head = 5;
-  var values = sheet.getRange(head, 1, Math.max(sheet.getLastRow() - head + 1, 1), 12).getDisplayValues();
-  var col = index_(values[0]);
-  ['What (opens the file)', 'Kind', 'Next due', 'Status', 'Practice Standard'].forEach(function (h) {
-    if (!(h in col)) throw new Error("The Everything tab has changed: no '" + h + "' column.");
-  });
   var now = [], soon = [];
-  values.slice(1).forEach(function (v) {
-    if (!v[col['Kind']]) return;
-    var s = v[col['Status']];
-    var line = '- ' + v[col['What (opens the file)']] + ' (' + v[col['Practice Standard']] + ')' +
-               (v[col['Next due']] ? ', due ' + v[col['Next due']] : '') + ': ' + s;
-    if (/^(Overdue|Missing|Expired)/.test(s)) now.push(line);
-    else if (/^(Due within|Renew within)/.test(s)) soon.push(line);
+  checklist_().modules.forEach(function (m) {
+    m.standards.forEach(function (st) {
+      st.items.forEach(function (item) {
+        var line = '- ' + item.title + ' (' + st.name + ')' + (item.due ? ', due ' + item.due : '') + ': ' + item.status;
+        if (/^(Overdue|Missing|Expired)/.test(item.status)) now.push(line);
+        else if (/^(Due within|Renew within)/.test(item.status)) soon.push(line);
+      });
+    });
   });
   var tracker = tab_(TABS.tracker);
   var last = Math.max(tracker.getLastRow(), TRACKER_FIRST);
   var out = tracker.getRange(TRACKER_FIRST, 1, last - TRACKER_FIRST + 1, TRACKER.length).getValues()
-    .filter(function (v) { return v[T['Date sent']] && !v[T['Returned on']]; }).length;
+    .filter(function (v) { return v[T['Date sent']] && !v[T['Returned on']] && !readOnly_(v[T['They need to']]); }).length;
   var approve = tracker.getRange(TRACKER_FIRST, 1, last - TRACKER_FIRST + 1, TRACKER.length).getValues()
     .filter(function (v) { return v[T['Returned on']] && !v[T['Approved on']]; }).length;
   tell_('Harmony Care this week: ' + now.length + ' overdue or missing, ' + soon.length + ' due soon',
         'Overdue or missing (' + now.length + '):\n' + (now.join('\n') || '- nothing') + '\n\n' +
         'Due in the next 30 days (' + soon.length + '):\n' + (soon.join('\n') || '- nothing') + '\n\n' +
         'Forms out and not back: ' + out + '. Back and waiting for approval: ' + approve + '.\n\n' +
-        SpreadsheetApp.getActive().getUrl());
+        book_().getUrl());
 }
 
 /** The menu item: today's date in 'Last reviewed' for the document on the selected row. */
 function markReviewedToday() {
   var sheet = SpreadsheetApp.getActiveSheet();
   var row = sheet.getActiveRange().getRow();
+  var no = sheet.getName() === TABS.checklist ? sheet.getRange(row, 1).getValue()
+    : sheet.getName() === TABS.everything ? numberOf_(sheet.getRange(row, 4).getValue() || sheet.getRange(row, 5).getValue()).no : '';
+  if (typeof no !== 'number') return ui_('Select a document row on the Everything or Checklist tab.');
+  var title = reviewed_(no);
+  book_().toast('No. ' + no + ' marked reviewed today. Next due and Status update by themselves.', 'Harmony forms');
+  return title;
+}
+
+/** Today's date in 'Last reviewed' for a document; Next due and Status follow from it. */
+function reviewed_(no) {
   var checklist = tab_(TABS.checklist);
   var head = checklist.getRange(5, 1, 1, checklist.getLastColumn()).getValues()[0];
   var lastCol = head.indexOf('Last reviewed (type the date)') + 1;
   if (!lastCol) throw new Error("The Checklist tab has changed: no 'Last reviewed (type the date)' column.");
-  var no = sheet.getRange(row, 1).getValue();
-  if ([TABS.checklist, TABS.everything].indexOf(sheet.getName()) === -1 || typeof no !== 'number') {
-    return ui_('Select a document row (one with a number in column A) on the Everything or Checklist tab.');
-  }
-  var target = row;
-  if (sheet.getName() === TABS.everything) {
-    var nos = checklist.getRange(1, 1, checklist.getLastRow(), 1).getValues();
-    target = 0;
-    for (var i = 0; i < nos.length; i++) if (nos[i][0] === no) { target = i + 1; break; }
-    if (!target) throw new Error('Document No. ' + no + ' is not on the Checklist tab.');
-  }
+  var nos = checklist.getRange(1, 1, checklist.getLastRow(), 1).getValues(), target = 0;
+  for (var i = 0; i < nos.length; i++) if (nos[i][0] === no) { target = i + 1; break; }
+  if (!target) throw new Error('Document No. ' + no + ' is not on the Checklist tab.');
   date_(checklist.getRange(target, lastCol), new Date());
   var title = checklist.getRange(target, 4).getValue();
   log_('Reviewed', 'No. ' + no + ', ' + title);
-  SpreadsheetApp.getActive().toast('No. ' + no + ' marked reviewed today. Next due and Status update by themselves.',
-                                   'Harmony forms');
+  return title;
+}
+
+/** '12. Conflict of Interest Register' as its number and its name. */
+function numberOf_(label) {
+  var m = String(label || '').match(/^(\d+)\.\s+(.*)$/);
+  return m ? { no: Number(m[1]), title: m[2] } : { no: '', title: String(label || '') };
 }
 
 
@@ -776,29 +824,9 @@ var WORDING = [  // [tab, old text, new text]
   ['Staff file (copy per worker)', ' Avaana checklist: auditors expect a formal agreement for each worker.', ''],
   ['Staff file (copy per worker)', 'Avaana registration checklist (key management personnel). ', '']
 ];
-var EVERYTHING_LINE = ['Everything', 'One list for every area: under each Practice Standard, every document, ' +
-  "every item each worker's file must hold, and every dated job, with when it is needed, how often, the next " +
-  'due date and whether it is in date. It reads its dates from the tabs below, so a date is only ever typed once.'];
-var EV_COLS = [['No.', 6], ['Module', 13], ['Practice Standard', 24], ['What (opens the file)', 46], ['Kind', 15],
-               ['For', 20], ['When it is needed', 40], ['Details', 44], ['How often', 24], ['Next due', 13],
-               ['Status', 22], ['Type dates in', 20]];
-// A staff file item sits under the standard whose indicator asks for it; the rest under Human Resource
-// Management (17). The same rules as the workbook builder (tools/checklist/everything.py).
-var STAFF_PLACE = [
-  [/^Medication training/, '26'], [/^Mealtime support training/, '26A'],
-  [/^Emergency and disaster preparedness training/, '18A'], [/^High intensity competency/, 'M1-ALL'],
-  [/^Behaviour support plan training/, '50'], [/^Restrictive practices training/, '50'],
-  [/^(SIL Worker Training Plan|Induction to each SIL house)/, '72D'],
-  [/^(SIL Worker Competency|Positive behaviour support|Cultural safety)/, '72D'],
-  [/^Key personnel suitability/, '11']
-];
-var WHEN_OF_GROUP = { "Also on Harmony's Staff File Checklist": "When it applies (Harmony's Staff File Checklist)" };
-var REPEATS = { 'Every month': 'EDATE(%,1)', 'Every fortnight': '(%+14)' };
-var TINTS = { 'Each participant': '#FBE0E6', 'Each worker': '#DCE7D5', 'Organisation': '#F3E3CA' };
-
 /** The menu item. Anyone who can edit the sheet may run it; it sends nothing. */
 function upgradeWorkbook() {
-  var done = upgrade_(SpreadsheetApp.getActive());
+  var done = upgrade_(book_());
   ui_(done.length ? 'Brought up to date:\n- ' + done.join('\n- ') : 'The checklist was already up to date.');
 }
 
@@ -825,18 +853,13 @@ function upgrade_(ss) {
   });
   if (changed) staff.setConditionalFormatRules(rules);
   if (n || changed) done.push("Staff file: 'Missing' is now 'Not recorded yet'");
-  if (!ss.getSheetByName(TABS.everything)) {
-    var rows = buildEverything_(ss);
-    done.push('Everything tab added (' + rows + ' rows)');
-  }
-  var start = tab_('Start here');
-  var labels = start.getRange(1, 1, start.getLastRow(), 1).getValues().map(function (r) { return r[0]; });
-  if (labels.indexOf(EVERYTHING_LINE[0]) === -1 && labels.indexOf('Checklist') !== -1) {
-    var at = labels.indexOf('Checklist') + 1;
-    start.insertRowBefore(at);
-    start.getRange(at + 1, 1, 1, 2).copyTo(start.getRange(at, 1, 1, 2), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
-    start.getRange(at, 1, 1, 2).setValues([EVERYTHING_LINE]);
-    done.push('Start here: a line for the Everything tab');
+  var tracker = tab_(TABS.tracker);
+  var status = tracker.getRange(TRACKER_FIRST, T['Status'] + 1);
+  if (String(status.getFormula()).indexOf('nothing to return') === -1) {
+    var last = tracker.getMaxRows(), lines = [];
+    for (var r = TRACKER_FIRST; r <= last; r++) lines.push([statusFormula_(r)]);
+    tracker.getRange(TRACKER_FIRST, T['Status'] + 1, lines.length, 1).setFormulas(lines);
+    done.push("Sent and returned: what is only read no longer says chase up");
   }
   var left = ss.createTextFinder('avaana').findAll().length + ss.createTextFinder('havana').findAll().length;
   if (left) log_('Still named', left + ' cell(s) still name the 2023 consultancy');
@@ -844,207 +867,11 @@ function upgrade_(ss) {
   return done;
 }
 
-/** The Checklist tab as groups: module, standard, outcome, indicators, 'also meets' lines, documents. */
-function readChecklist_(ss) {
-  var sh = tab_(TABS.checklist);
-  var last = sh.getLastRow(), width = Math.max(sh.getLastColumn(), 22);
-  var range = sh.getRange(1, 1, last, width);
-  var v = range.getValues(), rich = range.getRichTextValues();
-  var col = index_(v[4].map(String));
-  ['No.', 'Module', 'Practice Standard', 'Document (opens the file)', 'Type', 'Filled in for', 'When it is needed',
-   'Completed by', 'Signed by', 'Next due', 'Status', 'Last reviewed (type the date)', 'How often', 'Section']
-    .forEach(function (h) { if (!(h in col)) throw new Error("The Checklist tab has changed: no '" + h + "' column."); });
-  var link = function (i, c) { var t = rich[i][c]; return t && t.getLinkUrl ? t.getLinkUrl() : null; };
-  var groups = [], band = '', g = null;
-  for (var i = 5; i < last; i++) {
-    var row = v[i], a = row[0], std = String(row[col['Practice Standard']] || ''),
-        text = String(row[col['Document (opens the file)']] || '');
-    if (typeof a === 'number') {
-      g.docs.push({ row: i + 1, no: a, short: row[col['Module']], title: text, url: link(i, col['Document (opens the file)']),
-                    type: row[col['Type']], file: row[col['Filled in for']], when: row[col['When it is needed']],
-                    completedBy: row[col['Completed by']], signedBy: row[col['Signed by']],
-                    howOften: row[col['How often']], section: String(row[col['Section']]) });
-    } else if (a && !std) {
-      band = String(a);
-    } else if (std === 'Also meets this standard') {
-      g.also.push({ text: text, url: link(i, col['Document (opens the file)']) });
-    } else if (std && text.indexOf('Outcome: ') === 0) {
-      g = { band: band, heading: std, outcome: text, indicators: [], also: [], docs: [], staff: [], jobs: [] };
-      groups.push(g);
-    } else if (text) {
-      g.indicators.push(text);
-    }
-  }
-  return { groups: groups, col: col };
-}
-
-function buildEverything_(ss) {
-  var read = readChecklist_(ss), groups = read.groups;
-  var letter = function (h) { return columnLetter_(read.col[h] + 1); };
-  var ckDue = letter('Next due'), ckStatus = letter('Status'), ckLast = letter('Last reviewed (type the date)');
-  var bySection = {}, byFile = {};
-  groups.forEach(function (g) {
-    g.docs.forEach(function (d) { byFile[fileId_(d.url)] = d; });
-    if (g.docs.length && !bySection[g.docs[0].section]) bySection[g.docs[0].section] = g;
-  });
-  // the staff file's items, and which Team at a glance column tracks each
-  var staff = tab_(TABS.staff), team = tab_(TABS.team);
-  var tracked = {};
-  team.getRange(4, 3, 1, team.getLastColumn() - 2).getValues()[0].forEach(function (h, i) {
-    if (h) tracked[h] = columnLetter_(i + 3);
-  });
-  var sv = staff.getRange(22, 1, staff.getLastRow() - 21, 6), sVals = sv.getValues(), sRich = sv.getRichTextValues();
-  sVals.forEach(function (r, i) {
-    if (!r[1]) return;
-    var key = '17';
-    STAFF_PLACE.forEach(function (p) { if (key === '17' && p[0].test(r[1])) key = p[1]; });
-    if (!bySection[key]) throw new Error('Staff file item ' + r[1] + ' belongs under section ' + key + ', not on the Checklist.');
-    var form = ['', 'None', 'None in the set'].indexOf(String(r[4] || '')) === -1 ? r[4] : '';
-    bySection[key].staff.push({ group: r[0], item: r[1], who: r[2], keep: r[3], form: form, renew: r[5],
-                                url: sRich[i][4] && sRich[i][4].getLinkUrl(), col: tracked[r[1]] });
-  });
-  var planner = tab_('Year planner');
-  var pv = planner.getRange(4, 1, planner.getLastRow() - 3, 4), pVals = pv.getValues(), pRich = pv.getRichTextValues();
-  pVals.forEach(function (r, i) {
-    if (!r[1]) return;
-    var url = pRich[i][2] && pRich[i][2].getLinkUrl(), d = byFile[fileId_(url)];
-    if (!d) throw new Error('Year planner row ' + (i + 4) + ' opens ' + r[2] + ', which is not on the Checklist.');
-    if (!(r[0] instanceof Date) && !REPEATS[r[0]]) throw new Error('Year planner row ' + (i + 4) + ': due "' + r[0] + '"');
-    bySection[d.section].jobs.push({ row: i + 4, due: r[0], what: r[1], why: r[3], url: url });
-  });
-
-  var names = "'Team at a glance'!$A$5:$A$19";
-  var grid = [], kinds = [], links = [], jumps = [], tints = [];
-  var push = function (kind, values, link, jump, tint) {
-    while (values.length < 12) values.push('');
-    grid.push(values); kinds.push(kind); links.push(link || null); jumps.push(jump || null); tints.push(tint || null);
-  };
-  var band = null;
-  groups.forEach(function (g) {
-    if (g.band !== band) { band = g.band; push('band', [band]); }
-    push('standard', ['', '', g.heading, g.outcome]);
-    g.indicators.forEach(function (line, n) {
-      push('indicator', ['', '', n ? '' : 'Indicators to be demonstrated', line]);
-    });
-    g.also.forEach(function (a) { push('also', ['', '', 'Also meets this standard', a.text], a.url); });
-    var short = g.docs.length ? g.docs[0].short : '';
-    g.docs.forEach(function (d) {
-      var filled = d.file && d.file !== 'Not filled in';
-      var details = filled && d.completedBy
-        ? ('Filled in by: ' + d.completedBy + '. Signed by: ' + d.signedBy).replace(/\.+$/, '') + '.' : '';
-      push('doc', [d.no, short, g.heading, d.title, d.type, d.file, d.when, details, d.howOften,
-                   '=IF(Checklist!' + ckDue + d.row + '="","",Checklist!' + ckDue + d.row + ')',
-                   '=Checklist!' + ckStatus + d.row, 'Checklist, No. ' + d.no],
-           d.url, ['Checklist', ckLast + d.row], filled ? TINTS[d.file] : null);
-    });
-    g.staff.forEach(function (s) {
-      var due = '', status = 'Per worker';
-      if (s.col) {
-        var rng = "'Team at a glance'!" + s.col + '5:' + s.col + '19';
-        due = '=IF(COUNT(' + rng + ')=0,"",MIN(' + rng + '))';
-        status = '=IF(COUNTA(' + names + ')=0,"Add workers on Team at a glance",IF(COUNT(' + rng + ')=0,"No dates entered",' +
-                 'IF(MIN(' + rng + ')<TODAY(),"Expired for "&COUNTIF(' + rng + ',"<"&TODAY())&" of "&COUNTA(' + names + '),' +
-                 'IF(MIN(' + rng + ')<TODAY()+60,"Renew within 60 days","In date"))))';
-      }
-      push('staff', ['', short, g.heading, s.item, "Worker's file", s.who, WHEN_OF_GROUP[s.group] || s.group,
-                     s.keep + (s.form ? ' Harmony form: ' + s.form + '.' : ''), s.renew, due, status,
-                     s.col ? 'Team at a glance' : "Each worker's own tab"],
-           s.url, s.col ? [TABS.team, s.col + '4'] : null, TINTS['Each worker']);
-    });
-    g.jobs.forEach(function (j) {
-      var done = "'Year planner'!E" + j.row, due, status, kind, when = '';
-      if (REPEATS[j.due]) {
-        var nxt = REPEATS[j.due].replace('%', done);
-        due = '=IF(' + done + '="","",' + nxt + ')';
-        status = '=IF(' + done + '="","No record yet",IF(' + nxt + '<TODAY(),"Overdue","In date"))';
-        kind = 'Regular job'; when = j.due;
-      } else {
-        var at = "'Year planner'!A" + j.row;
-        due = '=' + at;
-        status = '=IF(' + done + '<>"","Done",IF(' + at + '<TODAY(),"Overdue",IF(' + at + '<TODAY()+30,"Due within 30 days","Not due yet")))';
-        kind = 'Dated job';
-      }
-      push('job', ['', short, g.heading, j.what, kind, 'The organisation', when, j.why, '', due, status, 'Year planner'],
-           j.url, ['Year planner', 'E' + j.row], TINTS['Organisation']);
-    });
-  });
-
-  var sh = ss.insertSheet(TABS.everything, tab_('Start here').getIndex());
-  sh.setTabColor('#38553E');
-  EV_COLS.forEach(function (c, i) { sh.setColumnWidth(i + 1, c[1] * 7); });
-  sh.getRange('A2').setValue('Everything in one list, by Practice Standard').setFontSize(14).setFontWeight('bold')
-    .setFontColor('#38553E');
-  sh.getRange('A3').setValue("Under each Practice Standard: every document, every item each worker's file must hold, " +
-    'and every dated job, with when it is needed, the next due date and whether it is in date. Dates are typed in one ' +
-    "place only (documents on 'Checklist', workers on their own staff file tab, jobs on 'Year planner'); this list " +
-    'reads them. The + and - beside the row numbers show and hide the indicators.').setFontColor('#5F564C');
-  sh.getRange('A4').setValue("Highlighted rows go in someone's file:").setFontColor('#5F564C');
-  sh.getRange('E4:H4').setValues([['Each participant', 'Each worker', 'The organisation',
-                                   'No colour: policies and guides, read but not filled in']])
-    .setBackgrounds([['#FBE0E6', '#DCE7D5', '#F3E3CA', null]]);
-  sh.getRange(5, 1, 1, 12).setValues([EV_COLS.map(function (c) { return c[0]; })])
-    .setFontWeight('bold').setFontColor('#FFFFFF').setBackground('#38553E').setWrap(true);
-
-  var top = 6, n = grid.length, body = sh.getRange(top, 1, n, 12);
-  body.setValues(grid).setWrap(true).setVerticalAlignment('top');
-  var ids = { 'Checklist': tab_(TABS.checklist).getSheetId(), 'Team at a glance': team.getSheetId(),
-              'Year planner': planner.getSheetId() };
-  sh.getRange(top, 4, n, 1).setRichTextValues(grid.map(function (r, i) {
-    var t = SpreadsheetApp.newRichTextValue().setText(String(r[3]));
-    return [(links[i] ? t.setLinkUrl(links[i]) : t).build()];
-  }));
-  sh.getRange(top, 12, n, 1).setRichTextValues(grid.map(function (r, i) {
-    var t = SpreadsheetApp.newRichTextValue().setText(String(r[11]));
-    return [(jumps[i] ? t.setLinkUrl('#gid=' + ids[jumps[i][0]] + '&range=' + jumps[i][1]) : t).build()];
-  }));
-  body.setBackgrounds(kinds.map(function (k, i) {
-    var c = k === 'band' ? '#38553E' : tints[i];
-    return [c, c, c, c, c, c, c, c, c, c, c, c];
-  }));
-  sh.getRange(top, 10, n, 1).setNumberFormat('d mmm yyyy');
-  sh.getRange(top, 11, n, 1).setFontWeight('bold');
-  var groupStart = null;
-  kinds.forEach(function (k, i) {
-    var r = top + i;
-    if (k === 'band') sh.getRange(r, 1, 1, 12).merge().setFontWeight('bold').setFontColor('#FFFFFF').setFontSize(12);
-    if (k === 'standard' || k === 'indicator' || k === 'also') sh.getRange(r, 4, 1, 6).merge();
-    if (k === 'standard') sh.getRange(r, 3).setFontWeight('bold').setFontColor('#38553E');
-    if (k === 'standard' || k === 'indicator') sh.getRange(r, 4).setFontStyle(k === 'standard' ? 'italic' : 'normal');
-    if (k === 'indicator') sh.getRange(r, 3, 1, 2).setFontColor('#5F564C').setFontSize(9);
-    if (k === 'indicator' && groupStart === null) groupStart = r;
-    if (k !== 'indicator' && groupStart !== null) {
-      sh.getRange(groupStart, 1, r - groupStart, 1).shiftRowGroupDepth(1);
-      groupStart = null;
-    }
-  });
-  if (groupStart !== null) sh.getRange(groupStart, 1, top + n - groupStart, 1).shiftRowGroupDepth(1);
-  sh.setRowGroupControlPosition(SpreadsheetApp.GroupControlTogglePosition.BEFORE);
-  sh.collapseAllRowGroups();
-  var K = 'K' + top, J = 'J' + top, rule = function (f, colour, range) {
-    return SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied(f).setBackground(colour)
-      .setRanges([sh.getRange(range)]).build();
-  };
-  var is = function (vals) { return 'OR(' + vals.map(function (v) { return K + '="' + v + '"'; }).join(',') + ')'; };
-  var ks = 'K' + top + ':K' + (top + n - 1), js = 'J' + top + ':J' + (top + n - 1);
-  sh.setConditionalFormatRules([
-    rule('=OR(' + is(['Overdue', 'Missing']) + ',LEFT(' + K + ',7)="Expired")', '#F4C7C3', ks),
-    rule('=' + is(['Due within 30 days', 'No review date on record', 'No record yet', 'Renew within 60 days',
-                   'No dates entered', 'Add workers on Team at a glance']), '#FCE8B2', ks),
-    rule('=' + is(['In date', 'Done', 'Not due yet']), '#D7EBD5', ks),
-    rule('=' + is(['Superseded', 'Working copy', 'Draft', 'Per worker']), '#E8E4E0', ks),
-    rule('=AND(ISNUMBER(' + J + '),' + J + '<TODAY())', '#F4C7C3', js),
-    rule('=AND(ISNUMBER(' + J + '),' + J + '<TODAY()+30)', '#FCE8B2', js)
-  ]);
-  sh.setFrozenRows(5);
-  sh.setFrozenColumns(4);
-  sh.getRange(5, 1, n + 1, 12).createFilter();
-  return n;
-}
-
-function columnLetter_(n) {
-  var s = '';
-  for (; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + (n - 1) % 26) + s;
-  return s;
+/** The status line of a 'Sent and returned' row. */
+function statusFormula_(r) {
+  return '=IF(E' + r + '="","",IF(I' + r + '<>"","\u2713 Done and approved",IF(G' + r + '<>"","Returned: check and approve",' +
+    'IF(A' + r + '="","Not sent yet",IF(AND(LEFT(F' + r + ',4)="Read",LEFT(F' + r + ',13)<>"Read and sign"),"Sent, nothing to return",' +
+    'IF(AND(ISNUMBER(A' + r + '),A' + r + '<TODAY()-14),"Chase up: sent over 2 weeks ago","Waiting for it to come back"))))))';
 }
 
 
@@ -1109,7 +936,7 @@ function sendGroups_(name) {
   var head = 5;
   var last = sheet.getLastRow();
   if (last <= head) return [];
-  var range = sheet.getRange(head + 1, 1, last - head, 3);
+  var range = sheet.getRange(head + 1, 1, last - head, 6);
   var values = range.getValues(), links = range.getRichTextValues(), formulas = range.getFormulas();
   var groups = [];
   values.forEach(function (v, i) {
@@ -1118,9 +945,18 @@ function sendGroups_(name) {
     var url = links[i][1] && links[i][1].getLinkUrl();
     if (!url) url = (String(formulas[i][1]).match(/HYPERLINK\("([^"]+)"/i) || [])[1];
     var id = fileId_(url);
-    if (id) groups[groups.length - 1].forms.push({ id: id, title: String(v[1]), need: String(v[2] || '') });
+    if (id) {
+      groups[groups.length - 1].forms.push({ id: id, title: String(v[1]), need: String(v[2] || ''), when: String(v[3] || ''),
+                                             fills: String(v[4] || ''), signs: String(v[5] || '') });
+    }
   });
   return groups.filter(function (g) { return g.forms.length; });
+}
+
+/** A document that is only read: nothing comes back to chase. 'Read and sign' does come back. */
+function readOnly_(need) {
+  var n = String(need || '');
+  return /^Read\b/.test(n) && !/^Read and sign/.test(n);
 }
 
 /** Writes a new row in 'Sent and returned' (left undated) and returns its row number. */
@@ -1183,8 +1019,14 @@ function requireFolder_(label) {
 
 /* ------------------------------------------------------------------ small things */
 
+/** The Sheet, by the id Set up saved: a call from the tool has no open Sheet to ask. */
+function book_() {
+  var id = PropertiesService.getScriptProperties().getProperty('SHEET_ID');
+  return id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActive();
+}
+
 function tab_(name) {
-  var sheet = SpreadsheetApp.getActive().getSheetByName(name);
+  var sheet = book_().getSheetByName(name);
   if (!sheet) throw new Error("There is no '" + name + "' tab. Run Harmony forms > Set up, or check its name.");
   return sheet;
 }
@@ -1202,7 +1044,7 @@ function ensureTab_(ss, name, title, intro, headRow, head) {
 }
 
 function setting_(label) {
-  var sheet = SpreadsheetApp.getActive().getSheetByName(TABS.settings);
+  var sheet = book_().getSheetByName(TABS.settings);
   if (!sheet || sheet.getLastRow() < 4) return '';
   var rows = sheet.getRange(4, 1, sheet.getLastRow() - 3, 2).getValues();
   for (var i = 0; i < rows.length; i++) if (rows[i][0] === label) return rows[i][1];
@@ -1231,7 +1073,7 @@ function tell_(subject, body) {
 }
 
 function log_(what, detail) {
-  var sheet = SpreadsheetApp.getActive().getSheetByName(TABS.log);
+  var sheet = book_().getSheetByName(TABS.log);
   if (sheet) sheet.appendRow([Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), what, detail]);
 }
 
@@ -1283,70 +1125,346 @@ function index_(names) {
 }
 
 
-/* ------------------------------------------------------------------ the sidebar */
+/* ------------------------------------------------------------------ the tool's way in */
 
-var SIDEBAR = [
-  '<!doctype html><html><head><base target="_top"><style>',
-  'body{font:13px/1.45 Arial,sans-serif;color:#2E2A26;margin:12px}',
-  'h2{font-size:15px;color:#38553E;margin:0 0 8px}h3{font-size:12px;color:#38553E;margin:14px 0 4px}',
-  'select,button{font:inherit;width:100%;padding:6px;margin:4px 0}',
-  'button{background:#38553E;color:#fff;border:0;border-radius:4px;cursor:pointer}',
-  'button:disabled{background:#9EAE8F;cursor:default}',
-  'label{display:flex;gap:6px;align-items:flex-start;margin:3px 0}',
-  '.how{font-size:11px;color:#5F564C}.bad{color:#8A4B2A}.ok{color:#38553E}',
-  '.item{border-top:1px solid #DFD5C4;padding:6px 0}a{color:#38553E}',
-  '</style></head><body>',
-  '<h2>Send forms</h2>',
-  '<select id="person"><option value="">Choose a person</option></select>',
-  '<div id="forms"></div>',
-  '<label class="how" style="display:block">Test copy to<input id="testTo" type="email" style="width:100%;font:inherit;padding:5px"></label>',
-  '<button id="prepare" disabled>Make their copies and send me a test</button>',
-  '<div id="result"></div>',
-  '<button id="send" disabled style="display:none">Send the emails for real</button>',
-  '<script>',
-  'var $=function(id){return document.getElementById(id)};',
-  'function el(tag,text,cls){var e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e}',
-  'function fail(err){$("result").textContent="";$("result").appendChild(el("p",String(err.message||err),"bad"));',
-  '  $("prepare").disabled=false}',
-  'google.script.run.withFailureHandler(fail).withSuccessHandler(function(people){',
-  '  people.forEach(function(p){var o=el("option",p.name+" ("+(p.role||"no role")+")");o.value=p.row;$("person").appendChild(o)})',
-  '}).sidebarPeople();',
-  '$("person").onchange=function(){',
-  '  $("forms").textContent="";$("result").textContent="";$("send").style.display="none";$("prepare").disabled=true;',
-  '  if(!this.value)return;',
-  '  google.script.run.withFailureHandler(fail).withSuccessHandler(function(d){',
-  '    if(d.problems.length){$("forms").appendChild(el("p",d.problems.join(" "),"bad"));return}',
-  '    $("forms").appendChild(el("p","Goes to "+d.to.join(", ")+", from "+d.from+". A test of every email comes to you first.","how"));',
-  '    if(!$("testTo").value)$("testTo").value=d.testTo||"";',
-  '    d.groups.forEach(function(g){$("forms").appendChild(el("h3",g.name));',
-  '      g.forms.forEach(function(f){var l=el("label");var c=el("input");c.type="checkbox";c.value=f.id;',
-  '        c.onchange=function(){$("prepare").disabled=!document.querySelector("#forms input:checked")};',
-  '        var t=el("span");t.appendChild(el("span",f.title));t.appendChild(el("br"));',
-  '        t.appendChild(el("span",(f.how==="Email"?"By email, they sign and reply":"By Google eSignature")+". "+f.need,"how"));',
-  '        l.appendChild(c);l.appendChild(t);$("forms").appendChild(l)})})',
-  '  }).formsFor(Number(this.value))};',
-  '$("prepare").onclick=function(){',
-  '  var ids=[].map.call(document.querySelectorAll("#forms input:checked"),function(c){return c.value});',
-  '  this.disabled=true;$("result").textContent="Making copies...";',
-  '  google.script.run.withFailureHandler(fail).withSuccessHandler(function(items){',
-  '    $("result").textContent="";var rows=[];',
-  '    items.forEach(function(it){var d=el("div",null,"item");d.appendChild(el("b",it.title));',
-  '      if(it.error){d.appendChild(el("p",it.error,"bad"))}',
-  '      else if(it.how==="Email"){d.appendChild(el("p","A test copy goes to "+it.tested+" within a minute. Check it, then press Send.","how"));rows.push(it.trackerRow)}',
-  '      else{var a=el("a","Open their copy");a.href=it.copyUrl;a.target="_blank";d.appendChild(a);',
-  '        d.appendChild(el("p","In it: Tools > eSignature > Request signature, to "+it.to.join(", ")+".","how"));',
-  '        var b=el("button","I have requested the signature");b.onclick=function(){b.disabled=true;',
-  '          google.script.run.withFailureHandler(function(e){b.disabled=false;fail(e)})',
-  '            .withSuccessHandler(function(){b.textContent="Dated in Sent and returned"}).markRequested(it.trackerRow)};',
-  '        d.appendChild(b)}',
-  '      $("result").appendChild(d)});',
-  '    if(rows.length){$("send").style.display="block";$("send").disabled=false;',
-  '      $("send").onclick=function(){$("send").disabled=true;',
-  '        google.script.run.withFailureHandler(fail).withSuccessHandler(function(res){',
-  '          var bad=res.filter(function(x){return x.error});',
-  '          if(bad.length)$("send").disabled=false;',
-  '          $("result").appendChild(el("p",(res.length-bad.length)+" on the way; they go out within a minute."+(bad.length?" "+bad.map(function(x){return x.error}).join(" "):""),bad.length?"bad":"ok"))',
-  '        }).sendNow(rows)}}',
-  '  }).prepare(Number($("person").value),ids,$("testTo").value)};',
-  '</script></body></html>'
-].join('\n');
+// hc.riseos.care/tool holds no data. It posts here, as a web app that runs as the Set up account, so the
+// people using it need no access to the Sheet and never meet a Google permission screen. Anyone on the
+// internet can reach doPost, so nothing past askCode_ and signIn_ happens without a live session, and
+// no page is served from this script: the only way in is the one door below.
+
+var CODE_MINUTES = 10, CODE_TRIES = 5, CODES_AN_HOUR = 5, SESSION_DAYS = 14;
+
+function doPost(e) {
+  var out;
+  try {
+    out = route_(JSON.parse(e.postData.contents));
+  } catch (err) {
+    log_('Tool call failed', String(err.message).slice(0, 300));
+    out = { ok: false, error: err.said ? err.message : 'That did not work. Try again in a moment.' };
+  }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function route_(body) {
+  var action = String(body.action || '');
+  if (action === 'code') return askCode_(body);
+  if (action === 'signin') return signIn_(body);
+  var who = session_(body.token);
+  if (!who) return { ok: false, signedOut: true, error: 'Please sign in again.' };
+  if (!Object.prototype.hasOwnProperty.call(TOOL, action)) throw said_('The tool asked for something this script does not do.');
+  try {
+    return TOOL[action](body, who);
+  } catch (err) {  // past the door the person is staff, and this script's errors are written for them
+    log_('Tool said', who + ', ' + action + ': ' + String(err.message).slice(0, 300));
+    return { ok: false, error: err.message };
+  }
+}
+
+function said_(message) {
+  var err = new Error(message);
+  err.said = true;
+  return err;
+}
+
+function hash_(text) {
+  return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text)));
+}
+
+function emailKey_(email) {
+  return hash_(String(email || '').trim().toLowerCase());
+}
+
+/** Answers the same whether or not the address may sign in, so the form cannot be used to test addresses. */
+function askCode_(body) {
+  var email = String(body.email || '').trim().toLowerCase();
+  var allowed = String(setting_('Who can sign in to the tool') || '').toLowerCase().split(',')
+    .map(function (s) { return s.trim(); });
+  if (!isEmail_(email) || allowed.indexOf(email) === -1) return { ok: true };
+  var cache = CacheService.getScriptCache(), key = emailKey_(email);
+  var sent = Number(cache.get('asked:' + key)) || 0;
+  if (sent >= CODES_AN_HOUR) return { ok: true };
+  cache.put('asked:' + key, String(sent + 1), 3600);
+  var digits = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, Utilities.getUuid());
+  var n = digits.slice(0, 6).reduce(function (all, b) { return (all * 256 + (b & 255)) % 1000000; }, 0);
+  var code = ('000000' + n).slice(-6);
+  cache.put('code:' + key, JSON.stringify({ hash: hash_(key + code), tries: 0 }), CODE_MINUTES * 60);
+  MailApp.sendEmail({ to: email, subject: 'Your Harmony Care sign-in code: ' + code, name: setting_('Send emails as'),
+                      body: 'Your code is ' + code + '. It works for ' + CODE_MINUTES + ' minutes.\n\n' +
+                            'If you did not ask for it, you can ignore this email.' });
+  return { ok: true };
+}
+
+function signIn_(body) {
+  var email = String(body.email || '').trim().toLowerCase(), code = String(body.code || '').replace(/\D/g, '');
+  var cache = CacheService.getScriptCache(), key = emailKey_(email);
+  var held = cache.get('code:' + key);
+  if (!held) return { ok: false, error: 'That code has run out. Ask for a new one.' };
+  held = JSON.parse(held);
+  if (hash_(key + code) !== held.hash) {
+    held.tries++;
+    if (held.tries >= CODE_TRIES) {
+      cache.remove('code:' + key);
+      return { ok: false, error: 'Too many tries. Ask for a new code.' };
+    }
+    cache.put('code:' + key, JSON.stringify(held), CODE_MINUTES * 60);
+    return { ok: false, error: "That code isn't right. Check it and try again." };
+  }
+  cache.remove('code:' + key);
+  var token = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  var props = PropertiesService.getScriptProperties(), now = Date.now();
+  var all = props.getProperties();
+  Object.keys(all).forEach(function (k) {  // a session that ran out stops taking up room here
+    if (k.indexOf('session:') === 0 && JSON.parse(all[k]).until < now) props.deleteProperty(k);
+  });
+  props.setProperty('session:' + hash_(token), JSON.stringify({ email: email, until: now + SESSION_DAYS * 86400000 }));
+  log_('Signed in', email);
+  return { ok: true, token: token, email: email };
+}
+
+/** Who the token belongs to, or nothing. Only its hash is stored, so the Sheet's owner never holds a token. */
+function session_(token) {
+  if (typeof token !== 'string' || token.length < 32) return '';
+  var held = PropertiesService.getScriptProperties().getProperty('session:' + hash_(token));
+  if (!held) return '';
+  held = JSON.parse(held);
+  if (held.until < Date.now()) return '';
+  // taken off the list means out, whatever the session says
+  var allowed = String(setting_('Who can sign in to the tool') || '').toLowerCase().split(',')
+    .map(function (s) { return s.trim(); });
+  return allowed.indexOf(held.email) === -1 ? '' : held.email;
+}
+
+/** One change at a time, so two people saving together cannot land on the same row. */
+function locked_(fn) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) throw said_('Someone else is saving. Try again in a moment.');
+  try {
+    return fn();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function theRow_(value) {
+  var r = Number(value);
+  if (!Number.isInteger(r) || r < TRACKER_FIRST) throw said_('That row is not on the list.');
+  if (!tab_(TABS.tracker).getRange(r, T['Form'] + 1).getValue()) throw said_('That row is not on the list.');
+  return r;
+}
+
+function theIds_(ids) {
+  if (!Array.isArray(ids) || !ids.length) throw said_('Tick at least one form first.');
+  ids.forEach(function (id) { if (!/^[\w-]{20,}$/.test(String(id))) throw said_('That form is not on the list.'); });
+  return ids;
+}
+
+/** Words typed in the tool, safe to keep in a cell: a leading = + - @ would otherwise run as a formula. */
+function words_(value, most) {
+  var text = String(value == null ? '' : value).trim().slice(0, most);
+  return /^[=+\-@]/.test(text) ? "'" + text : text;
+}
+
+var TOOL = {
+  load: function () { return { ok: true, today: day_(new Date()), checklist: checklist_(), forms: forms_() }; },
+  forms: function () { return { ok: true, today: day_(new Date()), forms: forms_() }; },
+  signout: function (b) {
+    PropertiesService.getScriptProperties().deleteProperty('session:' + hash_(b.token));
+    return { ok: true };
+  },
+  person: function (b) {
+    return { ok: true, person: locked_(function () { return savePerson_(b); }), forms: forms_() };
+  },
+  prepare: function (b, who) {
+    var row = Number(b.person);
+    if (!Number.isInteger(row) || row <= PEOPLE_HEAD) throw said_('That person is not on the list.');
+    var ids = theIds_(b.ids);
+    return { ok: true, items: locked_(function () { return prepare(row, ids, who); }), forms: forms_() };
+  },
+  send: function (b) {
+    var rows = (b.rows || []).map(theRow_);
+    return { ok: true, sent: locked_(function () { return sendNow(rows); }), forms: forms_() };
+  },
+  requested: function (b) {
+    var r = theRow_(b.row);
+    locked_(function () { markRequested(r); });
+    return { ok: true, forms: forms_() };
+  },
+  handed: function (b, who) {
+    var row = Number(b.person), ids = theIds_(b.ids);
+    locked_(function () { handedOver_(row, ids, who); });
+    return { ok: true, forms: forms_() };
+  },
+  back: function (b, who) {
+    var r = theRow_(b.row);
+    locked_(function () { stamp_(r, 'Returned on', b.undo ? '' : new Date(), who); });
+    return { ok: true, forms: forms_() };
+  },
+  approve: function (b, who) {
+    var r = theRow_(b.row);
+    locked_(function () {
+      tab_(TABS.tracker).getRange(r, T['Approved by'] + 1).setValue(b.undo ? '' : who);
+      stamp_(r, 'Approved on', b.undo ? '' : new Date(), who);
+    });
+    return { ok: true, forms: forms_() };
+  },
+  reviewed: function (b, who) {
+    var no = Number(b.no);
+    if (!Number.isInteger(no) || no < 1) throw said_('That document is not on the list.');
+    locked_(function () { log_('Reviewed by', who + ', No. ' + no + ': ' + reviewed_(no)); });
+    SpreadsheetApp.flush();  // Next due and Status are formulas: read them after they recalculate
+    return { ok: true, today: day_(new Date()), checklist: checklist_() };
+  }
+};
+
+function stamp_(r, field, when, who) {
+  var cell = tab_(TABS.tracker).getRange(r, T[field] + 1);
+  if (when) date_(cell, when); else cell.setValue('');
+  log_(field, 'Row ' + r + (when ? '' : ' cleared') + ' by ' + who);
+}
+
+/** A form given over in person: nothing is emailed, and it is tracked like any other. */
+function handedOver_(row, ids, who) {
+  var person = person_(row);
+  if (!person.name) throw said_('That person is not on the list.');
+  var forms = listFor_(person.role).reduce(function (all, g) { return all.concat(g.forms); }, []);
+  ids.forEach(function (id) {
+    var form = forms.filter(function (f) { return f.id === id; })[0];
+    if (!form) throw said_('That form is not on the ' + person.role + ' list.');
+    var r = trackRow_({ to: person.name, who: person.role, email: person.email, form: form.title, need: form.need,
+                        copy: 'https://drive.google.com/file/d/' + id + '/view', how: BY_HAND, step: '', testTo: '' });
+    date_(tab_(TABS.tracker).getRange(r, T['Date sent'] + 1), new Date());
+    log_('Handed over', form.title + ' to ' + person.name + ', recorded by ' + who);
+  });
+}
+
+function savePerson_(b) {
+  var sheet = tab_(TABS.people);
+  var name = words_(b.name, 120), email = String(b.email || '').trim().slice(0, 254);
+  var guardian = words_(b.guardian, 120), guardianEmail = String(b.guardianEmail || '').trim().slice(0, 254);
+  var role = String(b.role || ''), row = Number(b.row) || 0;
+  if (!name) throw said_('Give their name.');
+  if (ROLES.indexOf(role) === -1) throw said_('Choose who they are.');
+  if (email && !isEmail_(email)) throw said_("That email address doesn't look right.");
+  if (guardianEmail && !isEmail_(guardianEmail)) throw said_("The guardian's email address doesn't look right.");
+  if (!email && !guardianEmail) throw said_('Give an email address, or one for whoever signs for them.');
+  var last = Math.max(sheet.getLastRow(), PEOPLE_HEAD);
+  var names = last > PEOPLE_HEAD ? sheet.getRange(PEOPLE_HEAD + 1, 1, last - PEOPLE_HEAD, 1).getValues() : [];
+  var same = names.map(function (r, i) { return String(r[0]).trim().toLowerCase() === name.toLowerCase() ? PEOPLE_HEAD + 1 + i : 0; })
+    .filter(Boolean);
+  if (row) {
+    if (row <= PEOPLE_HEAD || row > last) throw said_('That person is not on the list.');
+    if (String(sheet.getRange(row, 1).getValue()).trim().toLowerCase() !== name.toLowerCase()) {
+      throw said_('A name cannot change here, because their forms are filed under it.');  // 'Sent and returned' holds names
+    }
+  } else {
+    if (same.length) throw said_(name + ' is already on your list.');
+    row = last + 1;
+    sheet.getRange(row, P['Name'] + 1).setValue(name);
+  }
+  sheet.getRange(row, P['Email'] + 1, 1, 4).setValues([[email, role, guardian, guardianEmail]]);
+  if (b.active === false) sheet.getRange(row, P['Active'] + 1).setValue('No');
+  else sheet.getRange(row, P['Active'] + 1).setValue('Yes');
+  setUpPerson_(person_(row), false);
+  log_('Person saved', name);
+  return row;
+}
+
+/** Everything the Forms screen shows, worked out from the tabs on each read so nothing stored goes stale. */
+function forms_() {
+  var people = [], sheet = tab_(TABS.people), last = sheet.getLastRow();
+  for (var r = PEOPLE_HEAD + 1; r <= last; r++) {
+    var p = person_(r);
+    if (p.name) {
+      people.push({ row: r, name: p.name, email: p.email, role: p.role, guardian: p.guardian,
+                    guardianEmail: p.guardianEmail, active: p.active, problems: signers_(p).problems });
+    }
+  }
+  var tracker = tab_(TABS.tracker), end = Math.max(tracker.getLastRow(), TRACKER_FIRST), today = day_(new Date());
+  var days = Number(setting_('Chase after (days)')) || 14, sends = [];
+  tracker.getRange(TRACKER_FIRST, 1, end - TRACKER_FIRST + 1, TRACKER.length).getValues().forEach(function (v, i) {
+    if (!v[T['Form']]) return;
+    sends.push({
+      row: TRACKER_FIRST + i, to: String(v[T['Sent to']]), form: String(v[T['Form']]), need: String(v[T['They need to']]),
+      how: String(v[T['How it went out']]), standing: standing_(v, today, days), step: String(v[T['Send step']]),
+      sent: v[T['Date sent']] ? day_(v[T['Date sent']]) : '', back: v[T['Returned on']] ? day_(v[T['Returned on']]) : '',
+      approvedBy: String(v[T['Approved by']] || ''), approved: v[T['Approved on']] ? day_(v[T['Approved on']]) : '',
+      copy: String(v[T['Copy sent (opens it)']] || ''), signed: String(v[T['Signed copy']] || ''),
+      notes: String(v[T['Notes']] || '')
+    });
+  });
+  var lists = {};
+  ROLES.forEach(function (role) { lists[role] = listFor_(role); });
+  return { people: people, lists: lists, sends: sends, chaseDays: days, from: setting_('Emails go out from') };
+}
+
+function listFor_(role) {
+  var name = SEND_TABS[role];
+  if (!name) throw said_('Choose who they are first.');
+  var templates = templates_();
+  return sendGroups_(name).map(function (g) {
+    return { name: g.name, forms: g.forms.map(function (f) {
+      var t = templates[f.id], reading = readOnly_(f.need);
+      return { id: f.id, title: f.title, need: f.need, when: f.when, fills: f.fills, signs: f.signs, reading: reading,
+               how: t && t.ready && !reading ? ESIGN : EMAIL, url: 'https://drive.google.com/file/d/' + f.id + '/view' };
+    }) };
+  });
+}
+
+/** Where a row stands: ready, failed, out, chase, read, back or done. */
+function standing_(v, today, days) {
+  if (v[T['Approved on']]) return 'done';
+  if (v[T['Returned on']]) return 'back';
+  if (String(v[T['Send step']]).indexOf('Not sent') === 0) return 'failed';
+  if (!v[T['Date sent']]) return 'ready';
+  if (readOnly_(v[T['They need to']])) return 'read';
+  return daysBetween_(day_(v[T['Date sent']]), today) >= days ? 'chase' : 'out';
+}
+
+/** The Everything tab as modules, standards and items, the merged cells read back into their blocks. */
+function checklist_() {
+  var sheet = tab_(TABS.everything), head = 5, last = sheet.getLastRow();
+  var range = sheet.getRange(head, 1, last - head + 1, 12);
+  var v = range.getValues(), links = range.getRichTextValues();
+  var c = index_(v[0].map(String));
+  ['Practice Standard', 'Outcome', 'Indicators to be demonstrated', 'Policies and other documents',
+   'Evidence/Information to be provided by Harmony Care', 'Who it is for', 'When it is needed', 'Details', 'How often',
+   'Next due', 'Status'].forEach(function (h) {
+    if (!(h in c)) throw new Error("The Everything tab has changed: no '" + h + "' column.");
+  });
+  var docs = c['Policies and other documents'], proof = c['Evidence/Information to be provided by Harmony Care'];
+  var modules = [], mod = null, std = null;
+  for (var i = 1; i < v.length; i++) {
+    var row = v[i], a = String(row[c['Practice Standard']] || '').trim();
+    var rest = row.slice(1).some(function (x) { return x !== ''; });
+    if (a && !rest) {
+      mod = { name: a, standards: [] };
+      modules.push(mod);
+      std = null;
+      continue;
+    }
+    if (a) {
+      std = { name: a, outcome: String(row[c['Outcome']] || ''), indicators: [], also: [], items: [] };
+      mod.standards.push(std);
+    }
+    if (!std) continue;
+    var indicator = String(row[c['Indicators to be demonstrated']] || '').trim();
+    if (indicator) std.indicators.push(indicator);
+    var col = row[docs] ? docs : row[proof] ? proof : -1;
+    if (col === -1) continue;
+    var link = links[i][col] && links[i][col].getLinkUrl();
+    var safe = /^https:/.test(String(link || '')) ? link : '';
+    var also = String(row[col]).match(/^Also meets this standard: (.*)$/);
+    if (also) {
+      std.also.push({ title: also[1], url: safe });
+      continue;
+    }
+    var named = numberOf_(row[col]), due = row[c['Next due']];
+    std.items.push({
+      no: named.no, title: named.title, evidence: col === proof, url: safe,
+      who: String(row[c['Who it is for']] || ''), when: String(row[c['When it is needed']] || ''),
+      details: String(row[c['Details']] || ''), often: String(row[c['How often']] || ''),
+      due: due ? day_(due) : '', status: String(row[c['Status']] || '')
+    });
+  }
+  return { modules: modules };
+}
