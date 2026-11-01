@@ -34,6 +34,8 @@ function formatDate(d, tz, fmt) {
   })[k]);
 }
 
+let locked = false;
+
 class Blob {
   constructor(bytes, type, name) { this.bytes = bytes; this.type = type; this.name = name; }
   setName(n) { this.name = n; return this; }
@@ -447,11 +449,11 @@ function google(opts) {
     },
     GmailApp: gmail,
     MailApp: { sendEmail: (m) => mail.push(Object.assign({ from: user.effective }, m)) },
-    LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },
+    LockService: { getScriptLock: () => ({ tryLock: () => { if (locked) return false; locked = true; return true; }, releaseLock: () => { locked = false; } }) },
     HtmlService: { createHtmlOutput: (h) => ({ html: h, setTitle(t) { this.title = t; return this; } }) },
     console
   };
-  return { globals, ss, drive, gmail, mail, alerts, triggers, fetches, clock, Blob, user,
+  return { globals, ss, drive, gmail, mail, alerts, triggers, fetches, clock, Blob, user, lockHeld: () => locked,
            failFetch: (fn) => { fetchFails = fn; } };
 }
 

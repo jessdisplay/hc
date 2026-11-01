@@ -1058,6 +1058,14 @@ test('sign page: the PDFs are made ahead of time, once, and made again if the fo
   assert.notStrictEqual(w.ctx.formPdf_(id, 'Worker Declarations'), before);
 });
 
+test('sign page: making PDFs never holds the lock, so nobody pressing Finish is kept waiting', () => {
+  const w = ready();
+  let held = null;
+  w.ctx.pdfsWaiting_ = () => { held = w.lockHeld(); };
+  w.ctx.sendQueued();
+  assert.strictEqual(held, false);
+});
+
 test('sign page: a bad address stays on the row and tells Harmony, nothing is lost', () => {
   const w = ready();
   const token = signedIn(w);

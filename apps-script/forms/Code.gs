@@ -456,10 +456,10 @@ function sendQueued(e) {
     Object.keys(reading).forEach(function (key) { sendReading_(tracker, reading[key]); });
     Object.keys(signing).forEach(function (name) { sendSignLink_(tracker, name, signing[name]); });
     setUpWaiting_();
-    pdfsWaiting_();
   } finally {
     lock.releaseLock();
   }
+  pdfsWaiting_();  // slow, and it writes nothing the tool shares, so it never holds up someone pressing Finish
 }
 
 /** Folders and staff tabs for anyone added in bulk, as many each minute as fit: a long list outlasts one call. */
