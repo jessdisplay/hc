@@ -72,30 +72,48 @@ td input[type=date]{font-family:var(--sans);font-size:.9375rem;padding:.25rem .3
 .flag{font-family:var(--sans);font-size:.9375rem;gap:.5rem;flex-wrap:nowrap}
 .note h3{margin-top:0}
 .nav .tabs{gap:1.1rem;flex-wrap:wrap}
-/* The long version: Harmony's 2023 checklist, its colours and ruled table, whatever the theme. */
-.maphead{background:#00BD71;color:#fff;font:700 1.25rem/1.3 Arial,sans-serif;padding:1.1rem .75rem;margin-top:.75rem}
-table.map{table-layout:fixed;margin:0;background:#fff;font:.875rem/1.35 Arial,sans-serif}
-table.map th{background:#FC775B;color:#000;border:1px solid #000;text-align:center;vertical-align:bottom;position:sticky;top:0;z-index:1}
-table.map td{border:1px solid #000;color:#000;background:#fff;padding:.3rem .4rem}
+/* The long version: the five columns of the 2023 checklist in Harmony's Palette 01. Forest title, blush
+   headings under the one salmon accent, sage modules, the standards on cream. */
+:root{--blush:#F6D0C8;--salmon:#C6746F;--band:var(--sage)}
+@media screen and (prefers-color-scheme:dark){:root:not([data-theme="light"]){--blush:#4A2F2C;--salmon:#D08F89;--band:#3A4633}}
+.maphead{background:var(--forest);color:var(--paper);font:700 1.375rem/1.25 var(--serif);padding:1.1rem .85rem;margin-top:.75rem}
+table.map{table-layout:fixed;margin:0;font-size:.875rem;line-height:1.4}
+table.map th{background:var(--blush);color:var(--forest);border:1px solid var(--sage);border-bottom:2px solid var(--salmon);padding:.55rem .5rem;position:sticky;top:0;z-index:1}
+table.map td{border:1px solid var(--sage);padding:.4rem .5rem}
 table.map th:nth-child(1){width:12%}table.map th:nth-child(2){width:18%}table.map th:nth-child(3){width:26%}table.map th:nth-child(4){width:23%}table.map th:nth-child(5){width:21%}
-table.map tr.band td{background:#B7E1CD;font-weight:700;padding:.35rem .4rem}
-table.map td.stdname{font-weight:700}
+table.map tr.band td{background:var(--band);color:var(--ink);font:700 1rem/1.3 var(--serif);padding:.45rem .5rem}
+table.map td.stdname{background:var(--t-organisation);color:var(--forest);font:700 .9375rem/1.3 var(--serif)}
 table.map td.out{white-space:pre-line}
 table.map td p{margin:0 0 .3rem}
-table.map td a{color:#000;text-decoration-color:#38553E}
-table.map td.ind p{border-bottom:1px solid #000;margin:0 -.4rem .3rem;padding:0 .4rem .3rem}
+table.map td a{text-decoration-color:var(--sage);text-underline-offset:2px}
+table.map td.ind p{border-bottom:1px solid var(--rule);margin:0 -.5rem .3rem;padding:0 .5rem .3rem}
 table.map td.ind p:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
 @media print{
   @page{size:A4 landscape;margin:10mm}
-  .nav,.no-print,.skip{display:none!important}
+  /* A dark screen must not print light words on white paper. */
+  :root,:root:not([data-theme="light"]){--paper:#FDFBF6;--plate:#FFFFFF;--ink:#2F2F2F;--body:#3A3A3A;--mid:#6A6A6A;--rule:#D8D4CB;--sage:#9EAE8F;--forest:#38553E;--t-organisation:#F3E3CA}
+  .nav .tabs,.nav .me,.no-print,.skip{display:none!important}
+  body{background:none}
+  .nav{padding:.3rem .85rem;border-bottom:0}  /* the lockup is drawn on this cream, so the strip keeps it */
+  .nav .home img{height:2.6rem}
   #main{padding:0}
-  table.map th{position:static}
+  .nav,.maphead,table.map th,table.map tr.band td,table.map td.stdname{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .maphead{font-size:14pt;padding:.6rem .85rem;margin-top:0}
+  table.map{font-size:8.5pt;line-height:1.3}
+  table.map th{position:static;padding:.35rem .5rem}
+  table.map td{padding:.25rem .4rem}
+  table.map tr.band td{font-size:10.5pt;padding:.3rem .4rem}
+  table.map td.stdname{font-size:9pt}
+  table.map td.ind p{margin:0 -.4rem .2rem;padding:0 .4rem .2rem}
   table.map tr{break-inside:avoid-page}
+  table.map tr.band{break-after:avoid-page}
 }
-@media(max-width:48rem){
+@media screen and (max-width:48rem){  /* screen only: print measures narrow and would stack the five columns */
   table.map,table.map tbody,table.map tr,table.map td{display:block;width:100%}
   table.map thead{display:none}
-  table.map td[data-h]::before{content:attr(data-h);display:block;font-weight:700}
+  table.map tbody{border-top:1px solid var(--sage)}
+  table.map td{border-top:0}
+  table.map td[data-h]::before{content:attr(data-h);display:block;font:700 .8125rem/1.3 var(--sans);color:var(--forest);margin-bottom:.15rem}
   table.map td:empty{display:none}
 }
 .signin{max-width:26rem;margin:clamp(1.5rem,8vh,5rem) auto 0}

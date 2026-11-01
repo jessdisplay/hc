@@ -902,6 +902,13 @@ test("the tool's classes only share a name with team.css on purpose, because tea
   assert.deepStrictEqual([...used].filter((c) => team.has(c) && !meant.includes(c)), []);
 });
 
+test('the long checklist stacks on a phone but keeps its five columns in print, which measures narrow', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'tool/tool.css'), 'utf8');
+  const stack = css.indexOf('table.map,table.map tbody,table.map tr,table.map td{display:block');
+  assert.ok(stack > 0, 'the phone stack is there');
+  assert.ok(css.slice(css.lastIndexOf('@media', stack)).startsWith('@media screen'), 'the stack is for screens only');
+});
+
 let failed = 0;
 for (const t of tests) {
   try {
