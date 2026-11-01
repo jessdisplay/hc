@@ -79,7 +79,7 @@ table.map th{background:#FC775B;color:#000;border:1px solid #000;text-align:cent
 table.map td{border:1px solid #000;color:#000;background:#fff;padding:.3rem .4rem}
 table.map th:nth-child(1){width:12%}table.map th:nth-child(2){width:18%}table.map th:nth-child(3){width:26%}table.map th:nth-child(4){width:23%}table.map th:nth-child(5){width:21%}
 table.map tr.band td{background:#B7E1CD;font-weight:700;padding:.35rem .4rem}
-table.map td.std{font-weight:700}
+table.map td.stdname{font-weight:700}
 table.map td.out{white-space:pre-line}
 table.map td p{margin:0 0 .3rem}
 table.map td a{color:#000;text-decoration-color:#38553E}
