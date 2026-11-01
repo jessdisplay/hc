@@ -2,7 +2,7 @@
 
 The engine behind Harmony's compliance tool. `Code.gs` lives on the checklist Google Sheet, which is the
 store: nobody at Harmony needs to open it. They use **hc.riseos.care/tool** (the `tool/` folder of this
-repo): Today, Checklist and Forms. The page holds no data; it signs in with a code emailed to the person
+repo): Today, Checklist, and Send and sign. The page holds no data; it signs in with a code emailed to the person
 and reads and writes through `doPost`, the script's only way in.
 
 - **Sign in:** only addresses on the Settings line 'Who can sign in to the tool' get a code. Six digits,

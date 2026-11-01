@@ -132,7 +132,7 @@
     var at = location.hash.slice(1).split('/')[0] || 'today';
     if (at === 'person') at = 'forms';
     var tab = function (key, word) { return h('a', { href: '#' + key, 'aria-current': at === key ? 'page' : null }, word); };
-    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('today', 'Today'), tab('checklist', 'Checklist'), tab('forms', 'Forms')));
+    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('today', 'Today'), tab('checklist', 'Checklist'), tab('forms', 'Send and sign')));
     nav.appendChild(h('div', { class: 'me' }, state.email, h('button', { class: 'link', type: 'button', on: { click: function () {
       call('signout').catch(function () {}).then(signedOut);
     } } }, 'Sign out')));
@@ -151,7 +151,7 @@
     drawNav();
     var at = location.hash.slice(1).split('/');
     if (at[0] === 'checklist') checklistPage();
-    else if (at[0] === 'forms') formsPage(at[1] === 'by-form');
+    else if (at[0] === 'forms') formsPage(at[1] === 'people');
     else if (at[0] === 'person') personPage(Number(at[1]));
     else todayPage();
   }
@@ -208,17 +208,20 @@
       line(c.overdue || 0, 'overdue on the checklist', go('overdue'), (c.overdue || 0) > 20 ? 'Most are one review round: documents approved in October 2023' : null),
       line(c.missing || 0, 'missing documents', go('missing')),
       line(c.soon || 0, 'due in the next 30 days', go('soon')),
-      line(f.chase || 0, 'forms to chase', '#forms'),
-      line(f.back || 0, 'forms back, to check and approve', '#forms'),
-      f.failed ? line(f.failed, 'that did not send', '#forms') : null,
+      h('h2', null, 'Send and sign'),
+      line(listTotal(), 'documents and forms go out to people', '#forms'),
+      line(f.out || 0, 'with people now', '#forms/people'),
+      line(f.chase || 0, 'to chase', '#forms/people'),
+      line(f.back || 0, 'signed and back, to check', '#forms/people'),
+      f.failed ? line(f.failed, 'that did not send', '#forms/people') : null,
       backSection(),
       h('h2', null, 'Coming up'),
       next.length ? next.map(function (i) {
         return h('p', { class: 'line' }, h('span', null, offFile(i.url, i.title)), h('span', { class: 'say' }, day(i.due)));
       }) : h('p', { class: 'say' }, 'Nothing with a date ahead.'),
       h('h2', null, 'People'),
-      people ? h('p', { class: 'say' }, plural(people, 'person', 'people') + ' on your list. ', h('a', { href: '#forms' }, 'See who has what'))
-        : h('p', { class: 'say' }, 'Nobody is on your list yet. ', h('a', { href: '#forms' }, 'Add your first person'), ' to start sending forms.'));
+      people ? h('p', { class: 'say' }, plural(people, 'person', 'people') + ' on your list. ', h('a', { href: '#forms/people' }, 'See who has what'))
+        : h('p', { class: 'say' }, 'Nobody is on your list yet. ', h('a', { href: '#forms/people' }, 'Add your first person'), ' to start sending.'));
   }
 
   /** What has come back and is waiting on someone here, named, so nobody has to go looking. */
@@ -301,13 +304,19 @@
     var c = counts(sends, function (s) { return s.standing; });
     return { out: (c.out || 0), chase: c.chase || 0, back: c.back || 0, done: (c.done || 0) + (c.read || 0), failed: c.failed || 0, ready: c.ready || 0 };
   }
-  function formsPage(byForm) {
+  function listTotal() {
+    return Object.keys(ROLE_WORD).reduce(function (n, role) {
+      return n + state.forms.lists[role].reduce(function (m, g) { return m + g.forms.length; }, 0);
+    }, 0);
+  }
+  function formsPage(people) {
     var f = state.forms, all = tally(f.sends);
-    var switcher = h('p', { class: 'say' }, byForm ? h('a', { href: '#forms' }, 'By person') : h('b', null, 'By person'), '  |  ', byForm ? h('b', null, 'By form') : h('a', { href: '#forms/by-form' }, 'By form'));
     var plain = function (n, word, bad) { return h('span', { class: 'stat' + (bad && n ? ' bad' : '') }, h('b', null, n), h('span', null, word)); };
-    page(h('h1', null, 'Forms'), h('p', { class: 'lede' }, 'Everything that goes out to people, and whether it has come back.'),
-      h('div', { class: 'stats' }, plain(all.out, 'with people'), plain(all.chase, 'to chase', true), plain(all.back, 'back to check'), plain(all.done, 'done'), all.failed ? plain(all.failed, 'did not send', true) : null),
-      h('div', { class: 'tools' }, switcher), byForm ? byFormList() : peopleList());
+    var view = function (href, word, on) { return on ? h('b', null, word) : h('a', { href: href }, word); };
+    page(h('h1', null, 'Send and sign'), h('p', { class: 'lede' }, 'Everything that goes out to people: what they do with it, when, and who signs. Then whether it has come back.'),
+      h('div', { class: 'stats' }, plain(listTotal(), 'go out'), plain(all.out, 'with people'), plain(all.chase, 'to chase', true), plain(all.back, 'back to check'), plain(all.done, 'done'), all.failed ? plain(all.failed, 'did not send', true) : null),
+      h('div', { class: 'tools' }, h('p', { class: 'say' }, view('#forms', 'What goes out', !people), '  |  ', view('#forms/people', 'Who has what', people))),
+      people ? peopleList() : whatGoesOut());
   }
   function peopleList() {
     var f = state.forms, wrap = h('div');
@@ -354,33 +363,59 @@
       field('Signs for them (guardian or representative, if any)', guardian), field("That person's email", guardianEmail),
       p ? h('label', { class: 'row' }, active, 'Still with Harmony') : null, h('div', { class: 'row' }, save));
   }
-  function byFormList() {
-    var wrap = h('div');
-    Object.keys(ROLE_WORD).forEach(function (role) {
-      wrap.appendChild(h('h2', null, ROLE_WORD[role]));
-      state.forms.lists[role].forEach(function (g) {
-        wrap.appendChild(h('h3', null, g.name));
-        g.forms.forEach(function (form) {
-          var sends = state.forms.sends.filter(function (s) { return s.form === form.title; });
-          var t = tally(sends);
-          var say = sends.length ? [t.out + t.chase ? (t.out + t.chase) + ' with people' : '', t.back ? t.back + ' back' : '', t.done ? t.done + ' done' : ''].filter(Boolean).join(', ') : 'Not sent yet';
-          wrap.appendChild(h('details', { class: 'area' }, h('summary', null, h('span', null, form.title), h('span', { class: 'say' + (t.chase ? ' bad' : '') }, say)),
-            h('div', { class: 'body' }, h('p', { class: 'say' }, offFile(form.url, 'Open the document'), '. ' + form.need + '.'),
-              sends.length ? h('ul', null, sends.map(function (s) {
-                var st = STANDING[s.standing], p = state.forms.people.filter(function (x) { return x.name === s.to; })[0];
-                return h('li', null, p ? h('a', { href: '#person/' + p.row }, s.to) : s.to, ': ', h('span', { class: st.cls }, st.word));
-              })) : null)));
+  /** Every document and form that goes out, in the order it goes, whether or not anyone is on the list yet. */
+  function whatGoesOut() {
+    var wrap = h('div'), list = h('div');
+    var search = h('input', { type: 'search', placeholder: 'Find a document or form', 'aria-label': 'Find a document or form', value: state.find, on: { input: function () { state.find = search.value; draw(); } } });
+    var pick = h('select', { 'aria-label': 'Who it goes to', on: { change: function () { state.role = pick.value; draw(); } } },
+      h('option', { value: '' }, 'Everyone'), Object.keys(ROLE_WORD).map(function (r) { return h('option', { value: r, selected: state.role === r }, ROLE_WORD[r]); }));
+    function draw() {
+      list.textContent = '';
+      var word = state.find.trim().toLowerCase(), shown = 0;
+      Object.keys(ROLE_WORD).forEach(function (role) {
+        if (state.role && state.role !== role) return;
+        var groups = state.forms.lists[role].map(function (g) {
+          return { name: g.name, forms: g.forms.filter(function (x) { return !word || (x.title + ' ' + x.need).toLowerCase().indexOf(word) !== -1; }) };
+        }).filter(function (g) { return g.forms.length; });
+        if (!groups.length) return;
+        var n = groups.reduce(function (m, g) { return m + g.forms.length; }, 0);
+        shown += n;
+        list.appendChild(h('h2', null, ROLE_WORD[role] + ': ' + n));
+        groups.forEach(function (g) {
+          list.appendChild(h('h3', null, g.name));
+          list.appendChild(h('table', { class: 'stack goes' },
+            h('thead', null, h('tr', null, ['Document', 'They need to', 'When it is needed', 'Who fills it in', 'Who signs', 'Where it stands'].map(function (t) { return h('th', null, t); }))),
+            h('tbody', null, g.forms.map(function (form) { return goesRow(role, form); }))));
         });
       });
-    });
+      if (!shown) list.appendChild(h('p', { class: 'say' }, 'Nothing matches that.'));
+    }
+    wrap.appendChild(h('div', { class: 'tools' }, search, pick));
+    wrap.appendChild(list);
+    draw();
     return wrap;
+  }
+  function goesRow(role, form) {
+    var sends = state.forms.sends.filter(function (s) { return s.form === form.title; }), t = tally(sends);
+    var say = sends.length ? [t.out + t.chase ? (t.out + t.chase) + ' with people' : '', t.chase ? t.chase + ' to chase' : '', t.back ? t.back + ' back' : '', t.done ? t.done + ' done' : ''].filter(Boolean).join(', ') : 'Not sent yet';
+    var people = state.forms.people.filter(function (p) { return p.active && p.role === role; });
+    var send = people.length ? h('select', { 'aria-label': 'Send ' + form.title + ' to', on: { change: function (e) {
+      var row = Number(e.target.value);
+      if (!row) return;
+      (state.ticked[row] = state.ticked[row] || {})[form.id] = true;
+      location.hash = '#person/' + row;
+    } } }, h('option', { value: '' }, 'Send to'), people.map(function (p) { return h('option', { value: p.row }, p.name); }))
+      : h('a', { href: '#forms/people' }, 'Add a person to send it');
+    return h('tr', null, h('td', null, offFile(form.url, form.title)), h('td', { 'data-h': 'They need to' }, form.need), h('td', { 'data-h': 'When' }, form.when),
+      h('td', { 'data-h': 'Fills it in' }, form.fills), h('td', { 'data-h': 'Signs' }, form.signs),
+      h('td', { 'data-h': 'Where it stands' }, h('span', { class: t.chase ? 'bad' : 'quiet' }, say), h('span', { class: 'doit' }, send)));
   }
 
   /* ---- one person */
 
   function personPage(row) {
     var p = state.forms.people.filter(function (x) { return x.row === row; })[0];
-    if (!p) return page(h('p', { class: 'say' }, 'That person is not on your list. ', h('a', { href: '#forms' }, 'Back to Forms')));
+    if (!p) return page(h('p', { class: 'say' }, 'That person is not on your list. ', h('a', { href: '#forms/people' }, 'Back to your list')));
     var sends = sendsOf(p.name), ticked = state.ticked[row] = state.ticked[row] || {};
     var bar = h('div', { class: 'tickbar' }), editing = h('div');
     var count = function () { return Object.keys(ticked).filter(function (k) { return ticked[k]; }); };
@@ -415,7 +450,7 @@
           h('tbody', null, g.forms.map(function (form) { return formRow(form, latest(sends, form.title), ticked, boxes, drawBar); }))));
     });
     var w = state.working && state.working.row === row ? state.working.items : null;
-    page(h('a', { class: 'back', href: '#forms' }, 'Forms'), h('h1', null, p.name),
+    page(h('a', { class: 'back', href: '#forms/people' }, 'Who has what'), h('h1', null, p.name),
       h('p', { class: 'lede' }, [p.role, p.email, p.guardian ? 'Signs: ' + p.guardian + (p.guardianEmail ? ', ' + p.guardianEmail : '') : ''].filter(Boolean).join('  |  ')),
       p.problems.length ? h('p', { class: 'note bad' }, p.problems.join(' ')) : null,
       h('p', { class: 'say' }, h('button', { class: 'link', type: 'button', on: { click: function () { editing.textContent = ''; editing.appendChild(personForm(p)); } } }, 'Change their details')), editing,
