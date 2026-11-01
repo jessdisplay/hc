@@ -134,7 +134,7 @@
     var at = location.hash.slice(1).split('/')[0] || 'forms';
     if (at === 'person') at = 'forms';
     var tab = function (key, word) { return h('a', { href: '#' + key, 'aria-current': at === key ? 'page' : null }, word); };
-    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('documents', 'Documents'), tab('today', 'Today'), tab('checklist', 'Checklist'),
+    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('documents', 'Documents'), tab('today', 'Today'), tab('checklist', 'Checklist'), tab('full', 'Full checklist'),
       tab('staff', 'Staff files'), tab('planner', 'Year planner'), tab('rules', 'Rules')));
     nav.appendChild(h('div', { class: 'me' }, state.email, h('button', { class: 'link', type: 'button', on: { click: function () {
       call('signout').catch(function () {}).then(signedOut);
@@ -154,6 +154,7 @@
     drawNav();
     var at = location.hash.slice(1).split('/');
     if (at[0] === 'checklist') checklistPage();
+    else if (at[0] === 'full') fullPage();
     else if (at[0] === 'documents') documentsPage();
     else if (at[0] === 'today') todayPage();
     else if (at[0] === 'person') personPage(Number(at[1]));
@@ -316,6 +317,30 @@
     return h('details', { class: 'more' }, h('summary', null, 'More about this document'), h('ul', null,
       line('Version', r.version), line('Approved by', r.approvedBy), line('Approved', r.approved), line('Last reviewed', r.reviewed ? day(r.reviewed) || r.reviewed : ''),
       line('Completed by', r.completedBy), line('Signed by', r.signedBy), line('Kept', r.kept), line('For the next audit', r.notes), line("Harmony's rule", r.rule)));
+  }
+
+  /* ---- The long version */
+
+  /** Every Practice Standard on one page, in the same five columns as the 2023 checklist. */
+  function fullPage() {
+    var line = function (i) { return h('p', null, offFile(i.url, (i.no ? i.no + '. ' : '') + i.title)); };
+    var rows = [];
+    state.checklist.modules.forEach(function (m) {
+      rows.push(h('tr', { class: 'band' }, h('td', { colSpan: 5 }, m.name)));
+      m.standards.forEach(function (s) {
+        rows.push(h('tr', null,
+          h('td', { class: 'std', 'data-h': 'Practice Standard' }, s.name),
+          h('td', { class: 'out', 'data-h': 'Outcome' }, s.outcome),
+          h('td', { class: 'ind', 'data-h': 'Indicators to be demonstrated' }, s.indicators.map(function (t) { return h('p', null, t); })),
+          h('td', { 'data-h': 'Policies and other documents' }, s.items.filter(function (i) { return !i.evidence; }).map(line),
+            (s.also || []).map(function (a) { return h('p', null, 'Also meets this standard: ', offFile(a.url, a.title)); })),
+          h('td', { 'data-h': 'Evidence/Information to be provided by Harmony Care' }, s.items.filter(function (i) { return i.evidence; }).map(line))));
+      });
+    });
+    page(h('p', { class: 'row no-print' }, h('button', { class: 'btn ghost', type: 'button', on: { click: function () { window.print(); } } }, 'Print or save as a PDF')),
+      h('div', { class: 'maphead' }, 'Harmony Care Support Services, Compliance Checklist'),
+      h('table', { class: 'map' }, h('thead', null, h('tr', null, ['Practice Standard', 'Outcome', 'Indicators to be demonstrated', 'Policies and other documents', 'Evidence/Information to be provided by Harmony Care'].map(function (t) { return h('th', null, t); }))),
+        h('tbody', null, rows)));
   }
 
   /* ---- Documents */
