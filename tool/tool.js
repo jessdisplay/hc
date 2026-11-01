@@ -321,26 +321,49 @@
 
   /* ---- The long version */
 
-  /** Every Practice Standard on one page, in the same five columns as the 2023 checklist. */
+  /** Every Practice Standard on one page, in the same five columns as the 2023 checklist: each document under
+      every standard it serves, and no Harmony to-dos, because this page goes to auditors. */
   function fullPage() {
+    var map = window.HC_STANDARDS, known = {};
+    state.checklist.modules.forEach(function (m) { m.standards.forEach(function (s) { s.items.forEach(function (i) { if (i.no) known[i.no] = i; }); }); });
     var line = function (i) { return h('p', null, offFile(i.url, (i.no ? i.no + '. ' : '') + i.title)); };
+    var isDocument = function (i) { return !i.evidence || map.documents.indexOf(i.no) !== -1; };
+    var documents = function (s) {
+      var filed = s.also.map(function (a) { return Number((a.title.match(/^No\. (\d+)/) || [])[1]); });
+      var more = (map.also[s.name] || []).concat(filed).map(function (no) { return known[no]; }).filter(Boolean);
+      var seen = {};
+      return s.items.filter(isDocument).concat(more).filter(function (i) {
+        if (!i.no) return true;
+        if (seen[i.no]) return false;
+        seen[i.no] = true;
+        return true;
+      }).sort(function (a, b) { return (a.no || 1e6) - (b.no || 1e6); });
+    };
+    var proof = function (s) {
+      return s.items.filter(function (i) { return !isDocument(i) && (i.no || i.who !== 'Organisation'); });
+    };
+    var row = function (s) {
+      var outcome = s.outcome.split(/\n(?=\()/);
+      return h('tr', null,
+        h('td', { class: 'stdname', 'data-h': 'Practice Standard' }, s.name),
+        h('td', { class: 'out', 'data-h': 'Outcome' }, outcome[0], outcome[1] ? h('span', { class: 'clause' }, outcome[1]) : null),
+        h('td', { class: 'ind', 'data-h': 'Indicators to be demonstrated' }, s.indicators.map(function (t) { return h('p', null, t.replace(/^\d+\.\s*/, '')); })),
+        h('td', { 'data-h': 'Policies and other documents' }, documents(s).map(line)),
+        h('td', { 'data-h': 'Evidence/Information to be provided by Harmony Care' }, proof(s).map(line),
+          (map.evidence[s.name] || []).map(function (t) { return h('p', null, t); })));
+    };
     var rows = [];
     state.checklist.modules.forEach(function (m) {
       rows.push(h('tr', { class: 'band' }, h('td', { colSpan: 5 }, m.name)));
       m.standards.forEach(function (s) {
-        rows.push(h('tr', null,
-          h('td', { class: 'stdname', 'data-h': 'Practice Standard' }, s.name),
-          h('td', { class: 'out', 'data-h': 'Outcome' }, s.outcome),
-          h('td', { class: 'ind', 'data-h': 'Indicators to be demonstrated' }, s.indicators.map(function (t) { return h('p', null, t); })),
-          h('td', { 'data-h': 'Policies and other documents' }, s.items.filter(function (i) { return !i.evidence; }).map(line),
-            (s.also || []).map(function (a) { return h('p', null, 'Also meets this standard: ', offFile(a.url, a.title)); })),
-          h('td', { 'data-h': 'Evidence/Information to be provided by Harmony Care' }, s.items.filter(function (i) { return i.evidence; }).map(line))));
+        rows.push(row(s));
+        if (s.name === map.added.after) rows.push(row(map.added));
       });
     });
-    page(h('p', { class: 'row no-print' }, h('button', { class: 'btn ghost', type: 'button', on: { click: function () { window.print(); } } }, 'Print or save as a PDF')),
+    page(h('div', { class: 'mapsheet' }, h('p', { class: 'row no-print' }, h('button', { class: 'btn ghost', type: 'button', on: { click: function () { window.print(); } } }, 'Print or save as a PDF')),
       h('div', { class: 'maphead' }, 'Harmony Care Support Services, Compliance Checklist'),
       h('table', { class: 'map' }, h('thead', null, h('tr', null, ['Practice Standard', 'Outcome', 'Indicators to be demonstrated', 'Policies and other documents', 'Evidence/Information to be provided by Harmony Care'].map(function (t) { return h('th', null, t); }))),
-        h('tbody', null, rows)));
+        h('tbody', null, rows))));
   }
 
   /* ---- Documents */
