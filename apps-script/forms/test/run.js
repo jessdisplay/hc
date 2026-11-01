@@ -891,6 +891,17 @@ test("the status line on 'Sent and returned' says what is only read, once", () =
   assert.strictEqual(w.alerts.pop(), 'The checklist was already up to date.');
 });
 
+test("the tool's classes only share a name with team.css on purpose, because team.css also styles the page", () => {
+  const read = (file) => fs.readFileSync(path.join(__dirname, '..', '..', '..', file), 'utf8');
+  const team = new Set([...read('site/team.css').matchAll(/\.([a-zA-Z][\w-]*)/g)].map((m) => m[1]));
+  const used = new Set();
+  for (const m of read('tool/tool.js').matchAll(/class:\s*([^,}]+)/g)) {
+    for (const q of m[1].matchAll(/'([^']*)'/g)) q[1].split(/\s+/).filter(Boolean).forEach((c) => used.add(c));
+  }
+  const meant = ['bad', 'btn', 'ghost', 'ind', 'lede', 'more', 'outcome', 'say', 'stat', 'stats'];
+  assert.deepStrictEqual([...used].filter((c) => team.has(c) && !meant.includes(c)), []);
+});
+
 let failed = 0;
 for (const t of tests) {
   try {

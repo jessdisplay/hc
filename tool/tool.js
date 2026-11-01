@@ -329,7 +329,7 @@
       rows.push(h('tr', { class: 'band' }, h('td', { colSpan: 5 }, m.name)));
       m.standards.forEach(function (s) {
         rows.push(h('tr', null,
-          h('td', { class: 'std', 'data-h': 'Practice Standard' }, s.name),
+          h('td', { class: 'stdname', 'data-h': 'Practice Standard' }, s.name),
           h('td', { class: 'out', 'data-h': 'Outcome' }, s.outcome),
           h('td', { class: 'ind', 'data-h': 'Indicators to be demonstrated' }, s.indicators.map(function (t) { return h('p', null, t); })),
           h('td', { 'data-h': 'Policies and other documents' }, s.items.filter(function (i) { return !i.evidence; }).map(line),
