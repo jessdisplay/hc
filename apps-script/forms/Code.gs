@@ -1700,7 +1700,7 @@ function register_() {
   for (var i = 1; i < v.length; i++) {
     if (typeof v[i][0] !== 'number') continue;
     out[v[i][0]] = {
-      version: text(v[i][c['Version']]), approvedBy: text(v[i][c['Approved by']]), approved: text(v[i][c['Approval date']]),
+      type: text(v[i][c['Type']]), version: text(v[i][c['Version']]), approvedBy: text(v[i][c['Approved by']]), approved: text(v[i][c['Approval date']]),
       reviewed: text(v[i][c['Last reviewed (type the date)']]), notes: text(v[i][c['Notes for the next audit']]),
       kept: text(v[i][c['Kept where']]), rule: text(v[i][c["Harmony's rule (source)"]]),
       completedBy: text(v[i][c['Completed by']]), signedBy: text(v[i][c['Signed by']])
