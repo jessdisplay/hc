@@ -909,6 +909,17 @@ test('the long checklist stacks on a phone but keeps its five columns in print, 
   assert.ok(css.slice(css.lastIndexOf('@media', stack)).startsWith('@media screen'), 'the stack is for screens only');
 });
 
+test("the public standards map holds Harmony's documents as numbers, never titles", () => {
+  const box = { window: {} };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'tool/standards.js'), 'utf8'), box);
+  const map = box.window.HC_STANDARDS;
+  Object.keys(map.also).forEach((name) => {
+    assert.ok(map.also[name].length && map.also[name].every(Number.isInteger), name);
+  });
+  assert.ok(map.documents.every(Number.isInteger));
+  assert.ok(map.also[map.added.name], 'the added standard lists its documents');
+});
+
 let failed = 0;
 for (const t of tests) {
   try {
