@@ -14,8 +14,14 @@ and reads and writes through `doPost`, the script's only way in.
 - **Read-only documents** ('Read', 'Read, then confirm...') go as one email of links, with no copy made,
   nothing to return and nothing to chase. 'Read and sign' comes back like a form.
 - **Signed forms:** a form whose signing template has its fields placed goes by Google eSignature, and
-  you press Request signature in the copy. Every other form goes by email as a PDF and a Word file.
-  Every hour the script files each signed copy that came back in the person's folder and dates its row.
+  you press Request signature in the copy. Every other form goes by email as a PDF, with a link to the
+  person's own copy in Google Docs. Every 15 minutes the script files each signed copy that came back. A form
+  that came back on paper is scanned or photographed and added from the person's page.
+- **Records:** `Harmony Care records` holds `All completed documents` (a shortcut to every signed copy) and
+  `Participants`, `Workers` and `Practitioners and partners`, each with a folder per person holding `Sent out`
+  and `Completed`, and for a worker `Staff file`. Whoever signs in to the tool can open it.
+- **Many people at once:** an Excel file, a CSV or a paste is read and checked in the browser, then added
+  together. The one-minute timer makes their folders, because a long list outlasts one call.
 - **Email:** everything goes from the account that ran Set up, through a queue a one-minute timer empties,
   so every reply lands in the one inbox the hourly check reads. Every day it drafts a reminder in Gmail
   (never sent by the script) for a form out longer than 14 days. Every Monday it emails what is due.

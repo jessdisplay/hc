@@ -102,6 +102,12 @@ class Folder {
   getId() { return this.f.id; } getName() { return this.f.name; }
   getUrl() { return 'https://drive.google.com/drive/folders/' + this.f.id; }
   createFolder(n) { return this.f.drive.folder(n, this.f.id); }
+  setName(n) { this.f.name = n; return this; }
+  getFoldersByName(n) {
+    return iter([...this.f.drive.items.values()]
+      .filter((x) => x.kind === 'folder' && x.parent === this.f.id && x.name === n).map((x) => new Folder(x)));
+  }
+  createShortcut(target) { return this.f.drive.file('shortcut', 'application/vnd.google-apps.shortcut', this.f.id, { target }); }
   createFile(blob) { return this.f.drive.file(blob.name, blob.type, this.f.id, { bytes: blob.bytes }); }
   getEditors() { return (this.f.editors || []).map((e) => ({ getEmail: () => e })); }
   getOwner() { return this.f.sharedDrive ? null : { getEmail: () => this.f.owner || 'nobody' }; }
@@ -121,6 +127,10 @@ class File {
   getDateCreated() { return this.f.created; }
   getDescription() { return this.f.description; }
   setDescription(s) { this.f.description = s; return this; }
+  setName(n) { this.f.name = n; return this; }
+  getMimeType() { return this.f.mime; }
+  addEditor(e) { if (this.f.refuseShare) throw new Error('Cannot share'); (this.f.editors = this.f.editors || []).push(e); return this; }
+  moveTo(folder) { this.f.parent = folder.getId(); return this; }
   getParents() { return iter([new Folder(this.f.drive.get(this.f.parent, 'folder'))]); }
   makeCopy(name, folder) {
     return this.f.drive.file(name, this.f.mime, folder.getId(), { from: this.f.id, fields: this.f.fields });
@@ -235,6 +245,7 @@ class Sheet {
     return last;
   }
   getMaxRows() { return this.maxRows; }
+  getDataRange() { return this.getRange(1, 1, Math.max(this.getLastRow(), 1), Math.max(this.getLastColumn(), 1)); }
   appendRow(row) { const r = this.getLastRow() + 1; row.forEach((v, j) => this.put(r, j + 1, v)); return this; }
   copyTo(ss) {
     const s = ss.insertSheet('Copy of ' + this.name);
@@ -411,7 +422,9 @@ function google(opts) {
       getUuid: () => crypto.randomUUID ? crypto.randomUUID() : 'uuid-' + ++uuids,
       computeDigest: (a, t) => [...crypto.createHash('sha256').update(String(t)).digest()].map((b) => (b > 127 ? b - 256 : b)),
       base64Encode: (bytes) => Buffer.from(bytes.map((b) => b & 255)).toString('base64'),
-      DigestAlgorithm: { SHA_256: 'SHA_256' }
+      DigestAlgorithm: { SHA_256: 'SHA_256' },
+      base64Decode: (t) => [...Buffer.from(t, 'base64')],
+      newBlob: (bytes, type, name) => new Blob(bytes, type, name)
     },
     CacheService: {
       getScriptCache: () => ({

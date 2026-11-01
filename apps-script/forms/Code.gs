@@ -77,6 +77,10 @@ var SETTINGS = [
 ];
 
 var TOOL_URL = 'https://hc.riseos.care/tool/';  // where people work; every notice points here, never at a tab
+var RECORDS = {
+  root: 'Harmony Care records', all: 'All completed documents', sent: 'Sent out', done: 'Completed', staff: 'Staff file',
+  role: { 'Participant': 'Participants', 'Worker': 'Workers', 'Practitioner or partner': 'Practitioners and partners' }
+};
 var TIME_BUDGET_MS = 4.5 * 60 * 1000;  // Apps Script stops a run at 6 minutes
 var TIMERS = ['sendQueued', 'checkReturns', 'dailyChase', 'mondayDigest'];
 
@@ -122,12 +126,17 @@ function setup() {
   if (!setting_('Who can sign in to the tool')) putSetting_('Who can sign in to the tool', me);
   if (!folderId_(setting_("Folder for each person's files"))) {
     putSetting_("Folder for each person's files",
-                DriveApp.createFolder("Harmony Care - each person's forms").getUrl());
+                DriveApp.createFolder(RECORDS.root).getUrl());
   }
   if (!folderId_(setting_('Signing templates folder'))) {
     putSetting_('Signing templates folder', DriveApp.createFolder('Harmony Care - signing templates').getUrl());
   }
+  var root = recordsRoot_();
+  root.setName(RECORDS.root);
+  allCompleted_();
+  ROLES.forEach(function (role) { childFolder_(root, RECORDS.role[role]); });
   var shared = shareFolders_(ss);
+  var opening = learnKinds_();
 
   var people = ensureTab_(ss, TABS.people, 'People',
     'Everyone Harmony sends forms to: staff, participants, practitioners. Type a name, email and role, ' +
@@ -171,7 +180,7 @@ function setup() {
     .inTimezone(TZ).create();
 
   var moved = before && before.toLowerCase() !== me.toLowerCase();
-  log_('Set up', 'Tabs, folders and timers ready. Emails go out from ' + me +
+  log_('Set up', opening + ' files open in Google Docs or Sheets. Tabs, folders and timers ready. Emails go out from ' + me +
        (moved ? '; ' + before + "'s timers stop at their next run." : '.'));
   ui_('Set up is done. Emails now go out from ' + me + '.' +
       (moved ? ' ' + before + ' no longer sends anything.' : '') +
@@ -227,8 +236,10 @@ function setUpPerson_(person, strict) {
     throw new Error(person.name + ' needs a role: ' + ROLES.join(', ') + '.');
   }
   if (!person.folder) {
-    var parent = DriveApp.getFolderById(requireFolder_("Folder for each person's files"));
-    var folder = parent.createFolder(person.name + ' (' + person.role + ')');
+    var folder = childFolder_(recordsRoot_(), RECORDS.role[person.role]).createFolder(person.name);
+    childFolder_(folder, RECORDS.sent);
+    childFolder_(folder, RECORDS.done);
+    if (person.role === 'Worker') childFolder_(folder, RECORDS.staff);
     tab_(TABS.people).getRange(person.row, P['Folder'] + 1).setValue(folder.getUrl());
     person.folder = folder.getId();
     log_('Folder made', person.name + ': ' + folder.getUrl());
@@ -318,7 +329,7 @@ function prepare(row, ids, testTo) {
   testTo = String(testTo || testTo_()).trim();
   if (!isEmail_(testTo)) throw new Error('Give an email address for the test copy.');
   PropertiesService.getUserProperties().setProperty('TEST_TO', testTo);  // remembered for this person
-  var folder = DriveApp.getFolderById(person.folder);
+  var folder = sentFolder_(person);
   var stamp = Utilities.formatDate(new Date(), TZ, 'd MMM yyyy');
   var out = [], started = Date.now();
   ids.forEach(function (id) {
@@ -331,11 +342,11 @@ function prepare(row, ids, testTo) {
       var reading = readOnly_(form.need);
       var item = { title: form.title, to: who.to, how: t && t.ready && !reading ? ESIGN : EMAIL };
       if (reading) {  // they read the one document, so no copy of it is made for them
-        item.copyUrl = 'https://drive.google.com/file/d/' + id + '/view';
+        item.copyUrl = openLink_(id);
       } else {
         var copyId = item.how === ESIGN
           ? DriveApp.getFileById(t.id).makeCopy(name, folder).getId()
-          : toDoc_(id, name, person.folder);
+          : toDoc_(id, name, folder.getId());
         item.copyUrl = DriveApp.getFileById(copyId).getUrl();
       }
       item.trackerRow = trackRow_({
@@ -409,17 +420,18 @@ function sendQueued(e) {
       var cell = tracker.getRange(r, T['Send step'] + 1);
       try {
         var person = byName_(v[T['Sent to']]);
-        var mail = email_(person, { title: v[T['Form']], need: v[T['They need to']] },
-                          fileId_(v[T['Copy sent (opens it)']]));
-        var opts = { name: setting_('Send emails as'), attachments: mail.attachments };
+        var copyId = fileId_(v[T['Copy sent (opens it)']]), form = { title: v[T['Form']], need: v[T['They need to']] };
         if (step === 'Test') {
-          GmailApp.sendEmail(v[T['Test copy to']], '[Test copy for ' + person.name + '] ' + mail.subject,
-                             mail.body, opts);
+          var check = email_(person, form, copyId, true);
+          GmailApp.sendEmail(v[T['Test copy to']], '[Test copy for ' + person.name + '] ' + check.subject, check.body,
+                             { name: setting_('Send emails as'), attachments: check.attachments });
           cell.setValue('Test sent');
           return;
         }
         var who = signers_(person);
         if (who.problems.length) throw new Error(who.problems.join(' '));
+        var mail = email_(person, form, copyId, shareCopy_(copyId, who.to));
+        var opts = { name: setting_('Send emails as'), attachments: mail.attachments };
         var thread = GmailApp.createDraft(who.to.join(','), mail.subject, mail.body, opts).send().getThread();
         thread.addLabel(GmailApp.getUserLabelByName(LABEL) || GmailApp.createLabel(LABEL));
         date_(tracker.getRange(r, T['Date sent'] + 1), new Date());
@@ -435,8 +447,24 @@ function sendQueued(e) {
       }
     });
     Object.keys(reading).forEach(function (key) { sendReading_(tracker, reading[key]); });
+    setUpWaiting_();
   } finally {
     lock.releaseLock();
+  }
+}
+
+/** Folders and staff tabs for anyone added in bulk, as many each minute as fit: a long list outlasts one call. */
+function setUpWaiting_() {
+  var started = Date.now(), sheet = tab_(TABS.people), last = sheet.getLastRow();
+  for (var r = PEOPLE_HEAD + 1; r <= last && Date.now() - started < 120000; r++) {
+    var p = person_(r), note = String(sheet.getRange(r, P['Notes'] + 1).getValue());
+    if (!p.name || p.folder || note.indexOf('Not set up') === 0) continue;
+    try {
+      setUpPerson_(p, false);
+    } catch (err) {
+      sheet.getRange(r, P['Notes'] + 1).setValue('Not set up: ' + err.message);
+      log_('Person not set up', p.name + ': ' + err.message);
+    }
   }
 }
 
@@ -546,21 +574,35 @@ function markRequested(row) {
   return true;
 }
 
-function email_(person, form, copyId) {
+function email_(person, form, copyId, shared) {
   var doc = DriveApp.getFileById(copyId);
   var first = (person.guardian && !person.email ? person.guardian : person.name).split(' ')[0];
   var need = String(form.need || 'sign').replace(/\.$/, '');
   return {
     subject: 'Harmony Care: ' + form.title,
     body: 'Hi ' + first + ',\n\n' +
-          'Attached is the ' + form.title + ' from Harmony Care, as a PDF and as a Word file.\n\n' +
+          'Attached is the ' + form.title + ' from Harmony Care as a PDF.' +
+          (shared ? ' You can also open your own copy in Google Docs:\n' + doc.getUrl() : '') + '\n\n' +
           'What to do: ' + need + '.\n\n' +
           'When it is done, reply to this email with the signed copy attached. ' +
           'A clear photo of each signed page is fine.\n\n' +
           'Any questions, just reply here.\n\nThank you,\nHarmony Care',
-    attachments: [doc.getAs('application/pdf').setName(form.title + '.pdf'),
-                  docxOf_(copyId, form.title)]
+    attachments: [doc.getAs('application/pdf').setName(form.title + '.pdf')]
   };
+}
+
+/** Lets the person open their own copy. An address Google cannot share with still gets the PDF. */
+function shareCopy_(copyId, emails) {
+  var ok = true;
+  emails.forEach(function (email) {
+    try {
+      DriveApp.getFileById(copyId).addEditor(email);
+    } catch (err) {
+      ok = false;
+      log_('Copy not shared', email + ': ' + err.message);
+    }
+  });
+  return ok;
 }
 
 
@@ -637,14 +679,17 @@ function fromEmail_(tracker, r, v, me, claimed) {
     }
     return false;
   }
-  var folder = DriveApp.getFileById(fileId_(v[T['Copy sent (opens it)']])).getParents().next();
+  var folder = doneFolder_(byName_(v[T['Sent to']]));
   var saved = files.map(function (a, n) {
     var ext = (a.getName().match(/\.[A-Za-z0-9]+$/) || [''])[0];
     var name = v[T['Form']] + ' - ' + v[T['Sent to']] + ' - signed' + (files.length > 1 ? ' ' + (n + 1) : '') + ext;
     return folder.createFile(a.copyBlob().setName(name))
       .setDescription(MARK + 'signed copy from email, Sent and returned row ' + r);
   });
-  saved.forEach(function (f) { claimed[f.getId()] = true; });
+  saved.forEach(function (f) {
+    claimed[f.getId()] = true;
+    listCompleted_(f);
+  });
   returned_(tracker, r, v, saved[0].getUrl(), saved.length > 1 ? saved.length + ' files, all in their folder.' : '');
   return true;
 }
@@ -682,6 +727,8 @@ function fromFolder_(tracker, group, claimed) {
     }
     claimed[f.getId()] = true;
     open.splice(open.indexOf(match), 1);
+    f.moveTo(doneFolder_(byName_(match.v[T['Sent to']])));  // Google files it beside the copy, in Sent out
+    listCompleted_(f);
     returned_(tracker, match.r, match.v, f.getUrl(), '');
     n++;
   });
@@ -987,19 +1034,92 @@ function toDoc_(fileId, name, folderId) {
   return JSON.parse(res.getContentText()).id;
 }
 
-/** The Google Doc as a Word file, for people who would rather fill it in on a computer. */
-function docxOf_(docId, title) {
-  var res = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' + docId + '/export?mimeType=' +
-    encodeURIComponent('application/vnd.openxmlformats-officedocument.wordprocessingml.document'), {
-    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true
+/** Which of the linked files open in Docs or Sheets, kept so the tool need not ask Drive for each on every read. */
+function learnKinds_() {
+  var kinds = {};
+  ['Send to participants', 'Send to workers', 'Send to practitioners', 'Harmony fills in', TABS.everything, TABS.checklist, 'Year planner', TABS.staff].forEach(function (name) {
+    var sheet = book_().getSheetByName(name);
+    if (!sheet) return;
+    sheet.getDataRange().getRichTextValues().forEach(function (row) {
+      row.forEach(function (cell) {
+        var id = cell && fileId_(cell.getLinkUrl());
+        if (!id || id in kinds) return;
+        try {
+          var mime = DriveApp.getFileById(id).getMimeType();
+          kinds[id] = /word|document/.test(mime) ? 'd' : /sheet|excel/.test(mime) ? 's' : '';
+        } catch (err) {
+          log_('File not read', id + ': ' + err.message);
+        }
+      });
+    });
   });
-  if (res.getResponseCode() !== 200) throw new Error('Google could not make a Word copy of ' + title + '.');
-  return res.getBlob().setName(title + '.docx');
+  var keep = {};
+  Object.keys(kinds).forEach(function (id) { if (kinds[id]) keep[id] = kinds[id]; });
+  PropertiesService.getScriptProperties().setProperty('KINDS', JSON.stringify(keep));
+  return Object.keys(keep).length;
+}
+
+/** The address that opens a file in Google Docs or Sheets, not as a Word download. */
+function openLink_(idOrUrl) {
+  var id = /^https:/.test(String(idOrUrl)) ? fileId_(idOrUrl) : String(idOrUrl);
+  if (!id) return /^https:/.test(String(idOrUrl)) ? idOrUrl : '';
+  var kinds = openLink_.kinds || (openLink_.kinds = JSON.parse(PropertiesService.getScriptProperties().getProperty('KINDS') || '{}'));
+  if (kinds[id] === 'd') return 'https://docs.google.com/document/d/' + id + '/edit';
+  if (kinds[id] === 's') return 'https://docs.google.com/spreadsheets/d/' + id + '/edit';
+  return 'https://drive.google.com/file/d/' + id + '/view';
 }
 
 function fileId_(url) {
   var m = String(url || '').match(/\/d\/([\w-]{20,})|[?&]id=([\w-]{20,})/);
   return m ? (m[1] || m[2]) : '';
+}
+
+/** A folder inside another, made the first time it is asked for. */
+function childFolder_(parent, name) {
+  var found = parent.getFoldersByName(name);
+  return found.hasNext() ? found.next() : parent.createFolder(name);
+}
+
+function recordsRoot_() {
+  return DriveApp.getFolderById(requireFolder_("Folder for each person's files"));
+}
+
+function allCompleted_() {
+  return childFolder_(recordsRoot_(), RECORDS.all);
+}
+
+function personFolder_(person) {
+  return DriveApp.getFolderById(setUpPerson_(person, false).folder);
+}
+
+function sentFolder_(person) {
+  return childFolder_(personFolder_(person), RECORDS.sent);
+}
+
+function doneFolder_(person) {
+  return childFolder_(personFolder_(person), RECORDS.done);
+}
+
+/** A shortcut, so the one signed copy lives in the person's folder and shows in the list of everything. */
+function listCompleted_(file) {
+  try {
+    allCompleted_().createShortcut(file.getId()).setName(file.getName());
+  } catch (err) {
+    log_('Not listed', file.getName() + ': ' + err.message);  // the file is safe in their folder either way
+  }
+}
+
+/** Someone who signs in to the tool needs the signed copies it links to. */
+function shareRecords_(email) {
+  try {
+    var root = recordsRoot_();
+    var has = root.getEditors().map(function (u) { return u.getEmail().toLowerCase(); });
+    var owner = root.getOwner();
+    if (owner) has.push(owner.getEmail().toLowerCase());
+    if (has.indexOf(email) === -1) root.addEditor(email);
+  } catch (err) {
+    log_('Records not shared', email + ': ' + err.message);
+  }
 }
 
 function folderId_(url) {
@@ -1223,6 +1343,7 @@ function signIn_(body) {
     if (k.indexOf('session:') === 0 && JSON.parse(all[k]).until < now) props.deleteProperty(k);
   });
   props.setProperty('session:' + hash_(token), JSON.stringify({ email: email, until: now + SESSION_DAYS * 86400000 }));
+  shareRecords_(email);
   log_('Signed in', email);
   return { ok: true, token: token, email: email };
 }
@@ -1271,7 +1392,47 @@ function words_(value, most) {
 }
 
 var TOOL = {
-  load: function () { return { ok: true, today: day_(new Date()), checklist: checklist_(), forms: forms_() }; },
+  load: function () {
+    return { ok: true, today: day_(new Date()), checklist: checklist_(), forms: forms_(), notes: startNotes_() };
+  },
+  book: function () { return { ok: true, data: { office: listOf_('Harmony fills in'), planner: planner_(), rules: rules_() } }; },
+  team: function () { return { ok: true, data: team_() }; },
+  staffFile: function (b) { return { ok: true, data: staffFile_(theWorker_(b.person)) }; },
+  staffDate: function (b, who) {
+    var worker = theWorker_(b.person);
+    locked_(function () { staffDate_(worker, b, who); });
+    SpreadsheetApp.flush();
+    return { ok: true, data: staffFile_(worker) };
+  },
+  staffFlag: function (b, who) {
+    var worker = theWorker_(b.person), row = Number(b.sheetRow);
+    if (!Number.isInteger(row) || row < 9 || row > 19) throw said_('That is not on their file.');
+    locked_(function () {
+      book_().getSheetByName(sheetName_(worker.name)).getRange(row, 2).setValue(b.yes ? 'Yes' : 'No');
+      log_('Staff file', worker.name + ', row ' + row + ' by ' + who);
+    });
+    SpreadsheetApp.flush();
+    return { ok: true, data: staffFile_(worker) };
+  },
+  plannerDone: function (b, who) {
+    var r = Number(b.row), sheet = tab_('Year planner');
+    if (!Number.isInteger(r) || r < 4 || r > sheet.getLastRow() || !sheet.getRange(r, 2).getValue()) throw said_('That job is not on the planner.');
+    locked_(function () {
+      var cell = sheet.getRange(r, 5);
+      if (b.undo) cell.setValue(''); else date_(cell, new Date());
+      log_('Year planner', 'Row ' + r + (b.undo ? ' cleared' : ' done') + ' by ' + who);
+    });
+    SpreadsheetApp.flush();
+    return { ok: true, today: day_(new Date()), checklist: checklist_(), data: { planner: planner_() } };
+  },
+  people: function (b, who) {
+    var result = locked_(function () { return addPeople_(b.people, who); });
+    return { ok: true, added: result.added, skipped: result.skipped, forms: forms_() };
+  },
+  signed: function (b, who) {
+    locked_(function () { signedUpload_(b, who); });
+    return { ok: true, forms: forms_() };
+  },
   forms: function () { return { ok: true, today: day_(new Date()), forms: forms_() }; },
   signout: function (b) {
     PropertiesService.getScriptProperties().deleteProperty('session:' + hash_(b.token));
@@ -1337,42 +1498,95 @@ function handedOver_(row, ids, who) {
     var form = forms.filter(function (f) { return f.id === id; })[0];
     if (!form) throw said_('That form is not on the ' + person.role + ' list.');
     var r = trackRow_({ to: person.name, who: person.role, email: person.email, form: form.title, need: form.need,
-                        copy: 'https://drive.google.com/file/d/' + id + '/view', how: BY_HAND, step: '', testTo: '' });
+                        copy: openLink_(id), how: BY_HAND, step: '', testTo: '' });
     date_(tab_(TABS.tracker).getRange(r, T['Date sent'] + 1), new Date());
     log_('Handed over', form.title + ' to ' + person.name + ', recorded by ' + who);
   });
 }
 
+/** One person's details, checked and made safe for a cell. Throws in words a person can act on. */
+function cleanPerson_(b) {
+  var out = {
+    name: words_(b.name, 120), email: String(b.email || '').trim().slice(0, 254), role: String(b.role || ''),
+    guardian: words_(b.guardian, 120), guardianEmail: String(b.guardianEmail || '').trim().slice(0, 254),
+    start: words_(b.start, 40)
+  };
+  if (!out.name) throw said_('Give their name.');
+  if (ROLES.indexOf(out.role) === -1) throw said_('Choose who they are.');
+  if (out.email && !isEmail_(out.email)) throw said_("That email address doesn't look right.");
+  if (out.guardianEmail && !isEmail_(out.guardianEmail)) throw said_("The guardian's email address doesn't look right.");
+  if (!out.email && !out.guardianEmail) throw said_('Give an email address, or one for whoever signs for them.');
+  return out;
+}
+
+function peopleNames_() {
+  var sheet = tab_(TABS.people), last = Math.max(sheet.getLastRow(), PEOPLE_HEAD);
+  return last > PEOPLE_HEAD ? sheet.getRange(PEOPLE_HEAD + 1, 1, last - PEOPLE_HEAD, 1).getValues()
+    .map(function (r) { return String(r[0]).trim().toLowerCase(); }) : [];
+}
+
 function savePerson_(b) {
-  var sheet = tab_(TABS.people);
-  var name = words_(b.name, 120), email = String(b.email || '').trim().slice(0, 254);
-  var guardian = words_(b.guardian, 120), guardianEmail = String(b.guardianEmail || '').trim().slice(0, 254);
-  var role = String(b.role || ''), row = Number(b.row) || 0;
-  if (!name) throw said_('Give their name.');
-  if (ROLES.indexOf(role) === -1) throw said_('Choose who they are.');
-  if (email && !isEmail_(email)) throw said_("That email address doesn't look right.");
-  if (guardianEmail && !isEmail_(guardianEmail)) throw said_("The guardian's email address doesn't look right.");
-  if (!email && !guardianEmail) throw said_('Give an email address, or one for whoever signs for them.');
-  var last = Math.max(sheet.getLastRow(), PEOPLE_HEAD);
-  var names = last > PEOPLE_HEAD ? sheet.getRange(PEOPLE_HEAD + 1, 1, last - PEOPLE_HEAD, 1).getValues() : [];
-  var same = names.map(function (r, i) { return String(r[0]).trim().toLowerCase() === name.toLowerCase() ? PEOPLE_HEAD + 1 + i : 0; })
-    .filter(Boolean);
+  var sheet = tab_(TABS.people), x = cleanPerson_(b), row = Number(b.row) || 0;
+  var names = peopleNames_(), last = PEOPLE_HEAD + names.length;
   if (row) {
     if (row <= PEOPLE_HEAD || row > last) throw said_('That person is not on the list.');
-    if (String(sheet.getRange(row, 1).getValue()).trim().toLowerCase() !== name.toLowerCase()) {
+    if (names[row - PEOPLE_HEAD - 1] !== x.name.toLowerCase()) {
       throw said_('A name cannot change here, because their forms are filed under it.');  // 'Sent and returned' holds names
     }
   } else {
-    if (same.length) throw said_(name + ' is already on your list.');
+    if (names.indexOf(x.name.toLowerCase()) !== -1) throw said_(x.name + ' is already on your list.');
     row = last + 1;
-    sheet.getRange(row, P['Name'] + 1).setValue(name);
+    sheet.getRange(row, P['Name'] + 1).setValue(x.name);
   }
-  sheet.getRange(row, P['Email'] + 1, 1, 4).setValues([[email, role, guardian, guardianEmail]]);
-  if (b.active === false) sheet.getRange(row, P['Active'] + 1).setValue('No');
-  else sheet.getRange(row, P['Active'] + 1).setValue('Yes');
+  sheet.getRange(row, P['Email'] + 1, 1, 4).setValues([[x.email, x.role, x.guardian, x.guardianEmail]]);
+  sheet.getRange(row, P['Active'] + 1).setValue(b.active === false ? 'No' : 'Yes');
   setUpPerson_(person_(row), false);
-  log_('Person saved', name);
+  log_('Person saved', x.name);
   return row;
+}
+
+/** A whole list at once. Each good line goes in; a bad one comes back with why. The timer makes the folders. */
+function addPeople_(lines, who) {
+  if (!Array.isArray(lines) || !lines.length) throw said_('There is nobody on that list.');
+  if (lines.length > 500) throw said_('That is more than 500 people. Add them in smaller lists.');
+  var names = peopleNames_(), good = [], skipped = [];
+  lines.forEach(function (line) {
+    try {
+      var x = cleanPerson_(line);
+      if (names.indexOf(x.name.toLowerCase()) !== -1) throw said_('Already on your list.');
+      names.push(x.name.toLowerCase());
+      good.push([x.name, x.email, x.role, x.guardian, x.guardianEmail, x.start, 'Yes', '', '']);
+    } catch (err) {
+      skipped.push({ name: String(line.name || '(no name)').slice(0, 120), why: err.message });
+    }
+  });
+  if (good.length) {
+    tab_(TABS.people).getRange(PEOPLE_HEAD + names.length - good.length + 1, 1, good.length, PEOPLE.length).setValues(good);
+    log_('People added', good.length + ' by ' + who);
+  }
+  return { added: good.length, skipped: skipped };
+}
+
+/** A signed copy someone scanned or photographed: filed like one that came back by email. */
+function signedUpload_(b, who) {
+  var r = theRow_(b.row), tracker = tab_(TABS.tracker);
+  var v = tracker.getRange(r, 1, 1, TRACKER.length).getValues()[0];
+  var ext = (String(b.name || '').match(/\.([A-Za-z0-9]{1,5})$/) || [])[1];
+  ext = ext ? ext.toLowerCase() : '';
+  if (['pdf', 'jpg', 'jpeg', 'png', 'heic', 'doc', 'docx'].indexOf(ext) === -1) throw said_('Use a PDF, a photo or a Word file.');
+  if (typeof b.data !== 'string' || !b.data) throw said_('That file was empty.');
+  if (b.data.length > 20000000) throw said_('That file is too big. Keep it under 15 MB.');
+  var name = v[T['Form']] + ' - ' + v[T['Sent to']] + ' - signed.' + ext;
+  var blob = Utilities.newBlob(Utilities.base64Decode(b.data), MimeType_(ext), name);
+  var file = doneFolder_(byName_(v[T['Sent to']])).createFile(blob).setDescription(MARK + 'signed copy added by ' + who);
+  listCompleted_(file);
+  returned_(tracker, r, v, file.getUrl(), '');
+}
+
+function MimeType_(ext) {
+  return { pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', heic: 'image/heic',
+           doc: 'application/msword',
+           docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }[ext];
 }
 
 /** Everything the Forms screen shows, worked out from the tabs on each read so nothing stored goes stale. */
@@ -1382,7 +1596,8 @@ function forms_() {
     var p = person_(r);
     if (p.name) {
       people.push({ row: r, name: p.name, email: p.email, role: p.role, guardian: p.guardian,
-                    guardianEmail: p.guardianEmail, active: p.active, problems: signers_(p).problems });
+                    guardianEmail: p.guardianEmail, active: p.active, problems: signers_(p).problems,
+                    folder: p.folder ? 'https://drive.google.com/drive/folders/' + p.folder : '' });
     }
   }
   var tracker = tab_(TABS.tracker), end = Math.max(tracker.getLastRow(), TRACKER_FIRST), today = day_(new Date());
@@ -1400,7 +1615,8 @@ function forms_() {
   });
   var lists = {};
   ROLES.forEach(function (role) { lists[role] = listFor_(role); });
-  return { people: people, lists: lists, sends: sends, chaseDays: days, from: setting_('Emails go out from') };
+  return { people: people, lists: lists, sends: sends, chaseDays: days, from: setting_('Emails go out from'),
+           completed: allCompleted_().getUrl() };
 }
 
 function listFor_(role) {
@@ -1411,7 +1627,7 @@ function listFor_(role) {
     return { name: g.name, forms: g.forms.map(function (f) {
       var t = templates[f.id], reading = readOnly_(f.need);
       return { id: f.id, title: f.title, need: f.need, when: f.when, fills: f.fills, signs: f.signs, reading: reading,
-               how: t && t.ready && !reading ? ESIGN : EMAIL, url: 'https://drive.google.com/file/d/' + f.id + '/view' };
+               how: t && t.ready && !reading ? ESIGN : EMAIL, url: openLink_(f.id) };
     }) };
   });
 }
@@ -1438,6 +1654,7 @@ function checklist_() {
     if (!(h in c)) throw new Error("The Everything tab has changed: no '" + h + "' column.");
   });
   var docs = c['Policies and other documents'], proof = c['Evidence/Information to be provided by Harmony Care'];
+  var register = register_();
   var modules = [], mod = null, std = null;
   for (var i = 1; i < v.length; i++) {
     var row = v[i], a = String(row[c['Practice Standard']] || '').trim();
@@ -1458,7 +1675,7 @@ function checklist_() {
     var col = row[docs] ? docs : row[proof] ? proof : -1;
     if (col === -1) continue;
     var link = links[i][col] && links[i][col].getLinkUrl();
-    var safe = /^https:/.test(String(link || '')) ? link : '';
+    var safe = /^https:/.test(String(link || '')) ? openLink_(link) : '';
     var also = String(row[col]).match(/^Also meets this standard: (.*)$/);
     if (also) {
       std.also.push({ title: also[1], url: safe });
@@ -1469,8 +1686,125 @@ function checklist_() {
       no: named.no, title: named.title, evidence: col === proof, url: safe,
       who: String(row[c['Who it is for']] || ''), when: String(row[c['When it is needed']] || ''),
       details: String(row[c['Details']] || ''), often: String(row[c['How often']] || ''),
-      due: due ? day_(due) : '', status: String(row[c['Status']] || '')
+      due: due ? day_(due) : '', status: String(row[c['Status']] || ''), record: register[named.no] || null
     });
   }
   return { modules: modules };
+}
+
+/** What the Checklist tab holds on each document, by its number. */
+function register_() {
+  var sheet = tab_(TABS.checklist), last = sheet.getLastRow(), out = {};
+  var v = sheet.getRange(5, 1, last - 4, 22).getValues(), c = index_(v[0].map(String));
+  var text = function (x) { return x instanceof Date ? day_(x) : String(x === '' || x == null ? '' : x); };
+  for (var i = 1; i < v.length; i++) {
+    if (typeof v[i][0] !== 'number') continue;
+    out[v[i][0]] = {
+      version: text(v[i][c['Version']]), approvedBy: text(v[i][c['Approved by']]), approved: text(v[i][c['Approval date']]),
+      reviewed: text(v[i][c['Last reviewed (type the date)']]), notes: text(v[i][c['Notes for the next audit']]),
+      kept: text(v[i][c['Kept where']]), rule: text(v[i][c["Harmony's rule (source)"]]),
+      completedBy: text(v[i][c['Completed by']]), signedBy: text(v[i][c['Signed by']])
+    };
+  }
+  return out;
+}
+
+/** The notes and folders on Start here, for Today. */
+function startNotes_() {
+  var sheet = tab_('Start here'), last = sheet.getLastRow();
+  var range = sheet.getRange(1, 1, last, 2), v = range.getValues(), links = range.getRichTextValues();
+  var notes = [], files = [], at = '';
+  v.forEach(function (row, i) {
+    var a = String(row[0] || '').trim(), b = String(row[1] || '').trim();
+    if (a === 'Needs attention now' || a === 'The files') { at = a; return; }
+    if (!a || !b) return;
+    if (at === 'Needs attention now') notes.push({ title: a, text: b });
+    if (at === 'The files') files.push({ title: a, text: b, url: links[i][1] && links[i][1].getLinkUrl() });
+  });
+  return { attention: notes, files: files };
+}
+
+function listOf_(tabName) {
+  return sendGroups_(tabName).map(function (g) {
+    return { name: g.name, forms: g.forms.map(function (f) {
+      return { title: f.title, need: f.need, when: f.when, fills: f.fills, signs: f.signs, url: openLink_(f.id) };
+    }) };
+  });
+}
+
+function planner_() {
+  var sheet = tab_('Year planner'), last = sheet.getLastRow();
+  var range = sheet.getRange(4, 1, last - 3, 5), v = range.getValues(), links = range.getRichTextValues();
+  var jobs = [];
+  v.forEach(function (row, i) {
+    if (!row[1]) return;
+    var due = row[0] instanceof Date || /^\d{4}-\d{2}-\d{2}/.test(String(row[0]));
+    jobs.push({ row: i + 4, due: due ? day_(row[0]) : '', every: due ? '' : String(row[0]), what: String(row[1]),
+                open: String(row[2] || ''), url: links[i][2] && links[i][2].getLinkUrl() ? openLink_(links[i][2].getLinkUrl()) : '', why: String(row[3] || ''),
+                done: row[4] ? day_(row[4]) : '' });
+  });
+  return jobs;
+}
+
+function rules_() {
+  var sheet = tab_('Rules and sources'), last = sheet.getLastRow();
+  var range = sheet.getRange(4, 1, last - 3, 6), v = range.getValues(), links = range.getRichTextValues();
+  return v.filter(function (r) { return r[0]; }).map(function (r, i) {
+    return { item: String(r[0]), who: String(r[1] || ''), valid: String(r[2] || ''), keep: String(r[3] || ''),
+             change: String(r[4] || ''), source: String(r[5] || ''), url: links[i][5] && links[i][5].getLinkUrl() || '' };
+  });
+}
+
+function theWorker_(row) {
+  var r = Number(row);
+  if (!Number.isInteger(r) || r <= PEOPLE_HEAD) throw said_('That person is not on the list.');
+  var person = person_(r);
+  if (!person.name || person.role !== 'Worker') throw said_('That person is not a worker on the list.');
+  return setUpPerson_(person, false);
+}
+
+/** Every worker, and how their file stands, read from their own tab. */
+function team_() {
+  var sheet = tab_(TABS.people), last = sheet.getLastRow(), out = [], today = day_(new Date());
+  for (var r = PEOPLE_HEAD + 1; r <= last; r++) {
+    var p = person_(r);
+    if (!p.name || p.role !== 'Worker' || !p.active) continue;
+    var tab = book_().getSheetByName(sheetName_(p.name)), line = { row: r, name: p.name, missing: 0, expired: 0, held: 0, next: '', nextItem: '' };
+    if (tab) {
+      tab.getRange(22, 2, tab.getLastRow() - 21, 8).getValues().forEach(function (v) {
+        var status = String(v[7]), expiry = v[6] ? day_(v[6]) : '';
+        if (status === 'Not recorded yet') line.missing++;
+        else if (status === 'Expired') line.expired++;
+        else if (status && status !== 'Not needed') line.held++;
+        if (expiry && expiry >= today && (!line.next || expiry < line.next)) { line.next = expiry; line.nextItem = String(v[0]); }
+      });
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+function staffFile_(worker) {
+  var tab = book_().getSheetByName(sheetName_(worker.name));
+  if (!tab) throw said_(worker.name + "'s staff file is still being made. Try again in a minute.");
+  var flags = tab.getRange(9, 1, 11, 2).getValues().map(function (v, i) { return { row: 9 + i, label: String(v[0]), yes: v[1] === 'Yes' }; });
+  var range = tab.getRange(22, 1, tab.getLastRow() - 21, 11), v = range.getValues(), f = range.getFormulas(), links = range.getRichTextValues();
+  var items = [];
+  v.forEach(function (row, i) {
+    if (!row[1]) return;
+    items.push({ row: 22 + i, group: String(row[0]), item: String(row[1]), keep: String(row[3] || ''), form: String(row[4] || ''),
+                 formUrl: links[i][4] && links[i][4].getLinkUrl() ? openLink_(links[i][4].getLinkUrl()) : '', renew: String(row[5] || ''), done: row[6] ? day_(row[6]) : '',
+                 expiry: row[7] ? day_(row[7]) : '', expiryWorkedOut: !!f[i][7], status: String(row[8] || '') });
+  });
+  return { name: worker.name, flags: flags, items: items, folder: 'https://drive.google.com/drive/folders/' + worker.folder };
+}
+
+function staffDate_(worker, b, who) {
+  var tab = book_().getSheetByName(sheetName_(worker.name)), row = Number(b.sheetRow), value = String(b.value || '');
+  if (!tab || !Number.isInteger(row) || row < 22 || row > tab.getLastRow() || !tab.getRange(row, 2).getValue()) throw said_('That is not on their file.');
+  if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw said_("That date doesn't look right.");
+  var col = b.field === 'expiry' ? 8 : 7, cell = tab.getRange(row, col);
+  if (col === 8 && tab.getRange(row, 8).getFormula()) throw said_('That expiry works itself out from the date done.');
+  if (value) cell.setValue(value).setNumberFormat('d mmm yyyy'); else cell.setValue('');
+  log_('Staff file', worker.name + ', row ' + row + ' by ' + who);
 }

@@ -223,7 +223,7 @@ test('prepare copies the form into their folder, writes an undated row, and only
   assert.match(test.subject, /^\[Test copy for Ana O'Brien\] Harmony Care: Worker Declarations$/);
   assert.match(test.body, /^Hi Ana,/);
   assert.match(test.body, /What to do: Sign and return\./);
-  assert.deepStrictEqual(plain(test.opts.attachments.map((a) => a.name)), ['Worker Declarations.pdf', 'Worker Declarations.docx']);
+  assert.deepStrictEqual(plain(test.opts.attachments.map((a) => a.name)), ['Worker Declarations.pdf'], 'a PDF, never a Word file');
   assert.ok(!/[\u2013\u2014]/.test(test.body), 'no dashes in what people read');
 });
 
@@ -273,7 +273,12 @@ test('the signed copy coming back by email is filed, dated and announced once', 
   assert.strictEqual(asDay(w, v[6]), TODAY);
   const saved = w.drive.get(w.ctx.fileId_(v[14]), 'file');
   assert.strictEqual(saved.name, "Worker Declarations - Ana O'Brien - signed.pdf");
-  assert.strictEqual(saved.parent, w.ctx.folderId_(w.ss.getSheetByName('People').getRange(5, 8).getValue()));
+  const mine = w.ctx.folderId_(w.ss.getSheetByName('People').getRange(5, 8).getValue());
+  const completed = [...w.drive.items.values()].find((x) => x.kind === 'folder' && x.name === 'Completed' && x.parent === mine);
+  assert.strictEqual(saved.parent, completed.id, 'in their Completed folder');
+  const all = [...w.drive.items.values()].find((x) => x.kind === 'folder' && x.name === 'All completed documents');
+  const shortcut = [...w.drive.items.values()].find((x) => x.parent === all.id && x.target === saved.id);
+  assert.ok(shortcut, 'and shown in the folder of everything completed');
   assert.strictEqual(w.mail.length, 1);
   assert.strictEqual(w.mail[0].subject, "Signed and back: Worker Declarations from Ana O'Brien");
   assert.strictEqual(w.mail[0].to, 'jesse@riseos.care');
@@ -737,6 +742,80 @@ test('a real problem reaches the person who pressed the button, and a big batch 
   const items = w.ctx.prepare(5, [w.forms.decl.getId(), w.forms.preEmp.getId()], 'test@example.com');
   assert.match(items[1].error, /Not done in time/);
   assert.ok(start && was);
+});
+
+test('every file opens in Google Docs or Sheets, and a PDF stays a PDF', () => {
+  const w = ready();
+  const f = w.ctx.forms_();
+  assert.match(f.lists.Worker[0].forms[0].url, /^https:\/\/docs\.google\.com\/document\/d\/.+\/edit$/);
+  assert.strictEqual(w.ctx.openLink_('unknownfileid0000000000000'), 'https://drive.google.com/file/d/unknownfileid0000000000000/view');
+});
+
+test('the records: a folder for each kind of person, one for everything completed, and each person set out the same', () => {
+  const w = ready();
+  const names = (parent) => [...w.drive.items.values()].filter((x) => x.kind === 'folder' && x.parent === parent).map((x) => x.name).sort();
+  const root = w.ctx.folderId_(w.ctx.setting_("Folder for each person's files"));
+  assert.strictEqual(w.drive.get(root, 'folder').name, 'Harmony Care records');
+  assert.deepStrictEqual(names(root), ['All completed documents', 'Participants', 'Practitioners and partners', 'Workers']);
+  const ana = [...w.drive.items.values()].find((x) => x.kind === 'folder' && x.name === "Ana O'Brien");
+  assert.strictEqual(w.drive.get(ana.parent, 'folder').name, 'Workers');
+  assert.deepStrictEqual(names(ana.id), ['Completed', 'Sent out', 'Staff file']);
+  w.ctx.setup();
+  assert.strictEqual(names(root).length, 4, 'running Set up again makes nothing twice');
+});
+
+test('bulk add: good lines go in, bad ones come back with why, and the timer makes the folders', () => {
+  const w = ready();
+  const token = signedIn(w);
+  const lines = [
+    { name: 'Mia Chen', email: 'mia@example.com', role: 'Worker' },
+    { name: 'Tom Ng', role: 'Participant', guardian: 'Lan Ng', guardianEmail: 'lan@example.com' },
+    { name: 'Mia Chen', email: 'mia2@example.com', role: 'Worker' },
+    { name: "Ana O'Brien", email: 'x@example.com', role: 'Worker' },
+    { name: 'Bad Email', email: 'nope', role: 'Worker' },
+    { name: 'No Role', email: 'r@example.com', role: '' },
+    { name: '=HACK()', email: 'h@example.com', role: 'Worker' }
+  ];
+  const res = call(w, { action: 'people', token, people: lines });
+  assert.strictEqual(res.added, 3);
+  assert.deepStrictEqual(res.skipped.map((x) => x.why), ['Already on your list.', 'Already on your list.', "That email address doesn't look right.", 'Choose who they are.']);
+  assert.ok(res.forms.people.some((p) => p.name === 'Tom Ng' && p.guardian === 'Lan Ng'));
+  assert.ok(res.forms.people.some((p) => p.name === "'=HACK()"), 'a formula stays words');
+  const tom = res.forms.people.find((p) => p.name === 'Tom Ng');
+  assert.strictEqual(tom.folder, '', 'no folder yet: the call stays quick');
+  w.ctx.sendQueued();
+  assert.ok(call(w, { action: 'forms', token }).forms.people.find((p) => p.name === 'Tom Ng').folder, 'the timer made it');
+  assert.ok(w.ss.getSheetByName('Mia Chen'), 'a worker gets a staff file');
+  assert.match(call(w, { action: 'people', token, people: new Array(501).fill({ name: 'x' }) }).error, /more than 500/);
+  assert.match(call(w, { action: 'people', token, people: [] }).error, /nobody/);
+});
+
+test('a scanned signed copy lands in Completed, marks the form back and tells people', () => {
+  const w = ready();
+  const token = signedIn(w);
+  const r = call(w, { action: 'handed', token, person: 5, ids: [w.forms.decl.getId()] }).forms.sends[0].row;
+  w.mail.length = 0;
+  const data = Buffer.from('signed page').toString('base64');
+  assert.match(call(w, { action: 'signed', token, row: r, name: 'scan.exe', data }).error, /PDF, a photo or a Word/);
+  assert.match(call(w, { action: 'signed', token, row: r, name: 'scan.pdf', data: '' }).error, /empty/);
+  const f = call(w, { action: 'signed', token, row: r, name: 'scan.pdf', data }).forms.sends[0];
+  assert.strictEqual(f.standing, 'back');
+  const saved = w.drive.get(w.ctx.fileId_(f.signed), 'file');
+  assert.strictEqual(saved.name, "Worker Declarations - Ana O'Brien - signed.pdf");
+  assert.strictEqual(w.drive.get(saved.parent, 'folder').name, 'Completed');
+  assert.match(w.mail[0].subject, /Signed and back/);
+  assert.match(w.mail[0].body, /hc\.riseos\.care\/tool\/#person\/5/, 'the notice opens their page, not a tab');
+  assert.ok(!/Sent and returned/.test(w.mail[0].body));
+});
+
+test('a person who cannot be shared with still gets the PDF, without a dead link', () => {
+  const w = ready();
+  const [it] = w.ctx.prepare(5, [w.forms.decl.getId()], 'test@example.com');
+  w.drive.get(w.ctx.fileId_(it.copyUrl), 'file').refuseShare = true;
+  deliver(w, [it.trackerRow]);
+  const real = w.gmail.sent.filter((m) => !/Test copy/.test(m.subject))[0];
+  assert.ok(!/Google Docs/.test(real.body));
+  assert.strictEqual(real.opts ? real.opts.attachments.length : real.attachments.length, 1);
 });
 
 test('handed over in person: tracked like the rest, nothing emailed, and chased in person', () => {
