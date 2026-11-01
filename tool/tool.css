@@ -35,6 +35,9 @@ td input[type=checkbox]{width:1.15rem;height:1.15rem;accent-color:var(--forest)}
 td .sub{display:block;color:var(--mid);font-size:.875rem;margin-top:.15rem}
 td .doit{display:flex;flex-wrap:wrap;gap:.25rem .9rem;margin-top:.3rem}
 td .doit .link{text-align:left}
+table.goes td:first-child{width:26%}
+table.goes td:last-child{min-width:11rem}
+table.goes select{font-family:var(--sans);font-size:.9375rem;padding:.3rem .4rem;border:1px solid var(--rule);background:var(--plate);color:var(--ink);max-width:100%}
 table.person td:last-child{min-width:15rem}
 table.person td:nth-child(3){min-width:14rem}
 td.who-participant{background:var(--t-participant)}td.who-worker{background:var(--t-worker)}td.who-organisation{background:var(--t-organisation)}
