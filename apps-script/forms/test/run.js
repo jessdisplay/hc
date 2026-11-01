@@ -1109,6 +1109,106 @@ test('sign page: the finder reads a form\'s words for ticks, blanks, signatures 
   assert.deepStrictEqual(findSpots([t('Nothing to sign here.', 50, 700, 90)], 595), []);
 });
 
+test('sign page: table cells are read from the PDF, and every empty box is named by its label or heading', () => {
+  const { findSpots, cellsOf, mine } = require('../../../tool/sign/find.js');
+  const OPS = { save: 1, restore: 2, transform: 3, constructPath: 4, rectangle: 19, moveTo: 13, lineTo: 14, curveTo: 15, curveTo2: 16, curveTo3: 17 };
+  const box = (x, y, w, h) => [OPS.constructPath, [[OPS.rectangle], [x, y, w, h]]];
+  const drawn = [
+    box(50, 700, 150, 20), box(200, 700, 200, 20),   // Worker signature | empty
+    box(50, 680, 150, 20), box(200, 680, 200, 20),   // Date | empty
+    box(50, 640, 150, 20), box(200, 640, 100, 20), box(300, 640, 100, 20),  // Role | Signature | Date
+    box(50, 620, 150, 20), box(200, 620, 100, 20), box(300, 620, 100, 20),  // Harmony rep | empty | empty
+    box(50, 580, 200, 20), box(50, 560, 200, 20), box(50, 540, 200, 20),    // Signature heading, two empty rows
+    box(0, 0, 595, 842), box(50, 800, 200, 40)      // the page and the letterhead are not cells
+  ];
+  const cells = cellsOf(drawn.map((d) => d[0]), drawn.map((d) => d[1]), OPS, 595, 842);
+  assert.strictEqual(cells.length, 13);
+  const t = (str, x, y, width) => ({ str, width, height: 10, transform: [10, 0, 0, 10, x, y] });
+  const spots = findSpots([
+    t('Worker signature', 55, 706, 80), t('Date', 55, 686, 20),
+    t('Role', 55, 646, 20), t('Signature', 205, 646, 40), t('Date', 305, 646, 20), t('Organisation representative', 55, 626, 120),
+    t('Signature', 55, 586, 40)
+  ], 595, cells).map((s) => Object.assign(s, { page: 1 }));
+  const signs = spots.filter((s) => s.type === 'sign');
+  assert.strictEqual(signs.length, 4, 'every signature box: beside its label, in its row, and both rows of the column');
+  assert.strictEqual(signs[0].who, 'worker');
+  assert.strictEqual(signs[1].who, 'harmony', 'the row names who signs');
+  assert.strictEqual(spots.filter((s) => s.type === 'date').length, 2);
+  assert.strictEqual(mine(spots, ['worker']).length, 1);
+  const rows = spots.filter((s) => s.group !== undefined).map((s) => Object.assign({}, s, { who: 'worker' }));
+  assert.strictEqual(rows.length, 2);
+  assert.strictEqual(mine(rows, ['worker']).length, 1, 'a column of rows asks for its first row only');
+  assert.deepStrictEqual(mine(rows.concat([signs[0]]), ['worker']), [signs[0]], 'and none at all when there is a signature line');
+});
+
+test('sign page: a blank that shares a cell with its label, a date or tick boxes is still found', () => {
+  const { findSpots, cellsOf, mine } = require('../../../tool/sign/find.js');
+  const OPS = { save: 1, restore: 2, transform: 3, constructPath: 4, rectangle: 19, moveTo: 13, lineTo: 14, curveTo: 15, curveTo2: 16, curveTo3: 17 };
+  const box = (x, y, w, h) => [OPS.constructPath, [[OPS.rectangle], [x, y, w, h]]];
+  const drawn = [
+    box(50, 700, 300, 24),                                    // Signature: and its blank, one cell
+    box(50, 660, 150, 24), box(50, 664, 148, 18), box(200, 660, 350, 24),  // label, its shading, then a cell with Date: at the far end
+    box(50, 620, 150, 24), box(200, 620, 350, 24),            // label, then tick boxes and room
+    box(50, 560, 150, 44),                                    // label at the top, blank under it
+    box(50, 520, 150, 20), box(200, 520, 150, 20),            // a label that names a person, beside a date, is a signature
+    box(350, 520, 150, 20)
+  ];
+  const cells = cellsOf(drawn.map((d) => d[0]), drawn.map((d) => d[1]), OPS, 595, 842);
+  assert.strictEqual(cells.length, 9, 'shading and border are one cell');
+  const t = (str, x, y, width) => ({ str, width, height: 10, transform: [10, 0, 0, 10, x, y] });
+  const spots = findSpots([
+    t('Signature:', 55, 708, 50),
+    t('Worker signature', 55, 668, 80), t('Date:', 500, 668, 24),
+    t('Manager signature', 55, 628, 90), t('☐', 205, 628, 10), t('Signed', 218, 628, 30), t('☐', 255, 628, 10), t('Declined', 268, 628, 40),
+    t('Prescriber Signature', 55, 590, 90),
+    t('The person (if able):', 55, 526, 90), t('Date:', 355, 526, 24)
+  ], 595, cells);
+  const signs = spots.filter((s) => s.type === 'sign');
+  assert.strictEqual(signs.length, 5, JSON.stringify(signs));
+  assert.ok(signs[0].x > 100 && signs[0].x + signs[0].w <= 350, 'in the room after its label, inside the cell');
+  assert.ok(signs[1].x + signs[1].w < 500, 'stops before the date in its cell');
+  assert.strictEqual(signs[1].who, 'worker');
+  assert.ok(signs[2].x > 308, 'clear of the tick boxes');
+  assert.strictEqual(signs[2].who, 'supervisor');
+  assert.ok(signs[3].y + signs[3].h < 590, 'under the label');
+  assert.strictEqual(signs[3].who, 'practitioner');
+  assert.strictEqual(signs[4].who, 'client');
+  assert.strictEqual(mine(signs.map((s, i) => Object.assign({}, s, { who: 'worker', page: 1, group: undefined })).slice(0, 3), ['worker']).length, 3);
+});
+
+test('sign page: a tall label with an empty cell beside it gets one box, in that cell', () => {
+  const { findSpots, cellsOf } = require('../../../tool/sign/find.js');
+  const OPS = { save: 1, restore: 2, transform: 3, constructPath: 4, rectangle: 19, moveTo: 13, lineTo: 14, curveTo: 15, curveTo2: 16, curveTo3: 17 };
+  const drawn = [[OPS.constructPath, [[OPS.rectangle], [50, 500, 170, 44]]], [OPS.constructPath, [[OPS.rectangle], [220, 500, 310, 44]]]];
+  const cells = cellsOf(drawn.map((d) => d[0]), drawn.map((d) => d[1]), OPS, 595, 842);
+  const t = { str: 'Client signature', width: 80, height: 10, transform: [10, 0, 0, 10, 55, 530] };
+  const signs = findSpots([t], 595, cells).filter((s) => s.type === 'sign');
+  assert.strictEqual(signs.length, 1);
+  assert.ok(signs[0].x > 220);
+});
+
+test('sign page: more than three boxes is a repeating record, and initials give way to a signature', () => {
+  const { mine } = require('../../../tool/sign/find.js');
+  const box = (who, more) => Object.assign({ type: 'sign', who, page: 1 }, more);
+  assert.strictEqual(mine([box('worker'), box('worker'), box('worker')], ['worker']).length, 3);
+  assert.strictEqual(mine([box('worker'), box('worker'), box('worker'), box('worker')], ['worker']).length, 1);
+  const form = [box('worker', { initials: true, group: 1 }), box('worker', { initials: true, group: 1 }), box('worker')];
+  assert.deepStrictEqual(mine(form, ['worker']), [form[2]]);
+  assert.strictEqual(mine([form[0], form[1]], ['worker']).length, 1, 'initials only where there is no signature');
+});
+
+test('sign page: signing fills the date and name that belong with it, not every one nearby', () => {
+  const { partner } = require('../../../tool/sign/find.js');
+  const sign = { type: 'sign', x: 300, y: 500, w: 100, h: 20 };
+  const row = (x, y, type) => ({ type, x, y, w: 60, h: 20 });
+  const beside = row(404, 500, 'date'), farAlong = row(500, 500, 'date'), nextRow = row(404, 480, 'date'), name = row(50, 500, 'name');
+  assert.strictEqual(partner([farAlong, nextRow, beside, name], sign, 'date'), beside);
+  assert.strictEqual(partner([farAlong, name], sign, 'date'), null, 'a date column further along a register is not this one');
+  assert.strictEqual(partner([farAlong, name], sign, 'name'), name);
+  assert.strictEqual(partner([row(300, 470, 'date')], sign, 'date').y, 470, 'stacked under the signature');
+  assert.strictEqual(partner([Object.assign(beside, { value: { text: 'x' } })], sign, 'date'), null, 'never over something written');
+});
+
 test('the long checklist stacks on a phone but keeps its five columns in print, which measures narrow', () => {
   const css = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'tool/tool.css'), 'utf8');
   const stack = css.indexOf('table.map,table.map tbody,table.map tr,table.map td{display:block');
