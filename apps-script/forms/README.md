@@ -26,6 +26,21 @@ and reads and writes through `doPost`, the script's only way in.
   so every reply lands in the one inbox the hourly check reads. Every day it drafts a reminder in Gmail
   (never sent by the script) for a form out longer than 14 days. Every Monday it emails what is due.
 
+## The sign page
+
+`tool/sign` is where people sign, from one link in one email, with no account. The tool's **Send to sign** button
+queues what is ticked, and the one-minute timer sends the link. The page opens each form as a PDF and works out
+from its words where to tick, write and sign, so nothing is set up per form (`tool/sign/find.js`). Anywhere it
+missed, the person taps the space. Signing fills the date and printed name beside it. What they add is stamped on the
+PDF in their browser, with a last page recording who signed, when, and a fingerprint of the form as they opened it.
+The script files the PDF in their Completed folder, marks the row back and tells the people in Settings. Forms
+that need Harmony's signature show **Sign for Harmony** on the person's page, which replaces the copy and approves it.
+
+The link is a long random key, kept here only as a hash, lasting 90 days, good for that person's forms alone. The
+signed PDF is made in the signer's browser, so the record page and the fingerprint are the evidence of what they saw, and
+the PDF they opened stays in `Forms as PDFs`. PDFs are made once per form by the timer, and again if the form changes.
+Google eSignature and the email route stay available behind **By email or Google eSignature**.
+
 ## Install
 
 1. In the Google Sheet: Extensions > Apps Script. Replace everything in `Code.gs` with this folder's

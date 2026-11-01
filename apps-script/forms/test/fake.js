@@ -39,6 +39,7 @@ class Blob {
   setName(n) { this.name = n; return this; }
   getName() { return this.name; }
   copyBlob() { return new Blob(this.bytes, this.type, this.name); }
+  getBytes() { return typeof this.bytes === 'string' ? [...Buffer.from(this.bytes)] : this.bytes; }
 }
 
 
@@ -109,6 +110,10 @@ class Folder {
   }
   createShortcut(target) { return this.f.drive.file('shortcut', 'application/vnd.google-apps.shortcut', this.f.id, { target }); }
   createFile(blob) { return this.f.drive.file(blob.name, blob.type, this.f.id, { bytes: blob.bytes }); }
+  getFilesByName(n) {
+    return iter([...this.f.drive.items.values()]
+      .filter((x) => x.kind === 'file' && x.parent === this.f.id && x.name === n && !x.trashed).map((x) => new File(x)));
+  }
   getEditors() { return (this.f.editors || []).map((e) => ({ getEmail: () => e })); }
   getOwner() { return this.f.sharedDrive ? null : { getEmail: () => this.f.owner || 'nobody' }; }
   addEditor(e) { (this.f.editors = this.f.editors || []).push(e); return this; }
@@ -129,6 +134,9 @@ class File {
   setDescription(s) { this.f.description = s; return this; }
   setName(n) { this.f.name = n; return this; }
   getMimeType() { return this.f.mime; }
+  getBlob() { return new Blob(this.f.bytes || 'bytes of ' + this.f.name, this.f.mime, this.f.name); }
+  getLastUpdated() { return this.f.updated || this.f.created; }
+  setTrashed(on) { this.f.trashed = on; return this; }
   addEditor(e) { if (this.f.refuseShare) throw new Error('Cannot share'); (this.f.editors = this.f.editors || []).push(e); return this; }
   moveTo(folder) { this.f.parent = folder.getId(); return this; }
   getParents() { return iter([new Folder(this.f.drive.get(this.f.parent, 'folder'))]); }

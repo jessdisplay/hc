@@ -895,11 +895,210 @@ test("the tool's classes only share a name with team.css on purpose, because tea
   const read = (file) => fs.readFileSync(path.join(__dirname, '..', '..', '..', file), 'utf8');
   const team = new Set([...read('site/team.css').matchAll(/\.([a-zA-Z][\w-]*)/g)].map((m) => m[1]));
   const used = new Set();
-  for (const m of read('tool/tool.js').matchAll(/class:\s*([^,}]+)/g)) {
-    for (const q of m[1].matchAll(/'([^']*)'/g)) q[1].split(/\s+/).filter(Boolean).forEach((c) => used.add(c));
+  for (const file of ['tool/tool.js', 'tool/sign/sign.js']) {
+    for (const m of read(file).matchAll(/class:\s*([^,}]+)/g)) {
+      for (const q of m[1].matchAll(/'([^']*)'/g)) q[1].split(/\s+/).filter(Boolean).forEach((c) => used.add(c));
+    }
   }
   const meant = ['bad', 'btn', 'ghost', 'ind', 'lede', 'more', 'outcome', 'say', 'stat', 'stats'];
   assert.deepStrictEqual([...used].filter((c) => team.has(c) && !meant.includes(c)), []);
+});
+
+const signedPdf = Buffer.from('%PDF-1.7 signed').toString('base64');
+const fileIdOf = (url) => String(url).match(/\/d\/([^/]+)/)[1];
+function sentToSign(w, person = 5, ids = [w.forms.decl.getId(), w.forms.preEmp.getId()]) {
+  const token = signedIn(w);
+  const res = call(w, { action: 'signSend', token, person, ids });
+  w.ctx.sendQueued();
+  const mail = w.gmail.sent[w.gmail.sent.length - 1];
+  return { token, res, mail, link: (mail.body.match(/sign\/#([0-9a-z]+)/) || [])[1] };
+}
+
+test('sign page: one press sends one email with one link for every form, and nothing to attach', () => {
+  const w = ready();
+  const before = w.gmail.sent.length;
+  const { res, mail, link } = sentToSign(w);
+  assert.strictEqual(res.items.filter((i) => i.error).length, 0, JSON.stringify(res.items));
+  assert.strictEqual(w.gmail.sent.length, before + 1, 'one email for the pack, no test copy');
+  assert.strictEqual(mail.to, 'ana@example.com');
+  assert.match(mail.subject, /2 forms to sign/);
+  assert.match(mail.body, /Hi Ana/);
+  assert.match(mail.body, /Worker Declarations/);
+  assert.strictEqual((mail.attachments || []).length, 0);
+  assert.strictEqual(link.length, 64);
+  assert.ok(!JSON.stringify(w.globals.PropertiesService.getScriptProperties().getProperties()).includes(link), 'only a hash is kept');
+  res.items.forEach((i) => {
+    const v = row(w, i.trackerRow);
+    assert.strictEqual(v[12], 'Sign page');
+    assert.strictEqual(v[16], 'Sent');
+    assert.ok(v[0], 'dated');
+  });
+  w.ctx.sendQueued();
+  assert.strictEqual(w.gmail.sent.length, before + 1, 'the timer sends it once');
+});
+
+test('sign page: a person with a guardian gets the link at the guardian, and signs as the representative', () => {
+  const w = ready();
+  const { mail, link } = sentToSign(w, 6, [w.forms.consent.getId()]);
+  assert.strictEqual(mail.to, 'kim@example.com');
+  assert.match(mail.body, /Hi Kim/);
+  assert.match(mail.subject, /to sign$/);
+  const open = call(w, { action: 'signOpen', link });
+  assert.strictEqual(open.signer, 'Kim Lee');
+  assert.deepStrictEqual([...open.kinds], ['representative', 'client']);
+});
+
+test('sign page: the link opens that person\'s forms and nothing else', () => {
+  const w = ready();
+  const { link } = sentToSign(w);
+  const other = sentToSign(w, 6, [w.forms.consent.getId()]);
+  const open = call(w, { action: 'signOpen', link });
+  assert.strictEqual(open.ok, true);
+  assert.deepStrictEqual(open.forms.map((f) => f.title), ['Worker Declarations', 'Pre Employment Collection Form']);
+  assert.strictEqual(open.first, 'Ana');
+  const form = call(w, { action: 'signForm', link, row: open.forms[0].row });
+  assert.strictEqual(form.ok, true);
+  assert.ok(form.pdf.length > 4);
+  assert.match(form.sha, /^[0-9a-f]{64}$/);
+  const theirs = call(w, { action: 'signOpen', link: other.link }).forms[0].row;
+  for (const action of ['signForm', 'signDone']) {
+    assert.match(call(w, { action, link, row: theirs, pdf: signedPdf, name: 'Ana' }).error, /not on your list/, action);
+  }
+  for (const bad of [undefined, '', 'x', 'a'.repeat(64), { a: 1 }]) {
+    const res = call(w, { action: 'signOpen', link: bad });
+    assert.strictEqual(res.ok, false);
+    assert.match(res.error, /link has ended/);
+  }
+});
+
+test('sign page: a link ends, and the error says what to do', () => {
+  const w = ready();
+  const { link } = sentToSign(w);
+  w.clock.advance(91);
+  assert.match(call(w, { action: 'signOpen', link }).error, /Ask Harmony Care to send you a new one/);
+});
+
+test('sign page: finishing files the signed PDF, marks it back, tells Harmony, and a second press does nothing', () => {
+  const w = ready();
+  w.ctx.putSetting_('Tell these people when a form comes back', 'brit@example.com');
+  const { link, token } = sentToSign(w);
+  const form = call(w, { action: 'signOpen', link }).forms[0];
+  w.mail.length = 0;
+  const res = call(w, { action: 'signDone', link, row: form.row, pdf: signedPdf, name: 'Ana O\'Brien' });
+  assert.deepStrictEqual(res, { ok: true });
+  const v = row(w, form.row);
+  assert.ok(v[6], 'returned');
+  assert.match(String(v[14]), /drive\.google\.com/);
+  assert.match(String(v[10]), /Signed on the sign page by Ana O'Brien/);
+  const told = w.mail.filter((m) => m.to === 'brit@example.com');
+  assert.strictEqual(told.length, 1);
+  assert.match(told[0].subject, /Signed and back: Worker Declarations from Ana O'Brien/);
+  const files = [...w.drive.items.values()].filter((x) => x.mime === 'application/pdf' && /- signed\.pdf$/.test(x.name));
+  assert.strictEqual(files.length, 1);
+  assert.strictEqual(w.drive.get(files[0].parent, 'folder').name, 'Completed');
+  assert.ok([...w.drive.items.values()].some((x) => x.target === files[0].id), 'listed in All completed documents');
+  w.mail.length = 0;
+  assert.deepStrictEqual(call(w, { action: 'signDone', link, row: form.row, pdf: signedPdf, name: 'Ana' }), { ok: true });
+  assert.strictEqual(w.mail.length, 0, 'no second notice');
+  assert.strictEqual([...w.drive.items.values()].filter((x) => x.mime === 'application/pdf' && /- signed\.pdf$/.test(x.name)).length, 1);
+  const again = call(w, { action: 'signOpen', link }).forms;
+  assert.strictEqual(again[0].done, true);
+  assert.strictEqual(again[1].done, false);
+  const sends = call(w, { action: 'forms', token }).forms.sends;
+  assert.strictEqual(sends.filter((s) => s.standing === 'back').length, 1);
+});
+
+test('sign page: what comes back is checked before it is filed', () => {
+  const w = ready();
+  const { link } = sentToSign(w);
+  const form = call(w, { action: 'signOpen', link }).forms[0];
+  const notPdf = Buffer.from('<html>nope').toString('base64');
+  assert.match(call(w, { action: 'signDone', link, row: form.row, pdf: notPdf, name: 'Ana' }).error, /did not arrive/);
+  assert.match(call(w, { action: 'signDone', link, row: form.row, pdf: '', name: 'Ana' }).error, /did not arrive/);
+  assert.match(call(w, { action: 'signDone', link, row: form.row, pdf: 7, name: 'Ana' }).error, /did not arrive/);
+  assert.match(call(w, { action: 'signDone', link, row: form.row, pdf: signedPdf, name: '   ' }).error, /name is needed/);
+  assert.strictEqual(row(w, form.row)[6], '', 'still out');
+});
+
+test('sign page: Harmony signs the returned copy in the tool, which replaces it and approves it', () => {
+  const w = ready();
+  w.ctx.putSetting_('Tell these people when a form comes back', 'brit@example.com');
+  const { link, token } = sentToSign(w);
+  const form = call(w, { action: 'signOpen', link }).forms[0];
+  call(w, { action: 'signDone', link, row: form.row, pdf: signedPdf, name: 'Ana' });
+  const first = fileIdOf(row(w, form.row)[14]);
+  const open = call(w, { action: 'counterForm', token, row: form.row });
+  assert.strictEqual(open.ok, true);
+  assert.deepStrictEqual([...open.kinds], ['harmony', 'supervisor']);
+  assert.strictEqual(open.person, "Ana O'Brien");
+  assert.strictEqual(call(w, { action: 'counterForm', row: form.row }).signedOut, true);
+  assert.deepStrictEqual(call(w, { action: 'counterDone', token, row: form.row, pdf: signedPdf, name: 'Brit' }), { ok: true });
+  const v = row(w, form.row);
+  assert.notStrictEqual(fileIdOf(v[14]), first);
+  assert.strictEqual(v[7], 'brittany@example.com');
+  assert.ok(v[8], 'approved');
+  assert.strictEqual(w.drive.get(first, 'file').trashed, true);
+  const live = [...w.drive.items.values()].filter((x) => /- signed\.pdf$/.test(x.name) && !x.trashed);
+  assert.strictEqual(live.filter((x) => x.mime === 'application/pdf').length, 1);
+  assert.strictEqual(call(w, { action: 'forms', token }).forms.sends.filter((s) => s.standing === 'done').length, 1);
+});
+
+test('sign page: the PDFs are made ahead of time, once, and made again if the form changes', () => {
+  const w = ready();
+  const count = () => [...w.drive.items.values()].filter((x) => x.mime === 'application/pdf' && x.parent !== undefined).length;
+  w.ctx.sendQueued();
+  const made = count();
+  assert.ok(made >= 3, 'made for each form that gets signed: ' + made);
+  w.ctx.sendQueued();
+  assert.strictEqual(count(), made, 'not made twice');
+  const id = w.forms.decl.getId();
+  const before = w.ctx.formPdf_(id, 'Worker Declarations');
+  assert.strictEqual(w.ctx.formPdf_(id, 'Worker Declarations'), before);
+  w.drive.get(id, 'file').updated = new Date('2026-12-01T00:00:00Z');
+  assert.notStrictEqual(w.ctx.formPdf_(id, 'Worker Declarations'), before);
+});
+
+test('sign page: a bad address stays on the row and tells Harmony, nothing is lost', () => {
+  const w = ready();
+  const token = signedIn(w);
+  call(w, { action: 'signSend', token, person: 5, ids: [w.forms.decl.getId()] });
+  w.ss.getSheetByName('People').getRange(5, 2).setValue('');
+  w.ctx.putSetting_('Tell these people when a form comes back', 'brit@example.com');
+  w.mail.length = 0;
+  w.ctx.sendQueued();
+  const sends = call(w, { action: 'forms', token }).forms.sends;
+  assert.strictEqual(sends[0].standing, 'failed');
+  assert.match(sends[0].step, /Not sent/);
+  assert.ok(w.mail.some((m) => /Not sent: forms to sign/.test(m.subject)));
+});
+
+test('sign page: the finder reads a form\'s words for ticks, blanks, signatures and who signs', () => {
+  const { findSpots, mine } = require('../../../tool/sign/find.js');
+  const t = (str, x, y, width) => ({ str, width, height: 10, transform: [10, 0, 0, 10, x, y] });
+  const spots = findSpots([
+    t('Signed by the Client:', 50, 700, 100),
+    t('…………………………………………', 50, 670, 160),
+    t('Date: ……/……/……', 300, 670, 90),
+    t('Signature', 50, 656, 40),
+    t('…………………………………………', 50, 636, 160),
+    t('Name (please print)', 50, 622, 90),
+    t('Signed for and on behalf of Harmony Care Support Services, by:', 50, 590, 280),
+    t('…………………………………………', 50, 560, 160),
+    t('Signature', 50, 546, 40),
+    t('☐', 50, 500, 9), t('I agree', 62, 500, 30),
+    t('⬜', 200, 500, 9),
+    t('Prescriber signature', 50, 460, 90),
+    t('Worker name', 50, 400, 60), t('Signature', 200, 400, 40), t('Date', 350, 400, 20)
+  ], 595);
+  const of = (type) => spots.filter((s) => s.type === type);
+  assert.strictEqual(of('tick').length, 2, 'both tick box characters');
+  assert.strictEqual(of('name').length, 1);
+  assert.ok(of('date').length >= 1);
+  const signs = of('sign');
+  assert.deepStrictEqual(signs.map((s) => s.who), ['client', 'harmony', 'practitioner', 'worker']);
+  assert.strictEqual(mine(spots, ['client'])[0].y < 672, true);
+  assert.deepStrictEqual(mine(spots, ['representative', 'client']).map((s) => s.who), ['client'], 'falls to the next role the form has');
+  assert.deepStrictEqual(findSpots([t('Nothing to sign here.', 50, 700, 90)], 595), []);
 });
 
 test('the long checklist stacks on a phone but keeps its five columns in print, which measures narrow', () => {

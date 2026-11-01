@@ -42,7 +42,7 @@ var SEND_TABS = {
   'Practitioner or partner': 'Send to practitioners'
 };
 var LABEL = 'Harmony forms';  // every email thread the script starts carries this Gmail label
-var ESIGN = 'Google eSignature', EMAIL = 'Email', BY_HAND = 'By hand';
+var ESIGN = 'Google eSignature', EMAIL = 'Email', BY_HAND = 'By hand', SIGN_PAGE = 'Sign page';
 var MARK = 'Harmony forms: ';  // on a file's description: the hourly check has dealt with it
 
 // People: one row per person, typed in by Harmony.
@@ -77,6 +77,7 @@ var SETTINGS = [
 ];
 
 var TOOL_URL = 'https://hc.riseos.care/tool/';  // where people work; every notice points here, never at a tab
+var SIGN_URL = TOOL_URL + 'sign/#', LINK_DAYS = 90;
 var RECORDS = {
   root: 'Harmony Care records', all: 'All completed documents', sent: 'Sent out', done: 'Completed', staff: 'Staff file',
   role: { 'Participant': 'Participants', 'Worker': 'Workers', 'Practitioner or partner': 'Practitioners and partners' }
@@ -409,9 +410,14 @@ function sendQueued(e) {
     var last = Math.max(tracker.getLastRow(), TRACKER_FIRST);
     var rows = tracker.getRange(TRACKER_FIRST, 1, last - TRACKER_FIRST + 1, TRACKER.length).getValues();
     var reading = {};  // what one person only has to read goes in one email, not one each
+    var signing = {};  // and everything they have to sign goes behind one link
     rows.forEach(function (v, i) {
       var step = v[T['Send step']], r = TRACKER_FIRST + i;
       if (step !== 'Test' && step !== 'Send') return;
+      if (v[T['How it went out']] === SIGN_PAGE) {
+        (signing[v[T['Sent to']]] = signing[v[T['Sent to']]] || []).push({ r: r, v: v });
+        return;
+      }
       if (readOnly_(v[T['They need to']])) {
         var key = step + '|' + v[T['Sent to']];
         (reading[key] = reading[key] || []).push({ r: r, v: v });
@@ -447,7 +453,9 @@ function sendQueued(e) {
       }
     });
     Object.keys(reading).forEach(function (key) { sendReading_(tracker, reading[key]); });
+    Object.keys(signing).forEach(function (name) { sendSignLink_(tracker, name, signing[name]); });
     setUpWaiting_();
+    pdfsWaiting_();
   } finally {
     lock.releaseLock();
   }
@@ -631,9 +639,10 @@ function checkReturns(e) {
       if (!v[T['Date sent']] || v[T['Returned on']] || v[T['Signed copy']] || readOnly_(v[T['They need to']])) return;
       var r = TRACKER_FIRST + i;
       try {
-        if (v[T['How it went out']] === EMAIL && v[T['Email thread']]) {
+        var how = v[T['How it went out']];
+        if ((how === EMAIL || how === SIGN_PAGE) && v[T['Email thread']]) {  // a sign page link can still get a scan by reply
           back += fromEmail_(tracker, r, v, me, claimed) ? 1 : 0;
-        } else if (v[T['How it went out']] === ESIGN) {
+        } else if (how === ESIGN) {
           var copy = DriveApp.getFileById(fileId_(v[T['Copy sent (opens it)']]));
           var folder = copy.getParents().next();
           (waiting[folder.getId()] = waiting[folder.getId()] || { folder: folder, rows: [] })
@@ -770,12 +779,14 @@ function dailyChase(e) {
     if (chased && daysBetween_(day_(chased), today) < 7) return;
     try {
       var how = v[T['How it went out']];
-      if (how === EMAIL && v[T['Email thread']]) {
+      if ((how === EMAIL || how === SIGN_PAGE) && v[T['Email thread']]) {
         var thread = GmailApp.getThreadById(v[T['Email thread']]);
         if (thread) {
           thread.createDraftReply('Hi, just a reminder about the ' + v[T['Form']] + ' we sent on ' +
-            pretty_(sent) + '. Could you sign it and reply with the signed copy ' +
-            'when you have a moment?\n\nThank you,\nHarmony Care');
+            pretty_(sent) + (how === SIGN_PAGE
+              ? '. The link in the email below still opens it, when you have a moment.'
+              : '. Could you sign it and reply with the signed copy when you have a moment?') +
+            '\n\nThank you,\nHarmony Care');
         }
         lines.push('- ' + v[T['Form']] + ', ' + v[T['Sent to']] + ': a reminder is waiting in Gmail drafts.');
       } else if (how === BY_HAND) {
@@ -1275,6 +1286,7 @@ function route_(body) {
   var action = String(body.action || '');
   if (action === 'code') return askCode_(body);
   if (action === 'signin') return signIn_(body);
+  if (Object.prototype.hasOwnProperty.call(SIGNING, action)) return SIGNING[action](body);  // holds its own key
   var who = session_(body.token);
   if (!who) return { ok: false, signedOut: true, error: 'Please sign in again.' };
   if (!Object.prototype.hasOwnProperty.call(TOOL, action)) throw said_('The tool asked for something this script does not do.');
@@ -1451,6 +1463,25 @@ var TOOL = {
     var rows = (b.rows || []).map(theRow_);
     return { ok: true, sent: locked_(function () { return sendNow(rows); }), forms: forms_() };
   },
+  signSend: function (b) {
+    var row = Number(b.person);
+    if (!Number.isInteger(row) || row <= PEOPLE_HEAD) throw said_('That person is not on the list.');
+    var ids = theIds_(b.ids);
+    return { ok: true, items: locked_(function () { return signSend_(row, ids); }), forms: forms_() };
+  },
+  counterForm: function (b, who) {
+    var v = tab_(TABS.tracker).getRange(theRow_(b.row), 1, 1, TRACKER.length).getValues()[0];
+    var id = fileId_(v[T['Signed copy']]);
+    if (!id) throw said_('There is no signed copy to sign yet.');
+    var bytes = DriveApp.getFileById(id).getBlob().getBytes();
+    return { ok: true, title: v[T['Form']], person: v[T['Sent to']], signer: who, kinds: ['harmony', 'supervisor'],
+             pdf: Utilities.base64Encode(bytes), sha: fingerprint_(bytes) };
+  },
+  counterDone: function (b, who) {
+    var r = theRow_(b.row);
+    locked_(function () { counterSigned_(r, b, who); });
+    return { ok: true };
+  },
   requested: function (b) {
     var r = theRow_(b.row);
     locked_(function () { markRequested(r); });
@@ -1581,6 +1612,220 @@ function signedUpload_(b, who) {
   var file = doneFolder_(byName_(v[T['Sent to']])).createFile(blob).setDescription(MARK + 'signed copy added by ' + who);
   listCompleted_(file);
   returned_(tracker, r, v, file.getUrl(), '');
+}
+
+/* ------------------------------------------------------------------ the sign page */
+
+// A person signs at hc.riseos.care/tool/sign from a link in their email, with no account and no
+// permission screen. The link is the only way in: a long random key, kept here only as a hash, good for
+// one person's own forms and nothing else. The page reads the form and stamps the signed PDF in the
+// browser; this script holds no copy of a signature, only the signed PDF it files in their folder.
+
+var SIGNING = { signOpen: signOpen_, signForm: signForm_, signDone: signDone_ };
+
+function newLink_(name) {
+  var link = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  PropertiesService.getScriptProperties().setProperty('link:' + hash_(link),
+    JSON.stringify({ name: name, until: Date.now() + LINK_DAYS * 86400000 }));
+  return link;
+}
+
+function linkOwner_(link) {
+  var text = typeof link === 'string' && link.length === 64
+    ? PropertiesService.getScriptProperties().getProperty('link:' + hash_(link)) : null;
+  var held = text ? JSON.parse(text) : null;
+  if (!held || held.until < Date.now()) throw said_('This link has ended. Ask Harmony Care to send you a new one.');
+  return held.name;
+}
+
+/** Everything this person has been sent to sign, whichever link they came in on. */
+function signRows_(name) {
+  var tracker = tab_(TABS.tracker), last = Math.max(tracker.getLastRow(), TRACKER_FIRST), out = [];
+  tracker.getRange(TRACKER_FIRST, 1, last - TRACKER_FIRST + 1, TRACKER.length).getValues().forEach(function (v, i) {
+    if (v[T['Sent to']] === name && v[T['How it went out']] === SIGN_PAGE && v[T['Date sent']]) out.push({ r: TRACKER_FIRST + i, v: v });
+  });
+  return out;
+}
+
+function signRow_(body) {
+  var name = linkOwner_(body.link), r = Number(body.row);
+  var match = signRows_(name).filter(function (x) { return x.r === r; })[0];
+  if (!match) throw said_('That form is not on your list.');
+  return match;
+}
+
+function signerOf_(person) {
+  var guardian = person.guardian && person.guardianEmail;
+  if (person.role === 'Participant') return { name: guardian ? person.guardian : person.name, kinds: guardian ? ['representative', 'client'] : ['client', 'representative'] };
+  return { name: person.name, kinds: person.role === 'Worker' ? ['worker'] : ['practitioner'] };
+}
+
+function signOpen_(body) {
+  var name = linkOwner_(body.link), signer = signerOf_(byName_(name));
+  return {
+    ok: true, first: signer.name.split(' ')[0], signer: signer.name, kinds: signer.kinds,
+    forms: signRows_(name).map(function (x) {
+      return { row: x.r, title: x.v[T['Form']], need: String(x.v[T['They need to']]), done: !!x.v[T['Returned on']] };
+    })
+  };
+}
+
+function signForm_(body) {
+  var x = signRow_(body);
+  var bytes = DriveApp.getFileById(fileId_(x.v[T['Copy sent (opens it)']])).getBlob().getBytes();
+  return { ok: true, title: x.v[T['Form']], pdf: Utilities.base64Encode(bytes), sha: fingerprint_(bytes) };
+}
+
+function signDone_(body) {
+  return locked_(function () {
+    var x = signRow_(body);
+    if (x.v[T['Returned on']]) return { ok: true };  // a second press of Finish
+    var signer = String(body.name || '').trim().slice(0, 120);
+    if (!signer) throw said_('Your name is needed on the form.');
+    var file = doneFolder_(byName_(x.v[T['Sent to']])).createFile(signedBlob_(body.pdf, x.v))
+      .setDescription(MARK + 'signed on the sign page');
+    listCompleted_(file);
+    returned_(tab_(TABS.tracker), x.r, x.v, file.getUrl(), 'Signed on the sign page by ' + signer + '.');
+    log_('Signed', x.v[T['Form']] + ', ' + x.v[T['Sent to']]);
+    return { ok: true };
+  });
+}
+
+function signedBlob_(data, v) {
+  if (typeof data !== 'string' || !data) throw said_('The signed form did not arrive. Press Finish again.');
+  if (data.length > 30000000) throw said_('That form is too big to save.');
+  var bytes = Utilities.base64Decode(data);
+  if (String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]) !== '%PDF') throw said_('The signed form did not arrive. Press Finish again.');
+  return Utilities.newBlob(bytes, 'application/pdf', v[T['Form']] + ' - ' + v[T['Sent to']] + ' - signed.pdf');
+}
+
+/** Harmony's own signature goes on the signed copy, which replaces the one before it. Signing it approves it. */
+function counterSigned_(r, b, who) {
+  var tracker = tab_(TABS.tracker), v = tracker.getRange(r, 1, 1, TRACKER.length).getValues()[0];
+  var old = DriveApp.getFileById(fileId_(v[T['Signed copy']]));
+  var file = doneFolder_(byName_(v[T['Sent to']])).createFile(signedBlob_(b.pdf, v))
+    .setDescription(MARK + 'signed for Harmony by ' + who);
+  var shortcuts = allCompleted_().getFilesByName(old.getName());
+  while (shortcuts.hasNext()) shortcuts.next().setTrashed(true);
+  old.setTrashed(true);
+  listCompleted_(file);
+  tracker.getRange(r, T['Signed copy'] + 1).setValue(file.getUrl());
+  tracker.getRange(r, T['Approved by'] + 1).setValue(who);
+  stamp_(r, 'Approved on', new Date(), who);
+  log_('Signed for Harmony', v[T['Form']] + ', ' + v[T['Sent to']] + ' by ' + who);
+}
+
+function fingerprint_(bytes) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, bytes).map(function (b) {
+    return ('0' + (b & 255).toString(16)).slice(-2);
+  }).join('');
+}
+
+/** Queues the chosen forms: what they read goes as one email of links, what they sign behind one link. */
+function signSend_(row, ids) {
+  var person = setUpPerson_(person_(row), false);
+  var who = signers_(person);
+  if (who.problems.length) throw new Error(who.problems.join(' '));
+  var forms = sendGroups_(SEND_TABS[person.role]).reduce(function (all, g) { return all.concat(g.forms); }, []);
+  var started = Date.now(), out = [];
+  ids.forEach(function (id) {
+    var form = forms.filter(function (f) { return f.id === id; })[0];
+    if (!form) return out.push({ title: id, error: 'That form is not on their list.' });
+    if (Date.now() - started > TIME_BUDGET_MS) return out.push({ title: form.title, error: 'Not done in time. Tick it and send it again.' });
+    try {
+      var reading = readOnly_(form.need);
+      var r = trackRow_({
+        to: person.name, who: person.role, email: who.to.join(', '), form: form.title, need: form.need,
+        copy: reading ? openLink_(id) : 'https://drive.google.com/file/d/' + formPdf_(id, form.title) + '/view',
+        how: reading ? EMAIL : SIGN_PAGE, step: 'Send', testTo: ''
+      });
+      out.push({ title: form.title, trackerRow: r });
+    } catch (err) {
+      log_('Not queued', form.title + ' for ' + person.name + ': ' + err.message);
+      out.push({ title: form.title, error: err.message });
+    }
+  });
+  return out;
+}
+
+/** One email and one link for everything queued for this person. */
+function sendSignLink_(tracker, name, rows) {
+  var mark = function (value) {
+    rows.forEach(function (x) { tracker.getRange(x.r, T['Send step'] + 1).setValue(value); });
+  };
+  try {
+    var person = byName_(name), who = signers_(person);
+    if (who.problems.length) throw new Error(who.problems.join(' '));
+    var mail = signEmail_(person, rows, newLink_(name));
+    var thread = GmailApp.createDraft(who.to.join(','), mail.subject, mail.body, { name: setting_('Send emails as') }).send().getThread();
+    thread.addLabel(GmailApp.getUserLabelByName(LABEL) || GmailApp.createLabel(LABEL));
+    rows.forEach(function (x) {
+      date_(tracker.getRange(x.r, T['Date sent'] + 1), new Date());
+      tracker.getRange(x.r, T['Email thread'] + 1).setValue(thread.getId());
+    });
+    mark('Sent');
+    log_('Sent', rows.length + ' to sign, to ' + who.to.join(', '));
+  } catch (err) {
+    mark('Not sent: ' + err.message);
+    log_('Send failed', name + ', ' + rows.length + ' to sign: ' + err.message);
+    tell_('Not sent: forms to sign for ' + name, err.message + '\n\n' + personLink_(name));
+  }
+}
+
+function signEmail_(person, rows, link) {
+  var first = signerOf_(person).name.split(' ')[0];
+  return {
+    subject: 'Harmony Care: ' + (rows.length === 1 ? rows[0].v[T['Form']] + ' to sign' : rows.length + ' forms to sign'),
+    body: 'Hi ' + first + ',\n\nHarmony Care has ' + (rows.length === 1 ? 'a form' : rows.length + ' forms') +
+          ' for you to fill in and sign. It shows you where, and you can do it on your phone or computer. ' +
+          'You do not need an account.\n\nOpen ' + (rows.length === 1 ? 'it' : 'them') + ' here:\n' + SIGN_URL + link + '\n\n' +
+          rows.map(function (x) { return '- ' + x.v[T['Form']]; }).join('\n') + '\n\n' +
+          'Any questions, just reply here.\n\nThank you,\nHarmony Care'
+  };
+}
+
+/** The PDF of a form, made once and kept, so sending takes no time and everyone signs the same audited file. */
+function formPdf_(id, title) {
+  var props = PropertiesService.getScriptProperties(), key = 'pdf:' + id;
+  var file = DriveApp.getFileById(id), stamp = file.getLastUpdated().getTime();
+  var known = JSON.parse(props.getProperty(key) || 'null');
+  if (known && known.stamp === stamp) return known.pdf;
+  var folder = childFolder_(DriveApp.getFolderById(requireFolder_('Signing templates folder')), 'Forms as PDFs');
+  var pdf = makePdf_(file, id, title, folder);
+  props.setProperty(key, JSON.stringify({ pdf: pdf, stamp: stamp }));
+  return pdf;
+}
+
+function makePdf_(file, id, title, folder) {
+  var type = file.getMimeType();
+  if (type === 'application/pdf') return folder.createFile(file.getBlob().setName(title + '.pdf')).getId();
+  if (type.indexOf('google-apps') !== -1) return folder.createFile(file.getAs('application/pdf').setName(title + '.pdf')).getId();
+  var doc = DriveApp.getFileById(toDoc_(id, title + ' (making the PDF)', folder.getId()));
+  var pdf = folder.createFile(doc.getAs('application/pdf').setName(title + '.pdf')).getId();
+  doc.setTrashed(true);
+  return pdf;
+}
+
+/** Makes the PDFs ahead of time, a few each minute, so the first send to anyone is as quick as the rest. */
+function pdfsWaiting_() {
+  var props = PropertiesService.getScriptProperties();
+  if (props.getProperty('PDFS_READY')) return;
+  var started = Date.now(), left = false;
+  Object.keys(SEND_TABS).forEach(function (role) {
+    sendGroups_(SEND_TABS[role]).forEach(function (g) {
+      g.forms.forEach(function (f) {
+        if (readOnly_(f.need) || props.getProperty('pdf:' + f.id)) return;
+        if (Date.now() - started > 40000) { left = true; return; }
+        try {
+          formPdf_(f.id, f.title);
+        } catch (err) {
+          log_('No PDF yet', f.title + ': ' + err.message);
+          left = true;
+        }
+      });
+    });
+  });
+  if (!left) props.setProperty('PDFS_READY', '1');
 }
 
 function MimeType_(ext) {
