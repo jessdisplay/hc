@@ -1046,7 +1046,7 @@ function learnKinds_() {
         if (!id || id in kinds) return;
         try {
           var mime = DriveApp.getFileById(id).getMimeType();
-          kinds[id] = /word|document/.test(mime) ? 'd' : /sheet|excel/.test(mime) ? 's' : '';
+          kinds[id] = /sheet|excel/.test(mime) ? 's' : /word|document/.test(mime) ? 'd' : '';  // an xlsx's type says officedocument
         } catch (err) {
           log_('File not read', id + ': ' + err.message);
         }

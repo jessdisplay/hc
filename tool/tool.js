@@ -68,12 +68,13 @@
   }
   /** Runs a change, shows what went wrong in place, and redraws with what came back. */
   function act(button, action, body, done) {
-    if (button) button.disabled = true;
+    var word = button && button.textContent;
+    if (button) { button.disabled = true; button.textContent = 'Saving…'; }
     return call(action, body).then(took).then(function (res) {
       if (done) done(res);
       show();
     }).catch(function (e) {
-      if (button) button.disabled = false;
+      if (button) { button.disabled = false; button.textContent = word; }
       if (state.token) alertLine(e.message);
     });
   }
@@ -552,7 +553,6 @@
       bar.hidden = !ids.length;
       if (!ids.length) return;
       var email = h('button', { class: 'btn', type: 'button', disabled: !!p.problems.length, on: { click: function () {
-        email.textContent = 'Getting them ready. This can take a minute…';
         act(email, 'prepare', { person: row, ids: ids }, function (res) { state.ticked[row] = {}; state.working = { row: row, items: res.items }; });
       } } }, 'Send by email');
       var hand = h('button', { class: 'btn ghost', type: 'button', on: { click: function () {

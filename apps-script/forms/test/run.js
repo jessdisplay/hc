@@ -749,6 +749,16 @@ test('every file opens in Google Docs or Sheets, and a PDF stays a PDF', () => {
   const f = w.ctx.forms_();
   assert.match(f.lists.Worker[0].forms[0].url, /^https:\/\/docs\.google\.com\/document\/d\/.+\/edit$/);
   assert.strictEqual(w.ctx.openLink_('unknownfileid0000000000000'), 'https://drive.google.com/file/d/unknownfileid0000000000000/view');
+  const xlsx = w.drive.file('Audit Schedule.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', w.audited.getId());
+  const pdf = w.drive.file('Plan.pdf', 'application/pdf', w.audited.getId());
+  const s = w.ss.getSheetByName('Send to workers');
+  s.getRange(9, 1, 2, 3).setValues([[60, 'Audit Schedule', 'Sign'], [61, 'Plan', 'Sign']]);
+  s.cell(9, 2).link = xlsx.getUrl();
+  s.cell(10, 2).link = pdf.getUrl();
+  w.ctx.openLink_.kinds = null;
+  w.ctx.learnKinds_();
+  assert.match(w.ctx.openLink_(xlsx.getId()), /^https:\/\/docs\.google\.com\/spreadsheets\//, 'Excel opens in Sheets, though its type says officedocument');
+  assert.match(w.ctx.openLink_(pdf.getId()), /^https:\/\/drive\.google\.com\/file\//);
 });
 
 test('the records: a folder for each kind of person, one for everything completed, and each person set out the same', () => {
