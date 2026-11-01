@@ -133,7 +133,7 @@
     var at = location.hash.slice(1).split('/')[0] || 'forms';
     if (at === 'person') at = 'forms';
     var tab = function (key, word) { return h('a', { href: '#' + key, 'aria-current': at === key ? 'page' : null }, word); };
-    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('today', 'Today'), tab('checklist', 'Checklist'),
+    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('documents', 'Documents'), tab('today', 'Today'), tab('checklist', 'Checklist'),
       tab('staff', 'Staff files'), tab('planner', 'Year planner'), tab('rules', 'Rules')));
     nav.appendChild(h('div', { class: 'me' }, state.email, h('button', { class: 'link', type: 'button', on: { click: function () {
       call('signout').catch(function () {}).then(signedOut);
@@ -153,6 +153,7 @@
     drawNav();
     var at = location.hash.slice(1).split('/');
     if (at[0] === 'checklist') checklistPage();
+    else if (at[0] === 'documents') documentsPage();
     else if (at[0] === 'today') todayPage();
     else if (at[0] === 'person') personPage(Number(at[1]));
     else if (at[0] === 'staff') staffPage(Number(at[1]));
@@ -314,6 +315,52 @@
     return h('details', { class: 'more' }, h('summary', null, 'More about this document'), h('ul', null,
       line('Version', r.version), line('Approved by', r.approvedBy), line('Approved', r.approved), line('Last reviewed', r.reviewed ? day(r.reviewed) || r.reviewed : ''),
       line('Completed by', r.completedBy), line('Signed by', r.signedBy), line('Kept', r.kept), line('For the next audit', r.notes), line("Harmony's rule", r.rule)));
+  }
+
+  /* ---- Documents */
+
+  var SHELVES = [
+    ['Policies and procedures', ['Policy and procedure', 'Policy', 'Statement']],
+    ['Forms and agreements', ['Form', 'Agreement', 'Checklist', 'Template']],
+    ['Registers', ['Register']], ['Plans', ['Plan']], ['Records and charts', ['Record', 'Chart']],
+    ['Position descriptions', ['Position description']], ['Guides and Easy Read', ['Guidance', 'Easy Read']],
+    ['Business papers', ['Business paper']]
+  ];
+  function documentsPage() {
+    var all = allItems().filter(function (i) { return i.record || i.status === 'Missing'; });
+    var typeOf = function (i) { return i.record ? i.record.type : 'Business paper'; };
+    var filter = location.hash.split('/')[1] || 'all', list = h('div');
+    var c = counts(all, function (i) { return bucket(i.status); });
+    var stat = function (key, label, n, bad) {
+      return h('a', { class: 'stat' + (bad && n ? ' bad' : ''), href: '#documents/' + key, 'aria-pressed': filter === key ? 'true' : 'false' }, h('b', null, n), h('span', null, label));
+    };
+    var search = h('input', { type: 'search', placeholder: 'Find a document', 'aria-label': 'Find a document', value: state.find, on: { input: function () { state.find = search.value; draw(); } } });
+    function draw() {
+      list.textContent = '';
+      var word = state.find.trim().toLowerCase(), shown = 0;
+      SHELVES.forEach(function (shelf) {
+        var rows = all.filter(function (i) {
+          return shelf[1].indexOf(typeOf(i)) !== -1 && (filter === 'all' || bucket(i.status) === filter) && (!word || i.title.toLowerCase().indexOf(word) !== -1);
+        }).sort(function (a, b) { return a.title < b.title ? -1 : 1; });
+        if (!rows.length) return;
+        shown += rows.length;
+        list.appendChild(h('h2', null, shelf[0] + ': ' + rows.length));
+        list.appendChild(h('table', { class: 'stack shelf' }, h('thead', null, h('tr', null, ['Document', 'Version', 'Approved', 'Next review', 'Status'].map(function (t) { return h('th', null, t); }))),
+          h('tbody', null, rows.map(function (i) {
+            var r = i.record || {};
+            return h('tr', null, h('td', null, offFile(i.url, i.title), r.notes ? h('details', { class: 'more' }, h('summary', null, 'For the next audit'), h('p', { class: 'say' }, r.notes)) : null),
+              h('td', { 'data-h': 'Version' }, r.version), h('td', { 'data-h': 'Approved' }, [r.approved, r.approvedBy].filter(Boolean).join(', ')), h('td', { 'data-h': 'Next review' }, day(i.due)),
+              h('td', { 'data-h': 'Status' }, h('span', { class: statusClass(i.status) }, i.status), i.no && i.status !== 'Missing' ? h('span', { class: 'doit' }, h('button', { class: 'link', type: 'button', on: { click: function (e) {
+                if (window.confirm('Mark ' + i.title + ' as reviewed today?')) act(e.target, 'reviewed', { no: i.no });
+              } } }, 'Reviewed today')) : null));
+          }))));
+      });
+      if (!shown) list.appendChild(h('p', { class: 'say' }, 'Nothing matches that.'));
+    }
+    page(h('h1', null, 'Documents'), h('p', { class: 'lede' }, 'Every policy, procedure, form, register and plan from the audited set. Each opens in Google Docs. Procedures sit inside their policy.'),
+      h('div', { class: 'stats' }, stat('all', 'documents', all.length), stat('overdue', 'due for review', c.overdue || 0, true), stat('missing', 'missing', c.missing || 0, true), stat('soon', 'due soon', c.soon || 0), stat('ok', 'in date', c.ok || 0), stat('none', 'no date', c.none || 0)),
+      h('div', { class: 'tools' }, search), list);
+    draw();
   }
 
   /* ---- Send and sign */
