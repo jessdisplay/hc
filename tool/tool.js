@@ -211,6 +211,7 @@
       line(f.chase || 0, 'forms to chase', '#forms'),
       line(f.back || 0, 'forms back, to check and approve', '#forms'),
       f.failed ? line(f.failed, 'that did not send', '#forms') : null,
+      backSection(),
       h('h2', null, 'Coming up'),
       next.length ? next.map(function (i) {
         return h('p', { class: 'line' }, h('span', null, offFile(i.url, i.title)), h('span', { class: 'say' }, day(i.due)));
@@ -218,6 +219,17 @@
       h('h2', null, 'People'),
       people ? h('p', { class: 'say' }, plural(people, 'person', 'people') + ' on your list. ', h('a', { href: '#forms' }, 'See who has what'))
         : h('p', { class: 'say' }, 'Nobody is on your list yet. ', h('a', { href: '#forms' }, 'Add your first person'), ' to start sending forms.'));
+  }
+
+  /** What has come back and is waiting on someone here, named, so nobody has to go looking. */
+  function backSection() {
+    var back = state.forms.sends.filter(function (s) { return s.standing === 'back'; });
+    if (!back.length) return null;
+    return [h('h2', null, 'Signed and back'), back.map(function (s) {
+      var p = state.forms.people.filter(function (x) { return x.name === s.to; })[0];
+      return h('p', { class: 'line' }, h('span', null, p ? h('a', { href: '#person/' + p.row }, s.form + ', from ' + s.to) : s.form + ', from ' + s.to),
+        h('span', { class: 'say' }, 'Back ' + day(s.back)));
+    })];
   }
 
   /* ---- Checklist */

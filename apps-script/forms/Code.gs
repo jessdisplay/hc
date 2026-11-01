@@ -76,6 +76,7 @@ var SETTINGS = [
   ['Chase after (days)', 14, 'A form not back after this many days gets a reminder drafted in Gmail.']
 ];
 
+var TOOL_URL = 'https://hc.riseos.care/tool/';  // where people work; every notice points here, never at a tab
 var TIME_BUDGET_MS = 4.5 * 60 * 1000;  // Apps Script stops a run at 6 minutes
 var TIMERS = ['sendQueued', 'checkReturns', 'dailyChase', 'mondayDigest'];
 
@@ -164,7 +165,7 @@ function setup() {
     }
   });
   ScriptApp.newTrigger('sendQueued').timeBased().everyMinutes(1).create();
-  ScriptApp.newTrigger('checkReturns').timeBased().everyHours(1).create();
+  ScriptApp.newTrigger('checkReturns').timeBased().everyMinutes(15).create();
   ScriptApp.newTrigger('dailyChase').timeBased().everyDays(1).atHour(8).inTimezone(TZ).create();
   ScriptApp.newTrigger('mondayDigest').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8)
     .inTimezone(TZ).create();
@@ -175,7 +176,7 @@ function setup() {
   ui_('Set up is done. Emails now go out from ' + me + '.' +
       (moved ? ' ' + before + ' no longer sends anything.' : '') +
       (shared.length ? '\n\nThe two forms folders are now shared with: ' + shared.join(', ') + '.' : '') +
-      '\n\nNext: type people into the People tab, then Harmony forms > Make signing templates.');
+      '\n\nNext: deploy the web app, then add people in the tool: ' + TOOL_URL);
 }
 
 
@@ -430,8 +431,7 @@ function sendQueued(e) {
         log_('Send failed', 'Row ' + r + ': ' + err.message);
         tell_('Not sent: ' + v[T['Form']] + ' to ' + v[T['Sent to']],
               v[T['Form']] + ' to ' + v[T['Sent to']] + ' did not go out: ' + err.message + '\n\n' +
-              "Fix it, then make it again from Send forms. Row " + r + " of 'Sent and returned'.\n" +
-              book_().getUrl());
+              'Fix it, then send it again from their page:\n' + personLink_(v[T['Sent to']]));
       }
     });
     Object.keys(reading).forEach(function (key) { sendReading_(tracker, reading[key]); });
@@ -467,7 +467,7 @@ function sendReading_(tracker, rows) {
   } catch (err) {
     mark('Not sent: ' + err.message);
     log_('Send failed', first[T['Sent to']] + ', ' + rows.length + ' to read: ' + err.message);
-    tell_('Not sent: documents to read for ' + first[T['Sent to']], err.message + '\n\n' + book_().getUrl());
+    tell_('Not sent: documents to read for ' + first[T['Sent to']], err.message + '\n\n' + personLink_(first[T['Sent to']]));
   }
 }
 
@@ -676,8 +676,8 @@ function fromFolder_(tracker, group, claimed) {
       log_('Unmatched signed file', f.getName() + ' ' + f.getUrl());
       tell_('A signed file to match: ' + f.getName(),
             'A new signed PDF arrived in ' + group.folder.getName() + ' and more than one form there is ' +
-            'waiting, so it was not matched.\n\nOpen it: ' + f.getUrl() + '\n\nType the date in ' +
-            "'Returned on' on the right row of 'Sent and returned', and paste the link in 'Signed copy'.");
+            'waiting, so it was not matched.\n\nOpen it: ' + f.getUrl() + '\n\n' +
+            'Then press Mark as back on the right form on their page:\n' + TOOL_URL + '#forms');
       return;
     }
     claimed[f.getId()] = true;
@@ -696,9 +696,8 @@ function returned_(tracker, r, v, url, note) {
     tracker.getRange(r, T['Notes'] + 1).setValue((notes ? notes + ' ' : '') + note);
   }
   tell_('Signed and back: ' + v[T['Form']] + ' from ' + v[T['Sent to']],
-        v[T['Sent to']] + ' has returned ' + v[T['Form']] + '.\n\nOpen it: ' + url + '\n\n' +
-        "Check it, then type who approved it and when in 'Sent and returned' (row " + r + ').\n' +
-        book_().getUrl());
+        v[T['Sent to']] + ' has returned ' + v[T['Form']] + '.\n\nOpen the signed copy: ' + url + '\n\n' +
+        'Check it, then approve it here:\n' + personLink_(v[T['Sent to']]));
 }
 
 
@@ -745,8 +744,7 @@ function dailyChase(e) {
   });
   if (lines.length) {
     tell_(lines.length + ' form' + (lines.length > 1 ? 's' : '') + ' to chase',
-          'Out for ' + days + ' days or more and not back yet:\n\n' + lines.join('\n') + '\n\n' +
-          book_().getUrl());
+          'Out for ' + days + ' days or more and not back yet:\n\n' + lines.join('\n') + '\n\n' + TOOL_URL + '#forms');
     log_('Chased', lines.length + ' forms');
   }
 }
@@ -773,8 +771,7 @@ function mondayDigest(e) {
   tell_('Harmony Care this week: ' + now.length + ' overdue or missing, ' + soon.length + ' due soon',
         'Overdue or missing (' + now.length + '):\n' + (now.join('\n') || '- nothing') + '\n\n' +
         'Due in the next 30 days (' + soon.length + '):\n' + (soon.join('\n') || '- nothing') + '\n\n' +
-        'Forms out and not back: ' + out + '. Back and waiting for approval: ' + approve + '.\n\n' +
-        book_().getUrl());
+        'Forms out and not back: ' + out + '. Back and waiting for approval: ' + approve + '.\n\n' + TOOL_URL);
 }
 
 /** The menu item: today's date in 'Last reviewed' for the document on the selected row. */
@@ -1069,6 +1066,15 @@ function tell_(subject, body) {
     MailApp.sendEmail({ to: to.join(','), subject: subject, body: body, name: setting_('Send emails as') });
   } catch (err) {
     log_('Notice failed', subject + ': ' + err.message);
+  }
+}
+
+/** The address of one person's page in the tool, or the tool if they have since left the list. */
+function personLink_(name) {
+  try {
+    return TOOL_URL + '#person/' + byName_(name).row;
+  } catch (err) {
+    return TOOL_URL + '#forms';
   }
 }
 
