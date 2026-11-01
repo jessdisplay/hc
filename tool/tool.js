@@ -600,14 +600,17 @@
       var ids = count();
       bar.hidden = !ids.length;
       if (!ids.length) return;
-      var email = h('button', { class: 'btn', type: 'button', disabled: !!p.problems.length, on: { click: function () {
+      var sign = h('button', { class: 'btn', type: 'button', disabled: !!p.problems.length, on: { click: function () {
+        act(sign, 'signSend', { person: row, ids: ids }, function (res) { state.ticked[row] = {}; state.working = { row: row, items: res.items, signing: true }; });
+      } } }, 'Send to sign');
+      var email = h('button', { class: 'btn ghost', type: 'button', disabled: !!p.problems.length, on: { click: function () {
         act(email, 'prepare', { person: row, ids: ids }, function (res) { state.ticked[row] = {}; state.working = { row: row, items: res.items }; });
-      } } }, 'Send by email');
+      } } }, 'By email or Google eSignature');
       var hand = h('button', { class: 'btn ghost', type: 'button', on: { click: function () {
         act(hand, 'handed', { person: row, ids: ids }, function () { state.ticked[row] = {}; });
       } } }, 'Handed over in person');
       bar.appendChild(h('b', null, plural(ids.length, 'ticked', 'ticked')));
-      bar.appendChild(email); bar.appendChild(hand);
+      bar.appendChild(sign); bar.appendChild(email); bar.appendChild(hand);
       if (p.problems.length) bar.appendChild(h('span', { class: 'bad' }, 'Fix their email first.'));
     }
     var boxes = [];
@@ -631,7 +634,7 @@
       h('p', { class: 'row say' }, h('button', { class: 'link', type: 'button', on: { click: function () { editing.textContent = ''; editing.appendChild(personForm(p)); } } }, 'Change their details'),
         p.folder ? offFile(p.folder, 'Open their folder') : h('span', null, 'Their folder is being made'),
         p.role === 'Worker' ? h('a', { href: '#staff/' + p.row }, 'Their staff file') : null), editing,
-      w ? testPanel(p, w) : null, content, bar);
+      w ? (state.working.signing ? signPanel(p, w) : testPanel(p, w)) : null, content, bar);
     drawBar();
   }
   function formRow(form, send, ticked, boxes, drawBar) {
@@ -645,6 +648,7 @@
     };
     if (send) {
       if (send.standing === 'out' || send.standing === 'chase') acts.push(button('Mark as back', 'back'));
+      if (send.standing === 'back' && send.how === 'Sign page') acts.push(h('a', { href: 'sign/#staff/' + send.row }, 'Sign for Harmony'));
       if (send.standing === 'back') { acts.push(button('Approve', 'approve')); acts.push(button('Not back yet', 'back', true)); }
       if (send.standing === 'done') acts.push(button('Not approved yet', 'approve', true));
       if (send.signed) acts.push(offFile(send.signed, 'Open the signed copy'));
@@ -675,6 +679,12 @@
     } } });
     label = h('label', { class: 'link' }, 'Add the signed copy', input);
     return label;
+  }
+  function signPanel(p, items) {
+    var bad = items.filter(function (i) { return i.error; }), good = items.length - bad.length;
+    return h('div', { class: 'note' },
+      good ? h('p', null, plural(good, 'form') + ' on the way to ' + p.name.split(' ')[0] + ', within a minute, in one email. You will hear as soon as each one is signed.') : null,
+      bad.length ? h('ul', null, bad.map(function (i) { return h('li', { class: 'bad' }, i.title + ': ' + i.error); })) : null);
   }
   function testPanel(p, items) {
     var bad = items.filter(function (i) { return i.error; });
