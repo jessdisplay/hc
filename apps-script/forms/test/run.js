@@ -1258,6 +1258,8 @@ test('sign page: signing fills the date and name that belong with it, not every 
   assert.strictEqual(partner([farAlong, name], sign, 'name'), name);
   assert.strictEqual(partner([row(300, 470, 'date')], sign, 'date').y, 470, 'stacked under the signature');
   assert.strictEqual(partner([row(300, 528, 'name')], sign, 'name').y, 528, 'stacked over a tall signature row');
+  assert.strictEqual(partner([row(300, 420, 'name')], sign, 'name').y, 420, 'a printed name a little way under the signature');
+  assert.strictEqual(partner([row(300, 420, 'date')], sign, 'date'), null, 'a date that far away is another block\u2019s');
   assert.strictEqual(partner([Object.assign(beside, { value: { text: 'x' } })], sign, 'date'), null, 'never over something written');
 });
 
