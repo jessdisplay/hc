@@ -714,9 +714,12 @@
 
   /* ---- Staff files */
 
+  /** Slow pages answer seconds later. By then the person may be on another tab, and that page must stay put. */
   function waiting(promise, draw) {
+    var asked = location.hash, here = function () { return location.hash === asked; };
     page(h('p', { class: 'say' }, 'Loading…'));
-    promise.then(draw).catch(function (e) { if (state.token) page(h('p', { class: 'note bad', role: 'alert' }, e.message)); });
+    promise.then(function (res) { if (here()) draw(res); })
+      .catch(function (e) { if (state.token && here()) page(h('p', { class: 'note bad', role: 'alert' }, e.message)); });
   }
   function staffPage(row) {
     if (row) return waiting(call('staffFile', { person: row }), function (res) { staffFile(row, res.data); });
