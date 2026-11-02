@@ -1871,9 +1871,10 @@ function listFor_(role) {
   var templates = templates_();
   return sendGroups_(name).map(function (g) {
     return { name: g.name, forms: g.forms.map(function (f) {
-      var t = templates[f.id], reading = readOnly_(f.need);
+      var t = templates[f.id], reading = readOnly_(f.need), fields = !!t && t.ready && !reading;
       return { id: f.id, title: f.title, need: f.need, when: f.when, fills: f.fills, signs: f.signs, reading: reading,
-               how: t && t.ready && !reading ? ESIGN : EMAIL, url: openLink_(f.id) };
+               how: fields ? ESIGN : EMAIL, url: openLink_(f.id),
+               signing: fields ? 'https://docs.google.com/document/d/' + t.id + '/edit' : '' };
     }) };
   });
 }

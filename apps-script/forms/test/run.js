@@ -310,6 +310,20 @@ test('our own sent email in the thread is never taken as the reply', () => {
   assert.strictEqual(w.mail.length, 0);
 });
 
+test('a form with its signature fields opens its signing copy, and any other form opens the audited file', () => {
+  const w = ready();
+  w.ctx.makeTemplates();
+  const t = w.ss.getSheetByName('Signing templates');
+  const find = (title) => w.ctx.listFor_('Worker').reduce((all, g) => all.concat(g.forms), []).find((f) => f.title === title);
+  assert.strictEqual(find('Worker Declarations').signing, '', 'no fields placed yet');
+  const row = [5, 6, 7, 8].find((r) => t.getRange(r, 1).getValue() === 'Worker Declarations');
+  t.getRange(row, 4).setValue(true);
+  const copy = w.ctx.fileId_(t.getRange(row, 3).getValue());
+  assert.strictEqual(find('Worker Declarations').signing, 'https://docs.google.com/document/d/' + copy + '/edit');
+  assert.ok(find('Worker Declarations').url.indexOf(copy) === -1, 'the audited file stays the url');
+  assert.strictEqual(find('Pre Employment Collection Form').signing, '', 'a form without fields keeps its original');
+});
+
 test('templates: one Google Doc per form; a ticked one sends by eSignature and its signed PDF is matched', () => {
   const w = ready();
   w.ctx.makeTemplates();
