@@ -40,6 +40,8 @@ a{color:var(--forest)}
 .nav .l:hover{text-decoration:underline}
 .nav .l{white-space:nowrap}
 @media(max-width:40rem){.nav{gap:.9rem}.nav .home img{height:2.5rem}.nav .doc-type{display:none}.nav .l{font-size:.8125rem}}
+/* Three links will not sit beside the logo on a phone, so the hub gives them their own line. */
+@media(max-width:40rem){.nav.hub{flex-wrap:wrap;row-gap:.5rem}.nav.hub .home{flex-basis:100%}}
 .nav .doc-type{font-family:var(--sans);font-size:.8125rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--forest)}
 
 /* Title block, like the first page of a Harmony document. */
