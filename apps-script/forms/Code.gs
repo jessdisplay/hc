@@ -1155,9 +1155,27 @@ function book_() {
 }
 
 function tab_(name) {
-  var sheet = book_().getSheetByName(name);
-  if (!sheet) throw new Error("There is no '" + name + "' tab. Run Harmony forms > Set up, or check its name.");
+  var book = book_(), sheet = book.getSheetByName(name) || sameName_(book, name);
+  if (!sheet && name === TABS.everything) sheet = everythingByHeadings_(book);
+  if (!sheet) {
+    throw new Error("The Sheet has no '" + name + "' tab, and the tool needs it. If it was renamed, change it back. " +
+                    'If it was deleted, open the Sheet and restore it from File > Version history.');
+  }
   return sheet;
+}
+
+/** A stray space or a capital in a tab's name should not stop the tool. */
+function sameName_(book, name) {
+  return book.getSheets().filter(function (s) { return s.getName().trim().toLowerCase() === name.toLowerCase(); })[0] || null;
+}
+
+/** Everything under another name: Checklist shares these headings but starts with No. */
+function everythingByHeadings_(book) {
+  return book.getSheets().filter(function (s) {
+    if (s.getLastRow() < 5 || s.getLastColumn() < 2) return false;
+    var head = s.getRange(5, 1, 1, s.getLastColumn()).getValues()[0].map(String);
+    return head[0] === 'Practice Standard' && head.indexOf('Next due') !== -1;
+  })[0] || null;
 }
 
 function ensureTab_(ss, name, title, intro, headRow, head) {

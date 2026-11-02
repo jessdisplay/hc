@@ -310,6 +310,19 @@ test('our own sent email in the thread is never taken as the reply', () => {
   assert.strictEqual(w.mail.length, 0);
 });
 
+test('Everything survives a stray space or a new name, and if it is gone the error says how to get it back', () => {
+  const w = ready();
+  const sheet = w.ss.getSheetByName('Everything');
+  const list = w.ss.insertSheet('List');
+  list.getRange(5, 1, 1, 3).setValues([['No.', 'Practice Standard', 'Next due']]);
+  sheet.name = 'Everything ';
+  assert.strictEqual(w.ctx.tab_('Everything'), sheet);
+  sheet.name = 'All Documents';
+  assert.strictEqual(w.ctx.tab_('Everything'), sheet);
+  sheet.getRange(5, 1).setValue('Something else');
+  assert.throws(() => w.ctx.tab_('Everything'), /restore it from File > Version history/);
+});
+
 test('a form with its signature fields opens its signing copy, and any other form opens the audited file', () => {
   const w = ready();
   w.ctx.makeTemplates();

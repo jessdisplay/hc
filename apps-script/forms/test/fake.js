@@ -283,6 +283,7 @@ class Spreadsheet {
   }
   createTextFinder(text) { return new Finder(this.sheets, text); }
   getSheetByName(n) { return this.sheets.find((s) => s.name === n) || null; }
+  getSheets() { return this.sheets; }
   rename(sheet, n) {
     if (this.getSheetByName(n)) throw new Error('A sheet with the name "' + n + '" already exists.');
     sheet.name = n;
