@@ -931,6 +931,26 @@ test("the tool's classes only share a name with team.css on purpose, because tea
   assert.deepStrictEqual([...used].filter((c) => team.has(c) && !meant.includes(c)), []);
 });
 
+test('a slow page that answers after the person has moved on never draws over the page they went to', () => {
+  const tool = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'tool/tool.js'), 'utf8');
+  const drawn = [];
+  const ctx = vm.createContext({ location: { hash: '#staff' }, state: { token: 't' }, h: (tag, attrs, words) => words, page: (words) => drawn.push(words) });
+  vm.runInContext(tool.match(/function waiting[\s\S]*?\n  }\n/)[0], ctx);
+  const later = () => { const p = { then: (ok) => { p.ok = ok; return { catch: (no) => { p.no = no; } }; } }; return p; };
+  const answer = later(), refused = later();
+  ctx.waiting(answer, () => drawn.push('Staff files'));
+  ctx.waiting(refused, () => drawn.push('Staff files'));
+  assert.deepStrictEqual(drawn, ['Loading…', 'Loading…']);
+  ctx.location.hash = '#rules';
+  answer.ok({});
+  refused.no(new Error('The list is busy'));
+  assert.deepStrictEqual(drawn, ['Loading…', 'Loading…'], 'the page they moved to stays as it is');
+  ctx.location.hash = '#staff';
+  answer.ok({});
+  refused.no(new Error('The list is busy'));
+  assert.deepStrictEqual(drawn.slice(2), ['Staff files', 'The list is busy'], 'still on the page, so the answer and the error both show');
+});
+
 const signedPdf = Buffer.from('%PDF-1.7 signed').toString('base64');
 const fileIdOf = (url) => String(url).match(/\/d\/([^/]+)/)[1];
 function sentToSign(w, person = 5, ids = [w.forms.decl.getId(), w.forms.preEmp.getId()]) {
