@@ -76,7 +76,6 @@ td input[type=date]{font-family:var(--sans);font-size:.9375rem;padding:.25rem .3
    headings under the one salmon accent, sage modules, the standards on cream. */
 :root{--blush:#F6D0C8;--salmon:#C6746F;--band:var(--sage)}
 @media screen and (prefers-color-scheme:dark){:root:not([data-theme="light"]){--blush:#4A2F2C;--salmon:#D08F89;--band:#3A4633}}
-.mapsheet{max-width:64rem}
 .maphead{background:var(--forest);color:var(--paper);font:700 1.25rem/1.25 var(--serif);padding:.9rem .6rem;margin-top:.75rem}
 table.map{table-layout:fixed;margin:0;font-size:.8125rem;line-height:1.3}
 table.map th{background:var(--blush);color:var(--forest);border:1px solid var(--sage);border-bottom:2px solid var(--salmon);padding:.4rem .35rem;position:sticky;top:0;z-index:1}
@@ -88,7 +87,7 @@ table.map td.out{white-space:pre-line}
 table.map .clause{display:block;color:var(--mid);font-size:.6875rem;margin-top:.2rem}
 table.map td p{margin:0}
 .nav .me .link{white-space:nowrap}
-.mapframe{display:block;width:100%;height:min(78vh,60rem);margin-top:.75rem;border:1px solid var(--sage);background:#fff}
+.mapframe{display:block;width:100%;height:max(30rem,calc(100vh - 14rem));margin-top:.75rem;border:1px solid var(--sage);background:#fff}
 table.map td a{text-decoration-color:var(--sage);text-underline-offset:2px}
 table.map td.ind{padding-block:0}
 table.map td.ind p{border-bottom:1px solid var(--rule);margin:0 -.35rem;padding:.25rem .35rem}
@@ -103,7 +102,6 @@ table.map td.ind p:last-child{border-bottom:0}
   .nav .home img{height:2.6rem}
   #main{padding:0}
   .nav,.maphead,table.map th,table.map tr.band td,table.map td.stdname{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .mapsheet{max-width:none}
   .maphead{font-size:13pt;padding:.5rem .6rem;margin-top:0}
   table.map{font-size:7.5pt;line-height:1.25}
   table.map th{position:static;padding:.3rem .3rem}
