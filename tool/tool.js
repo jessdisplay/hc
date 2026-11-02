@@ -324,6 +324,14 @@
   /** Every Practice Standard on one page, in the same five columns as the 2023 checklist: each document under
       every standard it serves, and no Harmony to-dos, because this page goes to auditors. */
   function fullPage() {
+    var list = window.HC_TOOL_LIST, view = location.hash.split('/')[1] || (list && window.innerWidth >= 768 ? 'sheet' : 'page');
+    var pick = function (key, word) { return view === key ? h('b', null, word) : h('a', { href: '#full/' + key }, word); };
+    var views = list ? h('p', { class: 'say no-print' }, pick('sheet', 'Spreadsheet'), '  |  ', pick('page', 'Page view')) : null;
+    if (list && view === 'sheet') {
+      var sheet = 'https://docs.google.com/spreadsheets/d/' + list;
+      return page(views, h('iframe', { class: 'mapframe', title: 'The full checklist as a spreadsheet', src: sheet + '/preview' }),
+        h('p', { class: 'say' }, offFile(sheet + '/export?format=xlsx', 'Download the Excel')));
+    }
     var map = window.HC_STANDARDS, known = {};
     state.checklist.modules.forEach(function (m) { m.standards.forEach(function (s) { s.items.forEach(function (i) { if (i.no) known[i.no] = i; }); }); });
     var line = function (i) { return h('p', null, offFile(i.url, (i.no ? i.no + '. ' : '') + i.title)); };
@@ -360,7 +368,7 @@
         if (s.name === map.added.after) rows.push(row(map.added));
       });
     });
-    page(h('div', { class: 'mapsheet' }, h('p', { class: 'row no-print' }, h('button', { class: 'btn ghost', type: 'button', on: { click: function () { window.print(); } } }, 'Print or save as a PDF')),
+    page(views, h('div', { class: 'mapsheet' }, h('p', { class: 'row no-print' }, h('button', { class: 'btn ghost', type: 'button', on: { click: function () { window.print(); } } }, 'Print or save as a PDF')),
       h('div', { class: 'maphead' }, 'Harmony Care Support Services, Compliance Checklist'),
       h('table', { class: 'map' }, h('thead', null, h('tr', null, ['Practice Standard', 'Outcome', 'Indicators to be demonstrated', 'Policies and other documents', 'Evidence/Information to be provided by Harmony Care'].map(function (t) { return h('th', null, t); }))),
         h('tbody', null, rows))));
