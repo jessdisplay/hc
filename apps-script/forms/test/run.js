@@ -1187,6 +1187,57 @@ test('sign page: a tall label with an empty cell beside it gets one box, in that
   assert.ok(signs[0].x > 220);
 });
 
+test('sign page: a Google field is the blank: the box sits on its line, not beside the label', () => {
+  const { findSpots, cellsOf, fieldsOf, mine } = require('../../../tool/sign/find.js');
+  const OPS = { save: 1, restore: 2, transform: 3, constructPath: 4, rectangle: 19, moveTo: 13, lineTo: 14, curveTo: 15, curveTo2: 16, curveTo3: 17, fill: 20, stroke: 21, setFillRGBColor: 22 };
+  const field = (x, y, w, h) => [
+    [OPS.setFillRGBColor, [255, 255, 255]], [OPS.constructPath, [[OPS.rectangle], [x, y, w, h]]], [OPS.fill, []],
+    [OPS.constructPath, [[OPS.moveTo, OPS.lineTo], [x, y, x + w, y]]], [OPS.stroke, []]
+  ];
+  const ops = field(36, 600, 129, 31).concat(field(168, 600, 129, 31), field(36, 540, 129, 31));
+  const fns = ops.map((o) => o[0]), args = ops.map((o) => o[1]);
+  assert.strictEqual(fieldsOf(fns, args, OPS).length, 3);
+  const cells = cellsOf(fns, args, OPS, 595, 842);
+  assert.strictEqual(cells.length, 0, 'a field is not a table cell');
+  const t = (str, x, y, width) => ({ str, width, height: 10, transform: [10, 0, 0, 10, x, y] });
+  const spots = findSpots([
+    t('Signed by the Worker:', 36, 650, 100), t('Signature', 36, 586, 45), t('Employee\u2019s signature', 36, 562, 90), t('Name (please print)', 36, 526, 90)
+  ], 595, cells, fieldsOf(fns, args, OPS));
+  assert.strictEqual(spots.filter((s) => s.type === 'sign').length, 1, 'one box, and no stray one beside the label');
+  const [sign, date, name] = spots;
+  assert.deepStrictEqual([sign.type, sign.x, sign.y, sign.who], ['sign', 36, 600, 'worker']);
+  assert.deepStrictEqual([date.type, date.x], ['date', 168], 'the field beside a signature is its date');
+  assert.deepStrictEqual([name.type, name.y], ['name', 540]);
+  assert.strictEqual(mine(spots, ['worker']).length, 1);
+  const walled = findSpots([t('Signed by the Client:', 36, 650, 100), t('Signature', 36, 586, 45)], 595, [{ x: 30, y: 500, w: 500, h: 200 }], [{ x: 36, y: 600, w: 129, h: 31 }]);
+  assert.deepStrictEqual(walled.filter((s) => s.type === 'sign').map((s) => [s.x, s.y, s.who]), [[36, 600, 'client']], 'a block inside one big bordered cell still uses its field');
+  const dated = findSpots([t('Signature', 36, 586, 45), t('Date:', 300, 586, 24)], 595, [], [{ x: 36, y: 600, w: 129, h: 31 }, { x: 168, y: 600, w: 129, h: 31 }]);
+  assert.deepStrictEqual(dated.filter((s) => s.type === 'date').map((s) => s.y < 600), [true], 'the printed Date: wins over a field that only sits beside the signature');
+  const named = findSpots([t('Incident Manager:', 36, 610, 90)], 595, [], [{ x: 130, y: 604, w: 129, h: 31 }]);
+  assert.deepStrictEqual([named[0].type, named[0].who], ['sign', 'supervisor'], 'a field that names a person is that person signing');
+});
+
+test('sign page: headings, questions and cross references are not places to sign', () => {
+  const { findSpots } = require('../../../tool/sign/find.js');
+  const t = (str, x, y, width) => ({ str, width, height: 10, transform: [10, 0, 0, 10, x, y] });
+  const asked = findSpots([t('Client signature on', 40, 650, 90), t('roster obtained?', 40, 638, 80)], 595, [{ x: 36, y: 630, w: 160, h: 40 }, { x: 196, y: 630, w: 300, h: 40 }]);
+  assert.deepStrictEqual(asked.filter((s) => s.type === 'sign'), [], 'a question over two lines');
+  const row = findSpots([t('Worker signature', 40, 650, 90)], 595, [{ x: 36, y: 630, w: 160, h: 40 }, { x: 196, y: 652, w: 300, h: 14 }]);
+  assert.strictEqual(row.filter((s) => s.type === 'sign').length, 1);
+  assert.strictEqual(row[0].h, 36, 'the box fills the row, not the one thin line inside it');
+  const spots = findSpots([
+    t('7.', 36, 700, 10), t('SIGNATURE', 72, 700, 60),
+    t('See signatures and dates section of', 36, 660, 160),
+    t('Client (or nominee) signature obtained?', 36, 620, 170)
+  ], 595);
+  assert.deepStrictEqual(spots.filter((s) => s.type === 'sign'), []);
+  const named = findSpots([t('Name :', 36, 600, 30), t('......................', 70, 600, 150), t('Signature:', 36, 576, 45), t('......................', 84, 576, 150)], 595);
+  assert.deepStrictEqual(named.map((s) => s.type), ['name', 'sign'], 'the line over Signature: is the name when it says so');
+  const client = findSpots([t('......................', 36, 600, 180), t('Client Signature', 36, 584, 80)], 595);
+  assert.strictEqual(client.length, 1, 'a label under its line signs that line');
+  assert.deepStrictEqual([client[0].type, client[0].who], ['sign', 'client']);
+});
+
 test('sign page: more than three boxes is a repeating record, and initials give way to a signature', () => {
   const { mine } = require('../../../tool/sign/find.js');
   const box = (who, more) => Object.assign({ type: 'sign', who, page: 1 }, more);

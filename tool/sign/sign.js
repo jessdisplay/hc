@@ -114,7 +114,7 @@
           return Promise.all([p.getTextContent(), p.getOperatorList()]).then(function (got) {
             var view = p.getViewport({ scale: 1 });
             var cells = HCFind.cellsOf(got[1].fnArray, got[1].argsArray, OPS, view.width, view.height);
-            var spots = HCFind.findSpots(got[0].items, view.width, cells);
+            var spots = HCFind.findSpots(got[0].items, view.width, cells, HCFind.fieldsOf(got[1].fnArray, got[1].argsArray, OPS));
             spots.forEach(function (x) { x.page = n; });
             sheets.push({ n: n, pdf: p, w: view.width, h: view.height, spots: spots });
             return next(n + 1);
