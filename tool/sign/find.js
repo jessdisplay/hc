@@ -74,37 +74,61 @@
     return '';
   }
 
-  /** Table cells, from the rectangles the PDF draws them with: pdf.js operator list in, boxes in points out. */
-  function cellsOf(fns, args, OPS, width, height) {
-    var ctm = [1, 0, 0, 1, 0, 0], stack = [], seen = {}, cells = [];
+  /** Every rectangle a page draws, in points, and the fields Google's eSignature leaves: a white box with a line along its foot. */
+  function drawn(fns, args, OPS) {
+    var ctm = [1, 0, 0, 1, 0, 0], stack = [], boxes = [], fields = [], white = false, last = null;
     var times = function (m, n) {
       return [m[0] * n[0] + m[2] * n[1], m[1] * n[0] + m[3] * n[1], m[0] * n[2] + m[2] * n[3], m[1] * n[2] + m[3] * n[3],
               m[0] * n[4] + m[2] * n[5] + m[4], m[1] * n[4] + m[3] * n[5] + m[5]];
     };
+    var point = function (x, y) { return [ctm[0] * x + ctm[2] * y + ctm[4], ctm[1] * x + ctm[3] * y + ctm[5]]; };
     var skip = {};
-    skip[OPS.moveTo] = skip[OPS.lineTo] = 2;
     skip[OPS.curveTo] = 6;
     skip[OPS.curveTo2] = skip[OPS.curveTo3] = 4;
     fns.forEach(function (fn, i) {
-      if (fn === OPS.save) stack.push(ctm);
-      else if (fn === OPS.restore) ctm = stack.pop() || ctm;
+      if (fn === OPS.save) stack.push([ctm, white]);
+      else if (fn === OPS.restore) { var was = stack.pop(); if (was) { ctm = was[0]; white = was[1]; } }
       else if (fn === OPS.transform) ctm = times(ctm, args[i]);
+      else if (fn === OPS.setFillRGBColor) white = args[i][0] === 255 && args[i][1] === 255 && args[i][2] === 255;
       else if (fn === OPS.constructPath) {
-        var at = 0, c = args[i][1];
+        var at = 0, c = args[i][1], from = null;
         args[i][0].forEach(function (op) {
-          if (op !== OPS.rectangle) { at += skip[op] || 0; return; }
-          var x1 = ctm[0] * c[at] + ctm[2] * c[at + 1] + ctm[4], y1 = ctm[1] * c[at] + ctm[3] * c[at + 1] + ctm[5];
-          var x2 = ctm[0] * (c[at] + c[at + 2]) + ctm[2] * (c[at + 1] + c[at + 3]) + ctm[4];
-          var y2 = ctm[1] * (c[at] + c[at + 2]) + ctm[3] * (c[at + 1] + c[at + 3]) + ctm[5];
-          at += 4;
-          var box = { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
-          var key = [box.x, box.y, box.w, box.h].map(Math.round).join();
-          var inPage = box.y > 34 && box.y + box.h < height - 34 && box.w < width - 60;
-          if (box.w >= 36 && box.h >= 12 && inPage && !seen[key]) { seen[key] = true; cells.push(box); }
+          if (op === OPS.rectangle) {
+            var p = point(c[at], c[at + 1]), q = point(c[at] + c[at + 2], c[at + 1] + c[at + 3]);
+            at += 4;
+            var box = { x: Math.min(p[0], q[0]), y: Math.min(p[1], q[1]), w: Math.abs(q[0] - p[0]), h: Math.abs(q[1] - p[1]) };
+            boxes.push(box);
+            if (white && fns[i + 1] === OPS.fill) last = box;
+          } else if (op === OPS.moveTo) { from = point(c[at], c[at + 1]); at += 2; }
+          else if (op === OPS.lineTo) {
+            var to = point(c[at], c[at + 1]);
+            at += 2;
+            if (last && from && Math.abs(from[0] - last.x) < 1 && Math.abs(to[0] - from[0] - last.w) < 1 && Math.abs(from[1] - last.y) < 2.5) {
+              last.field = true;
+              fields.push(last);
+              last = null;
+            }
+            from = to;
+          } else at += skip[op] || 0;
         });
       }
     });
+    return { boxes: boxes, fields: fields };
+  }
+
+  /** Table cells, from the rectangles the PDF draws them with: pdf.js operator list in, boxes in points out. */
+  function cellsOf(fns, args, OPS, width, height) {
+    var seen = {}, cells = [];
+    drawn(fns, args, OPS).boxes.forEach(function (box) {
+      var key = [box.x, box.y, box.w, box.h].map(Math.round).join();
+      var inPage = box.y > 34 && box.y + box.h < height - 34 && box.w < width - 60;
+      if (box.w >= 36 && box.h >= 12 && inPage && !box.field && !seen[key]) { seen[key] = true; cells.push(box); }
+    });
     return oneOfEach(cells);
+  }
+
+  function fieldsOf(fns, args, OPS) {
+    return drawn(fns, args, OPS).fields;
   }
 
   function shared(a, b) {
@@ -146,6 +170,7 @@
   }
 
   function kindOf(label) {
+    if (/\?$/.test(label)) return 'text';
     if (/signature|\bsigned by\b|^signed$|^sign\b|\binitials\b|^initial(\s*\d)?$|^initial of\b/i.test(label) && !/^date/i.test(label)) return 'sign';
     if (/\bdate\b/i.test(label)) return 'date';
     if (/\bname\b/i.test(label)) return 'name';
@@ -184,6 +209,7 @@
       if (up !== column && cells[up].y - cell.y > 120) up = -1;
       var above = up !== -1 ? word[up] : '';
       var box = { x: cell.x + 2, y: cell.y + 2, w: cell.w - 4, h: Math.max(cell.h - 4, 9) };
+      if (!word[i] && left !== -1 && cells[left].h > cell.h) { box.y = cells[left].y + 2; box.h = cells[left].h - 4; }
       var label = beside;
       if (word[i]) {
         var room = roomIn(cell, inside[i]);
@@ -204,7 +230,7 @@
       if (!label && !above) return;
       var kind = kindOf(label);
       if (kind === 'text' && above) kind = kindOf(above);
-      if (kind === 'text' && dated && /client|representative/.test(role(label))) kind = 'sign';  // "The person: ____  Date: ____"
+      if (kind === 'text' && dated && /:$/.test(label) && /client|representative/.test(role(label))) kind = 'sign';  // "The person: ____  Date: ____"
       var line = 0;
       while (line < lines.length - 1 && lines[line].y > cell.y + cell.h) line++;
       var own = role(label), row = rowStart !== -1 ? role(word[rowStart]) : null, head = role(above);
@@ -214,6 +240,31 @@
         if (!label) spot.group = up;
         if (/initial/i.test(label || above)) spot.initials = true;
       }
+      out.push(spot);
+    });
+    return out;
+  }
+
+  /** A field outside a table is the blank itself. Its label is the word to its left or the line under it. */
+  function fieldSpots(fields, cells, items, lines) {
+    var out = [];
+    fields.filter(function (f) {
+      return !cells.some(function (c) {
+        return f.x + f.w / 2 > c.x && f.x + f.w / 2 < c.x + c.w && f.y + 2 > c.y && f.y + 2 < c.y + c.h && !wordsIn(c, items).length;
+      });
+    }).sort(function (a, b) { return Math.abs(a.y - b.y) > 4 ? b.y - a.y : a.x - b.x; }).forEach(function (f) {
+      var beside = items.filter(function (i) { return Math.abs(i.y - f.y) < 9 && i.x + i.w <= f.x + 3 && f.x - i.x - i.w < 40; }).sort(function (a, b) { return b.x - a.x; })[0];
+      var line = -1;
+      lines.forEach(function (l, n) { if (line === -1 && l.y < f.y + 1 && f.y - l.y < 24) line = n; });
+      var under = line === -1 ? [] : lines[line].items.filter(function (i) { return i.x < f.x + f.w && i.x + i.w > f.x; });
+      var label = beside && /:$/.test(beside.s.trim()) ? beside.s.trim() : textOf(under);
+      var type = kindOf(label);
+      var prior = out[out.length - 1];
+      if (type === 'text' && role(label)) type = 'sign';  // "Incident Manager: ____"
+      var guessed = type === 'text' && prior && prior.type === 'sign' && Math.abs(prior.y - f.y) < 4;
+      if (guessed) type = 'date';
+      var spot = { type: type, x: f.x, y: f.y, w: f.w, h: f.h, cell: true, guessed: guessed };
+      if (type === 'sign') spot.who = role(label) !== null ? role(label) : roleFor(lines, line === -1 ? 0 : line);
       out.push(spot);
     });
     return out;
@@ -229,20 +280,27 @@
     return kept.sort(function (a, b) { return Math.abs(a.y - b.y) > 4 ? b.y - a.y : a.x - b.x; });
   }
 
-  /** @param {Array} textItems pdf.js items for one page @param {number} width page width in points @param {Array} [cells] from cellsOf */
-  function findSpots(textItems, width, cells) {
+  /** @param {Array} textItems pdf.js items for one page @param {number} width page width in points
+      @param {Array} [cells] from cellsOf @param {Array} [fields] from fieldsOf */
+  function findSpots(textItems, width, cells, fields) {
     var items = itemsOf(textItems), lines = linesOf(items), spots = [];
     var right = (width || 595) - 36;
     var signed = {};
-    var measured = cellSpots(cells || [], items, lines);
-    // a label a measured box already answers, beside it or in the column under it
+    var measured = cellSpots(cells || [], items, lines).concat(fieldSpots(fields || [], cells || [], items, lines));
+    // a label a measured box already answers: beside it, in the column under it, or on the line just over it
     var answered = function (it) {
       return measured.some(function (s) {
         if (s.type !== 'sign') return false;
+        var across = s.x < it.x + it.w && s.x + s.w > it.x;
         var beside = s.x >= it.x && s.y < it.y + it.h && s.y + s.h > it.y - 4;
-        var under = s.y < it.y && s.x < it.x + it.w && s.x + s.w > it.x;
-        return beside || under;
+        var under = s.y < it.y && across;
+        var over = s.y > it.y && s.y - it.y < 50 && across;
+        return beside || under || over;
       });
+    };
+
+    var asking = function (it) {
+      return (cells || []).some(function (c) { var w = wordsIn(c, items); return w.indexOf(it) !== -1 && /\?$/.test(textOf(w)); });
     };
 
     lines.forEach(function (line) {
@@ -263,11 +321,13 @@
         var near = next && line.y - next.y < 26 && line.y - next.y > 3;
         var under = near ? next.text : '';
         var box = { x: b.x, y: b.y - 1, w: b.w, h: Math.max(b.h + 4, 14) };
+        var signs = /^[\w’']*\s?signature\b/i.test(under);
         if (b.dated || /date:?\s*$/i.test(before)) { box.type = 'date'; spots.push(box); return; }
-        if (/^signature\b/i.test(under) || /(signature|initials):?\s*$/i.test(before)) {
+        if (/name\s*:?\s*$/i.test(before)) { box.type = 'name'; spots.push(box); return; }
+        if (signs || /(signature|initials):?\s*$/i.test(before)) {
           box.type = 'sign';
           box.initials = /initials:?\s*$/i.test(before);
-          box.who = roleFor(lines, near && /^signature\b/i.test(under) ? index + 1 : index);
+          box.who = roleFor(lines, near && signs ? index + 1 : index);
           box.h = Math.max(box.h, 26);
           signed[index] = signed[index + 1] = true;
           spots.push(box);
@@ -284,7 +344,8 @@
       if (signed[index]) return;
       line.items.forEach(function (it, n) {
         var s = it.s.trim();
-        if (!/signature/i.test(s) || /^signatures:?$/i.test(s) || s.length > 44 || /[.]$/.test(s) || /^section/i.test(s) || answered(it)) return;
+        if (!/signature/i.test(s) || /^signatures:?$/i.test(s) || s === s.toUpperCase() || /^see\b/i.test(s) || /[?]$/.test(s)) return;
+        if (s.length > 44 || /[.]$/.test(s) || /^section/i.test(s) || answered(it) || asking(it)) return;
         var after = line.items[n + 1];
         var room = (after ? after.x : right) - (it.x + it.w);
         var spot = { type: 'sign', who: roleFor(lines, index), h: 26 };
@@ -300,7 +361,10 @@
       if (!/^date:$/i.test(last.s.trim()) || right - last.x - last.w < 40) return;
       spots.push({ type: 'date', x: last.x + last.w + 4, y: last.y - 1, w: Math.min(right - last.x - last.w, 110), h: 14 });
     });
-    return oneSpotEach(spots.concat(measured));
+    var all = oneSpotEach(spots.concat(measured));
+    return all.filter(function (s) {
+      return !s.guessed || !all.some(function (o) { return o.type === 'date' && !o.guessed && o.y <= s.y && s.y - o.y < 45; });
+    });
   }
 
   /** In a column of rows a person needs only the first: the rest stay there for anyone who needs them. */
@@ -350,7 +414,7 @@
     return best;
   }
 
-  var api = { findSpots: findSpots, cellsOf: cellsOf, mine: mine, partner: partner };
+  var api = { findSpots: findSpots, cellsOf: cellsOf, fieldsOf: fieldsOf, mine: mine, partner: partner };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.HCFind = api;
 })(this);
