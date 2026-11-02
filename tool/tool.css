@@ -88,6 +88,7 @@ table.map td.out{white-space:pre-line}
 table.map .clause{display:block;color:var(--mid);font-size:.6875rem;margin-top:.2rem}
 table.map td p{margin:0}
 .nav .me .link{white-space:nowrap}
+.mapframe{display:block;width:100%;height:min(78vh,60rem);margin-top:.75rem;border:1px solid var(--sage);background:#fff}
 table.map td a{text-decoration-color:var(--sage);text-underline-offset:2px}
 table.map td.ind{padding-block:0}
 table.map td.ind p{border-bottom:1px solid var(--rule);margin:0 -.35rem;padding:.25rem .35rem}
