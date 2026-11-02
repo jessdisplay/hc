@@ -1123,6 +1123,22 @@ test('sign page: the finder reads a form\'s words for ticks, blanks, signatures 
   assert.deepStrictEqual(findSpots([t('Nothing to sign here.', 50, 700, 90)], 595), []);
 });
 
+test('sign page: a ledger signs in its Received By and Approved By columns, and the footer is not a place to sign', () => {
+  const { findSpots, cellsOf } = require('../../../tool/sign/find.js');
+  const OPS = { save: 1, restore: 2, transform: 3, constructPath: 4, rectangle: 19, moveTo: 13, lineTo: 14, curveTo: 15, curveTo2: 16, curveTo3: 17 };
+  const box = (x, y, w, h) => [OPS.constructPath, [[OPS.rectangle], [x, y, w, h]]];
+  const drawn = [box(50, 700, 150, 20), box(200, 700, 150, 20), box(50, 680, 150, 20), box(200, 680, 150, 20), box(50, 660, 150, 20), box(200, 660, 150, 20),
+    box(50, 100, 200, 14), box(250, 100, 100, 14)];
+  const cells = cellsOf(drawn.map((d) => d[0]), drawn.map((d) => d[1]), OPS, 595, 842);
+  const t = (str, x, y, width) => ({ str, width, height: 10, transform: [10, 0, 0, 10, x, y] });
+  const signs = findSpots([t('Received By', 55, 706, 60), t('Approved By', 205, 706, 60),
+    t('Approved By:', 55, 103, 60), t('Victoria J Scilipote', 120, 103, 90), t('Version:', 255, 103, 40), t('1', 300, 103, 6)], 595, cells)
+    .filter((s) => s.type === 'sign');
+  assert.ok(signs.some((s) => s.who === 'worker'), 'Received By is the worker');
+  assert.ok(signs.some((s) => s.who === 'supervisor'), 'Approved By is the supervisor');
+  assert.ok(signs.every((s) => s.y > 600), 'the approval footer stays out of it');
+});
+
 test('sign page: table cells are read from the PDF, and every empty box is named by its label or heading', () => {
   const { findSpots, cellsOf, mine } = require('../../../tool/sign/find.js');
   const OPS = { save: 1, restore: 2, transform: 3, constructPath: 4, rectangle: 19, moveTo: 13, lineTo: 14, curveTo: 15, curveTo2: 16, curveTo3: 17 };

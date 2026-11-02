@@ -11,9 +11,9 @@
     ['', /interpreter/i],
     ['representative', /signed by the representative|executed by the representative|advocates?\s*\/\s*guardian|family\s*\/\s*guardian|supporter|guardian.?s signature|parent.*consent/i],
     ['harmony', /on behalf|services\)?,? by:?$|by:$|organisation representative|authorised harmony|executed by silp|key management|service provider/i],
-    ['supervisor', /supervisor|appraiser|manager|principal|assessor|confirmed by/i],
+    ['supervisor', /supervisor|appraiser|manager|principal|assessor|confirmed by|^approved by$/i],
     ['client', /signed by the client|executed by the client|^client|^the person\b|client.?s signature|client \/ client/i],
-    ['worker', /signed by the worker|worker|staff member|staff attending|employee|appraisee|applicant|tester/i],
+    ['worker', /signed by the worker|worker|staff member|staff attending|employee|appraisee|applicant|tester|^received by$/i],
     ['practitioner', /practitioner|prescriber|developer|trainer|health professional|\bprofession\b/i]
   ];
 
@@ -171,7 +171,7 @@
 
   function kindOf(label) {
     if (/\?$/.test(label)) return 'text';
-    if (/signature|\bsigned by\b|^signed$|^sign\b|\binitials\b|^initial(\s*\d)?$|^initial of\b/i.test(label) && !/^date/i.test(label)) return 'sign';
+    if (/signature|\bsigned by\b|^signed$|^sign\b|\binitials\b|^initial(\s*\d)?$|^initial of\b|^received by$|^approved by$/i.test(label) && !/^date/i.test(label)) return 'sign';
     if (/\bdate\b/i.test(label)) return 'date';
     if (/\bname\b/i.test(label)) return 'name';
     return 'text';
