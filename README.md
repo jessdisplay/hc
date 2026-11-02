@@ -1,10 +1,7 @@
 # Harmony Care team hub, website and audit room
 
-- `index.html` (the root, hc.riseos.care): **the team hub**. Forms for workers on
-  shift, starting and leaving, participant paperwork, and the office's checklist,
-  registers and year planner. Hand-written page; its lists come from
-  `site/checklist/checklist.json` and `hub.json`, made by `tools/checklist/`.
-- `site/`: Harmony Care's public website, the intake form and the checklist page.
+- `index.html` (the root, hc.riseos.care): opens the compliance tool in `tool/`, the one place for everything. The team hub that lived here until 2 Nov 2026 is in git history.
+- `site/`: Harmony Care's public website and the intake form. `site/checklist/` now opens the tool's Full checklist.
 - `audit-room/`: the Harmony Care x Rise guide for the CPG provisional
   certification audit, 18 to 19 August 2026. Built, see below.
 

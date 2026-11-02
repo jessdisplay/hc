@@ -72,24 +72,23 @@ td input[type=date]{font-family:var(--sans);font-size:.9375rem;padding:.25rem .3
 .flag{font-family:var(--sans);font-size:.9375rem;gap:.5rem;flex-wrap:nowrap}
 .note h3{margin-top:0}
 .nav .tabs{gap:1.1rem;flex-wrap:wrap}
-/* The long version: the five columns of the 2023 checklist in Harmony's Palette 01. Forest title, blush
-   headings under the one salmon accent, sage modules, the standards on cream. */
-:root{--blush:#F6D0C8;--salmon:#C6746F;--band:var(--sage)}
-@media screen and (prefers-color-scheme:dark){:root:not([data-theme="light"]){--blush:#4A2F2C;--salmon:#D08F89;--band:#3A4633}}
+/* The long version: the 2023 checklist's own form and colours, sampled from its PDF. A sheet of paper, so it
+   stays black on white in dark mode too. */
 .mapsheet{max-width:64rem}
-.maphead{background:var(--forest);color:var(--paper);font:700 1.25rem/1.25 var(--serif);padding:.9rem .6rem;margin-top:.75rem}
-table.map{table-layout:fixed;margin:0;font-size:.8125rem;line-height:1.3}
-table.map th{background:var(--blush);color:var(--forest);border:1px solid var(--sage);border-bottom:2px solid var(--salmon);padding:.4rem .35rem;position:sticky;top:0;z-index:1}
-table.map td{border:1px solid var(--sage);padding:.25rem .35rem}
+.maphead{background:#00BD71;color:#fff;font:700 1.25rem/1.25 Arial,Helvetica,sans-serif;padding:.9rem .6rem;margin-top:.75rem}
+table.map{table-layout:fixed;margin:0;background:#fff;color:#000;font:.8125rem/1.3 Arial,Helvetica,sans-serif}
+table.map th{background:#FC775B;color:#000;border:1px solid #000;padding:.4rem .35rem;text-align:center;vertical-align:bottom;position:sticky;top:0;z-index:1}
+table.map td{border:1px solid #000;color:#000;padding:.25rem .35rem}
 table.map th:nth-child(1){width:14%}table.map th:nth-child(2){width:14%}table.map th:nth-child(3){width:20%}table.map th:nth-child(4){width:25%}table.map th:nth-child(5){width:27%}
-table.map tr.band td{background:var(--band);color:var(--ink);font:700 .9375rem/1.3 var(--serif);padding:.3rem .35rem}
-table.map td.stdname{background:var(--t-organisation);color:var(--forest);font:700 .8125rem/1.25 var(--serif);vertical-align:middle;overflow-wrap:break-word;hyphens:auto}
+table.map tr.band td{background:#B7E1CD;font-weight:700;padding:.3rem .35rem}
+table.map td.stdname{font-weight:700;vertical-align:middle;overflow-wrap:break-word;hyphens:auto}
 table.map td.out{white-space:pre-line}
-table.map .clause{display:block;color:var(--mid);font-size:.6875rem;margin-top:.2rem}
+table.map .clause{display:block;color:#555;font-size:.6875rem;margin-top:.2rem}
 table.map td p{margin:0}
-table.map td a{text-decoration-color:var(--sage);text-underline-offset:2px}
+.nav .me .link{white-space:nowrap}
+table.map td a{color:#000;text-decoration-color:#888;text-underline-offset:2px}
 table.map td.ind{padding-block:0}
-table.map td.ind p{border-bottom:1px solid var(--rule);margin:0 -.35rem;padding:.25rem .35rem}
+table.map td.ind p{border-bottom:1px solid #000;margin:0 -.35rem;padding:.25rem .35rem}
 table.map td.ind p:last-child{border-bottom:0}
 @media print{
   @page{size:A4 portrait;margin:10mm}
@@ -116,9 +115,9 @@ table.map td.ind p:last-child{border-bottom:0}
 @media screen and (max-width:48rem){  /* screen only: print measures narrow and would stack the five columns */
   table.map,table.map tbody,table.map tr,table.map td{display:block;width:100%}
   table.map thead{display:none}
-  table.map tbody{border-top:1px solid var(--sage)}
+  table.map tbody{border-top:1px solid #000}
   table.map td{border-top:0}
-  table.map td[data-h]::before{content:attr(data-h);display:block;font:700 .8125rem/1.3 var(--sans);color:var(--forest);margin-bottom:.15rem}
+  table.map td[data-h]::before{content:attr(data-h);display:block;font:700 .8125rem/1.3 Arial,Helvetica,sans-serif;color:#000;margin-bottom:.15rem}
   table.map td:empty{display:none}
 }
 .signin{max-width:26rem;margin:clamp(1.5rem,8vh,5rem) auto 0}

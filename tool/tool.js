@@ -120,7 +120,7 @@
       h('label', null, asked ? 'The code we emailed to ' + email : 'Your email address', input), go);
     page(h('div', { class: 'signin' },
       h('h1', null, asked ? 'Check your email' : 'Sign in'),
-      h('p', { class: 'say' }, asked ? 'It can take a minute to arrive, and works for 10 minutes. If nothing comes, this address may not be set up yet.' : 'We will email you a code. There is no password to remember.'),
+      h('p', { class: 'say' }, asked ? 'It can take a minute to arrive, and works for 10 minutes. If nothing comes, this address may not be set up yet.' : 'Harmony Care\u2019s policies, procedures and forms, the full checklist, and everything sent out to sign. We will email you a code, so there is no password to remember.'),
       problem && h('p', { class: 'note bad', role: 'alert' }, problem), form,
       asked && h('p', { class: 'say' }, h('button', { class: 'link', type: 'button', on: { click: function () { signIn(false, email); } } }, 'Use a different address'))));
     input.focus();
@@ -134,7 +134,7 @@
     var at = location.hash.slice(1).split('/')[0] || 'forms';
     if (at === 'person') at = 'forms';
     var tab = function (key, word) { return h('a', { href: '#' + key, 'aria-current': at === key ? 'page' : null }, word); };
-    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('documents', 'Documents'), tab('today', 'Today'), tab('checklist', 'Checklist'), tab('full', 'Full checklist'),
+    nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('documents', 'Documents'), tab('full', 'Full checklist'), tab('today', 'Today'), tab('checklist', 'Checklist'),
       tab('staff', 'Staff files'), tab('planner', 'Year planner'), tab('rules', 'Rules')));
     nav.appendChild(h('div', { class: 'me' }, state.email, h('button', { class: 'link', type: 'button', on: { click: function () {
       call('signout').catch(function () {}).then(signedOut);
