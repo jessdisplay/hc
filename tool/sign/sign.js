@@ -320,7 +320,7 @@
       h('button', { class: 'btn', type: 'button', on: { click: function () { d.close(); ink(); } } }, 'My signature'),
       h('button', { class: 'linkbtn', type: 'button', on: { click: function () { d.close(); } } }, 'Cancel')));
   }
-  function tall(x) { return !!x.cell && x.h >= 26; }
+  function tall(x) { return x.type === 'text' && !!x.cell && x.h >= 26; }
   /** The most letters a box can hold at the smallest size the stamp will go to. */
   function roomFor(x) {
     if (!x || !x.cell) return 200;
@@ -501,7 +501,7 @@
                 return null;
               }
               if (tall(x) && plain(x.value.text.replace(/\n/g, ' '))) return drawLines(p, font, x);
-              return drawWords(doc, p, font, x.value.text.replace(/\n/g, ' '), x.x + 1, x.y + (x.cell ? Math.max((x.h - 10) / 2, 1) + 2 : 3), 10, x.cell ? x.w - 2 : Math.max(x.w, 60));
+              return drawWords(doc, p, font, x.value.text.replace(/\n/g, ' '), x.x + 1, x.y + 3, 10, x.cell ? x.w - 2 : Math.max(x.w, 60));
             });
           }, Promise.resolve());
           return steps.then(function () { return record(doc, font, bold, form); }).then(function () { return doc.save(); });

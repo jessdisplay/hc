@@ -404,7 +404,7 @@
     var best = null, far = Infinity;
     spots.forEach(function (o) {
       if (o.type !== type || o.value) return;
-      if (o.y > sign.y + sign.h + 12 || o.y + o.h < sign.y - 48) return;
+      if (o.y > sign.y + sign.h + 12 || o.y + o.h < sign.y - (type === 'name' ? 70 : 48)) return;
       var down = sign.y - o.y;
       var along = o.x >= sign.x + sign.w ? o.x - sign.x - sign.w : sign.x >= o.x + o.w ? sign.x - o.x - o.w : 0;
       if (type === 'date' && Math.abs(down) < 8 && along > 60) return;
