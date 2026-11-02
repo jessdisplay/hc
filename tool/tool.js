@@ -329,8 +329,15 @@
     var views = list ? h('p', { class: 'say no-print' }, pick('sheet', 'Spreadsheet'), '  |  ', pick('page', 'Page view')) : null;
     if (list && view === 'sheet') {
       var sheet = 'https://docs.google.com/spreadsheets/d/' + list;
-      return page(views, h('iframe', { class: 'mapframe', title: 'The full checklist as a spreadsheet', src: sheet + '/preview' }),
-        h('p', { class: 'say' }, offFile(sheet + '/export?format=xlsx', 'Download the Excel')));
+      var frame = h('iframe', { title: 'The full checklist as a spreadsheet', src: sheet + '/preview' }), box = h('div', { class: 'mapframe' }, frame);
+      /* Google draws the sheet 1230px wide and will not stretch it, so a wide screen scales the frame to fill. Never below full size: small words are no use. */
+      new ResizeObserver(function () {
+        var scale = Math.max(1, box.clientWidth / 1230);
+        frame.style.width = box.clientWidth / scale + 'px';
+        frame.style.height = box.clientHeight / scale + 'px';
+        frame.style.transform = 'scale(' + scale + ')';
+      }).observe(box);
+      return page(views, box, h('p', { class: 'say' }, offFile(sheet + '/export?format=xlsx', 'Download the Excel')));
     }
     var map = window.HC_STANDARDS, known = {};
     state.checklist.modules.forEach(function (m) { m.standards.forEach(function (s) { s.items.forEach(function (i) { if (i.no) known[i.no] = i; }); }); });
