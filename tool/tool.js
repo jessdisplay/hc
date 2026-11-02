@@ -142,7 +142,7 @@
   }
   function start() {
     drawNav();
-    page(h('p', { class: 'say' }, 'Loading your list…'));
+    page(h('p', { class: 'say' }, 'Loading your list. It can take about 10 seconds.'));
     call('load').then(took).then(show).catch(function (e) {
       if (state.token) page(h('p', { class: 'note bad', role: 'alert' }, e.message),
         h('p', null, h('button', { class: 'btn', type: 'button', on: { click: start } }, 'Try again')));
@@ -784,6 +784,13 @@
       call('plannerDone', { row: j.row, undo: undo }).then(took).then(function (res) { state.book.planner = res.data.planner; show(); }).catch(function (err) { alertLine(err.message); e.target.disabled = false; });
     } } }, word);
   }
+  var USEFUL = [
+    ['NDIS Commission portal', 'https://www.ndiscommission.gov.au/registered-providers-portal-login', 'Registration, reportable incidents and linking workers'],
+    ['Worker screening', 'https://www.ndiscommission.gov.au/workforce/worker-screening', 'Who needs the check and how to apply'],
+    ['NDIS Practice Standards', 'https://www.ndiscommission.gov.au/rules-and-standards/ndis-practice-standards', 'The guide to the standards Harmony is audited against'],
+    ['Practice Standards Rules, full text', 'https://www.legislation.gov.au/F2018L00631/latest/text', 'Federal Register of Legislation'],
+    ['Audit room, August 2026', '/audit-room/', 'The guide made for the provisional audit']
+  ];
   function rulesPage() {
     var draw = function () {
       page(h('h1', null, 'Rules'), h('p', { class: 'lede' }, 'The rules behind the renewal dates, and where each comes from.'),
@@ -791,7 +798,9 @@
           var line = function (label, text) { return text ? h('p', { class: 'say outcome' }, h('b', null, label + ': '), text) : null; };
           return h('details', { class: 'area' }, h('summary', null, h('span', null, r.item)), h('div', { class: 'body' }, line('Who it applies to', r.who), line('Valid for, or renew', r.valid), line('Evidence to keep', r.keep), line('Recent change', r.change),
             r.source ? h('p', { class: 'say' }, offFile(r.url, r.source)) : null));
-        }));
+        }),
+        h('h2', null, 'Useful links'),
+        USEFUL.map(function (u) { return h('p', { class: 'line' }, offFile(u[1], u[0]), h('span', { class: 'say' }, u[2])); }));
     };
     if (state.book) return draw();
     waiting(call('book'), function (res) { state.book = res.data; draw(); });
