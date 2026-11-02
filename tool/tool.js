@@ -590,7 +590,7 @@
       location.hash = '#person/' + row;
     } } }, h('option', { value: '' }, 'Send to'), people.map(function (p) { return h('option', { value: p.row }, p.name); }))
       : h('a', { href: '#forms/people' }, 'Add a person to send it');
-    return h('tr', null, h('td', null, offFile(form.url, form.title)), h('td', { 'data-h': 'They need to' }, form.need), h('td', { 'data-h': 'When' }, form.when),
+    return h('tr', null, h('td', null, offFile(form.signing || form.url, form.title)), h('td', { 'data-h': 'They need to' }, form.need), h('td', { 'data-h': 'When' }, form.when),
       h('td', { 'data-h': 'Fills it in' }, form.fills), h('td', { 'data-h': 'Signs' }, form.signs),
       h('td', { 'data-h': 'Where it stands' }, h('span', { class: t.chase ? 'bad' : 'quiet' }, say), h('span', { class: 'doit' }, send)));
   }
@@ -669,7 +669,7 @@
     var line = !send ? 'Not sent' : send.standing === 'failed' ? send.step : send.standing === 'ready' ? (send.step === 'Test sent' ? 'Test sent, ready to send' : send.step === 'Send' ? 'On its way' : send.step === 'Test' ? 'Test on its way' : 'Copy made') : st.word;
     var dates = !send ? '' : [send.sent && (send.how === 'By hand' ? 'Handed over ' : 'Sent ') + day(send.sent), send.back && 'Back ' + day(send.back), send.approved && 'Approved by ' + send.approvedBy + ', ' + day(send.approved)].filter(Boolean).join('. ');
     return h('tr', null, h('td', { class: 'tick' }, box),
-      h('td', null, offFile(form.url, form.title), h('span', { class: 'sub' }, form.need + (form.how === 'Google eSignature' ? '. By Google eSignature' : ''))),
+      h('td', null, offFile(form.signing || form.url, form.title), h('span', { class: 'sub' }, form.need + (form.how === 'Google eSignature' ? '. By Google eSignature' : ''))),
       h('td', { 'data-h': 'When' }, form.when),
       h('td', { 'data-h': 'Where it stands' }, h('span', { class: st ? st.cls : 'quiet' }, line), dates && h('span', { class: 'sub' }, dates), send && send.notes ? h('span', { class: 'sub' }, send.notes) : null, acts.length ? h('span', { class: 'doit' }, acts) : null));
   }
