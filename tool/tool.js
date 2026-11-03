@@ -136,7 +136,7 @@
     var tab = function (key, word) { return h('a', { href: '#' + key, 'aria-current': at === key ? 'page' : null }, word); };
     nav.appendChild(h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tab('forms', 'Send and sign'), tab('documents', 'Documents'), tab('full', 'Full checklist'), tab('today', 'Today'), tab('checklist', 'Checklist'),
       tab('staff', 'Staff files'), tab('planner', 'Year planner'), tab('rules', 'Rules')));
-    nav.appendChild(h('div', { class: 'me' }, state.email, h('a', { class: 'link', href: '../site/', target: '_blank', rel: 'noopener noreferrer' }, 'Website'), h('button', { class: 'link', type: 'button', on: { click: function () {
+    nav.appendChild(h('div', { class: 'me' }, h('span', { class: 'address' }, state.email), h('a', { class: 'link', href: '../site/', target: '_blank', rel: 'noopener noreferrer' }, 'Website'), h('button', { class: 'link', type: 'button', on: { click: function () {
       call('signout').catch(function () {}).then(signedOut);
     } } }, 'Sign out')));
   }

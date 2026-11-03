@@ -87,6 +87,7 @@ table.map td.out{white-space:pre-line}
 table.map .clause{display:block;color:var(--mid);font-size:.6875rem;margin-top:.2rem}
 table.map td p{margin:0}
 .nav .me .link{white-space:nowrap}
+@media(max-width:100rem){.nav .me .address{display:none}}  /* a long work address pushes the menu onto a second line */
 .mapframe{height:max(30rem,calc(100vh - 14rem));margin-top:.75rem;border:1px solid var(--sage);background:#fff;overflow:hidden}
 .mapframe iframe{display:block;border:0;transform-origin:0 0}
 table.map td a{text-decoration-color:var(--sage);text-underline-offset:2px}
