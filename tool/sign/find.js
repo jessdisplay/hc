@@ -399,15 +399,17 @@
     return asked(signs.filter(function (s) { return !s.who; }));
   }
 
-  /** The empty date or name that belongs with a signature: its own row or just under it, never a date further along a register. */
+  /** The empty date or name that belongs with a signature: its own row or just under it. A row with more in it is a
+      register, whose date column records something else, so there a signature only takes the date right beside it. */
   function partner(spots, sign, type) {
     var best = null, far = Infinity;
+    var register = spots.filter(function (s) { return s !== sign && Math.abs(s.y - sign.y) < 8; }).length > 1;
     spots.forEach(function (o) {
       if (o.type !== type || o.value) return;
       if (o.y > sign.y + sign.h + 12 || o.y + o.h < sign.y - (type === 'name' ? 70 : 48)) return;
       var down = sign.y - o.y;
       var along = o.x >= sign.x + sign.w ? o.x - sign.x - sign.w : sign.x >= o.x + o.w ? sign.x - o.x - o.w : 0;
-      if (type === 'date' && Math.abs(down) < 8 && along > 60) return;
+      if (type === 'date' && register && (Math.abs(down) >= 8 || along > 60)) return;
       var d = Math.abs(down) * 4 + along;
       if (d < far) { far = d; best = o; }
     });
