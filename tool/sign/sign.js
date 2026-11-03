@@ -501,6 +501,7 @@
                 return null;
               }
               if (tall(x) && plain(x.value.text.replace(/\n/g, ' '))) return drawLines(p, font, x);
+              if (x.type === 'date' && !x.cell) p.drawRectangle({ x: x.x, y: x.y, width: x.w, height: x.h, color: PDFLib.rgb(1, 1, 1) });  // the printed ../../.. runs through the digits
               return drawWords(doc, p, font, x.value.text.replace(/\n/g, ' '), x.x + 1, x.y + 3, 10, x.cell ? x.w - 2 : Math.max(x.w, 60));
             });
           }, Promise.resolve());

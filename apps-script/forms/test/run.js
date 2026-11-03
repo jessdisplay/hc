@@ -1322,6 +1322,11 @@ test('sign page: signing fills the date and name that belong with it, not every 
   assert.strictEqual(partner([row(300, 470, 'date')], sign, 'date').y, 470, 'stacked under the signature');
   assert.strictEqual(partner([row(300, 528, 'name')], sign, 'name').y, 528, 'stacked over a tall signature row');
   assert.strictEqual(partner([row(300, 420, 'name')], sign, 'name').y, 420, 'a printed name a little way under the signature');
+  const line = { type: 'sign', x: 36, y: 219, w: 171, h: 26 }, date = { type: 'date', x: 316, y: 219, w: 61, h: 14 };
+  assert.strictEqual(partner([line, date], line, 'date'), date, "the Date a long way along a form's own signature line");
+  const initials = { type: 'sign', x: 766, y: 284, w: 37, h: 20 };
+  const today = row(39, 284, 'date'), notes = row(169, 284, 'text'), below = row(39, 257, 'date');
+  assert.strictEqual(partner([initials, today, notes, below], initials, 'date'), null, "a chart's date column belongs to the entry, and the row below belongs to someone else");
   assert.strictEqual(partner([row(300, 420, 'date')], sign, 'date'), null, 'a date that far away is another block\u2019s');
   assert.strictEqual(partner([Object.assign(beside, { value: { text: 'x' } })], sign, 'date'), null, 'never over something written');
 });
